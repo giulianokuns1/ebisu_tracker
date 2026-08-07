@@ -1,4 +1,10 @@
 require('dotenv').config();
+if (!process.env.SESSION_SECRET) {
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error('SESSION_SECRET must be set in production.');
+    }
+    process.env.SESSION_SECRET = 'ebisu-local-development-session-secret';
+}
 const express = require('express');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
