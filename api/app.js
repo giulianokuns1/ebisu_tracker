@@ -8,7 +8,6 @@ if (!process.env.SESSION_SECRET) {
 const express = require('express');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
-const mysql = require('mysql');
 const app = express();
 const port = 8800;
 const apiRoutes = require('./routes/api');
@@ -22,14 +21,14 @@ const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const passportConfig = require('./passport-config');
 
-// const options = {
-//     host: process.env.DB_SESSION_HOST,
-//     port: 3306,
-//     user: process.env.DB_SESSION_USER,
-//     password: process.env.DB_SESSION_PASSWORD,
-//     database: process.env.DB_SESSION_DATABASE
-// };
-// const sessionStore = new MySQLStore(options, mysql.createConnection(options));
+const sessionStore = new MySQLStore({
+    host: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT || 3306),
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'money_tracker_db',
+    createDatabaseTable: true,
+});
 
 var corsOptions = {
     origin: process.env.APP_ORIGIN || 'http://localhost:3000',
@@ -61,6 +60,7 @@ app.use((req, res, next) => {
 // );
 app.use(session({
     secret: process.env.SESSION_SECRET,
+    store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
