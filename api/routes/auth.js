@@ -3,7 +3,7 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/user');
-const { recaptchaRequired, verifyRecaptchaToken } = require('../utils/recaptcha');
+const { turnstileRequired, verifyTurnstileToken } = require('../utils/turnstile');
 const router = express.Router();
 const authenticateToken = require("../middleware/authenticateToken");
 const authCookieOptions = {
@@ -27,8 +27,7 @@ router.post('/register', [
     body('lastname').trim().notEmpty(),
     body('email').isEmail().normalizeEmail(),
     body('password').isLength({ min: 8 }),
-    body('captchaToken').if(recaptchaRequired).isString().notEmpty(),
-    body('captchaAction').if(recaptchaRequired).equals('register'),
+    body('turnstileToken').if(turnstileRequired).isString().notEmpty(),
 ], async (req, res) => {
     if (!handleValidation(req, res)) {
         return;
@@ -37,9 +36,8 @@ router.post('/register', [
     const { firstname, lastname, email, password } = req.body;
 
     try {
-        const captchaCheck = await verifyRecaptchaToken({
-            token: req.body.captchaToken,
-            expectedAction: 'register',
+        const captchaCheck = await verifyTurnstileToken({
+            token: req.body.turnstileToken,
             remoteIp: req.ip
         });
         if (!captchaCheck.success) {
@@ -81,15 +79,13 @@ router.post('/register', [
 router.post('/login', [
     body('email').isEmail().normalizeEmail(),
     body('password').isLength({ min: 8 }),
-    body('captchaToken').if(recaptchaRequired).isString().notEmpty(),
-    body('captchaAction').if(recaptchaRequired).equals('login'),
+    body('turnstileToken').if(turnstileRequired).isString().notEmpty(),
 ], (req, res, next) => {
     if (!handleValidation(req, res)) {
         return;
     }
-    verifyRecaptchaToken({
-        token: req.body.captchaToken,
-        expectedAction: 'login',
+    verifyTurnstileToken({
+        token: req.body.turnstileToken,
         remoteIp: req.ip
     }).then((captchaCheck) => {
         if (!captchaCheck.success) {

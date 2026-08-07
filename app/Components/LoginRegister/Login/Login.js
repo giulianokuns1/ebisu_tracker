@@ -3,13 +3,15 @@ import Link from 'next/link';
 import axios from 'axios';
 import styles from './Login.module.scss';
 import { useTranslation } from '@/Hooks/useTranslation';
-import { API_AUTH_URL, RECAPTCHA_ENABLED, RECAPTCHA_SITE_KEY } from '@/constants';
+import { API_AUTH_URL } from '@/constants';
 import { useRouter } from 'next/router';
 import FormInput from '@/Components/UI/Form/FormInput';
 import GoogleAuthButton from '@/Components/Google/GoogleAuthButton';
+import Turnstile from '@/Components/UI/Turnstile';
 
 const Login = ({ titleClass }) => {
     const [loginError, setLoginError] = useState(null);
+    const [turnstileToken, setTurnstileToken] = useState('');
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -46,20 +48,6 @@ const Login = ({ titleClass }) => {
         return emailRegex.test(email);
     };
 
-    const getCaptchaToken = async () => {
-        if (!RECAPTCHA_ENABLED) {
-            return null;
-        }
-        if (!RECAPTCHA_SITE_KEY) {
-            throw new Error('Security verification unavailable. Please try again.');
-        }
-        if (!window.grecaptcha || !window.grecaptcha.execute) {
-            throw new Error('Security verification unavailable. Please try again.');
-        }
-        await new Promise((resolve) => window.grecaptcha.ready(resolve));
-        return window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'login' });
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoginError('');
@@ -67,10 +55,12 @@ const Login = ({ titleClass }) => {
             if (!validateForm()) {
                 return;
             }
-            const captchaToken = await getCaptchaToken();
+            if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
+                throw new Error('Security verification unavailable. Please try again.');
+            }
             const response = await axios.post(`${API_AUTH_URL}/login`, {
                 ...formData,
-                ...(RECAPTCHA_ENABLED && { captchaToken, captchaAction: 'login' })
+                ...(turnstileToken && { turnstileToken })
             }, { withCredentials: true });
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
@@ -108,6 +98,7 @@ const Login = ({ titleClass }) => {
                 {loginError && (
                     <div className={`${styles.error}`}>{t(loginError)}</div>
                 )}
+                <Turnstile onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} onError={() => setTurnstileToken('')} />
                 <button type="submit" className={styles.button}>{t('Log In')}</button>
                 <div className={styles.notRegisterContainer}>
                     <span>{t('Not registered? ')}</span>

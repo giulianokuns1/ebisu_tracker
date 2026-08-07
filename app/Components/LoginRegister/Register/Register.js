@@ -3,9 +3,10 @@ import Link from 'next/link';
 import axios from 'axios';
 import styles from './Register.module.scss';
 import { useTranslation } from '@/Hooks/useTranslation';
-import { API_AUTH_URL, RECAPTCHA_ENABLED, RECAPTCHA_SITE_KEY } from '@/constants';
+import { API_AUTH_URL } from '@/constants';
 import FormInput from '@/Components/UI/Form/FormInput';
 import { useRouter } from 'next/router';
+import Turnstile from '@/Components/UI/Turnstile';
 
 const Register = ({ titleClass }) => {
     const router = useRouter();
@@ -24,6 +25,7 @@ const Register = ({ titleClass }) => {
         password: '',
     });
     const [registerError, setRegisterError] = useState(null);
+    const [turnstileToken, setTurnstileToken] = useState('');
     const { t } = useTranslation();
 
     const handleChange = (e) => {
@@ -60,30 +62,18 @@ const Register = ({ titleClass }) => {
         return emailRegex.test(email);
     };
 
-    const getCaptchaToken = async () => {
-        if (!RECAPTCHA_ENABLED) {
-            return null;
-        }
-        if (!RECAPTCHA_SITE_KEY) {
-            throw new Error('Security verification unavailable. Please try again.');
-        }
-        if (!window.grecaptcha || !window.grecaptcha.execute) {
-            throw new Error('Security verification unavailable. Please try again.');
-        }
-        await new Promise((resolve) => window.grecaptcha.ready(resolve));
-        return window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'register' });
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) {
             return;
         }
         try {
-            const captchaToken = await getCaptchaToken();
+            if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
+                throw new Error('Security verification unavailable. Please try again.');
+            }
             const response = await axios.post(`${API_AUTH_URL}/register`, {
                 ...formData,
-                ...(RECAPTCHA_ENABLED && { captchaToken, captchaAction: 'register' })
+                ...(turnstileToken && { turnstileToken })
             });
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
@@ -141,6 +131,7 @@ const Register = ({ titleClass }) => {
                 {registerError && (
                     <div className={styles.registerError}>{t(registerError)}</div>
                 )}
+                <Turnstile onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} onError={() => setTurnstileToken('')} />
                 <button type="submit" className={styles.button} id="createAccountButton">{t('Create Account')}</button>
                 <div className={styles.notRegisterContainer}>
                     <span>{t('Already registered? ')}</span>
