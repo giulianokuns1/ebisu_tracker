@@ -21,13 +21,13 @@ const Payments = ({ payments, embeddedInForm }) => {
     return (
         <div className={embeddedInForm ? styles.embeddedInForm : undefined}>
             <div className={listStyles.surface}>
-                {payments.map((payment) => (
+                {payments.length ? payments.map((payment) => (
                     <button key={payment.id} type="button" className={listStyles.row} onClick={() => handleEditPayment(payment.id)}>
                         <span className={listStyles.icon}><i className={payment.category_icon || 'bi bi-credit-card'} aria-hidden="true" /></span>
                         <span><span className={listStyles.primary}>{payment.expense_name}</span><span className={listStyles.meta}>{formatDate(payment.created_at)} · {payment.payment_method_name || '—'} · {payment.comment || '—'}</span></span>
                         <span className={listStyles.amount}>{payment.currency_symbol} {payment.amount}</span><i className={`bi bi-pencil ${listStyles.edit}`} aria-hidden="true" />
                     </button>
-                ))}
+                )) : <div className={styles.emptyState}><i className="bi bi-cash-coin" aria-hidden="true" /><strong>{t('No payments yet.')}</strong><span>{t('Add a payment to start tracking your transactions.')}</span></div>}
             </div>
         </div>
     );
