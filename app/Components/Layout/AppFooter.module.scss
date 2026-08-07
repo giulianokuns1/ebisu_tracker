@@ -1,0 +1,21 @@
+@import "Components/UI/Global.module";
+
+.footer {
+    width: 100%;
+    padding: 18px 10px 24px;
+    text-align: center;
+}
+
+.security {
+    align-items: center;
+    color: #91a4a4;
+    display: inline-flex;
+    font-size: 12px;
+    gap: 8px;
+    margin: 0;
+}
+
+.security i {
+    color: #65d7c3;
+    font-size: 15px;
+}

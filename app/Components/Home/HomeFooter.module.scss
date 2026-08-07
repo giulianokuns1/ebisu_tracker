@@ -1,0 +1,41 @@
+@import "Components/UI/Global.module";
+
+.footer {
+    border-top: 1px solid rgba(146, 182, 180, .1);
+    margin: 0 auto;
+    max-width: 1440px;
+    padding: 26px 34px;
+    text-align: center;
+    background-color: transparent;
+}
+
+.links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.link {
+    color: #9db0ae;
+    font-size: 11px;
+    text-decoration: none;
+
+    &:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+}
+
+.separator {
+    color: #8f8f8f;
+    font-size: 13px;
+}
+
+.copyright {
+    color: #718684;
+    font-size: 11px;
+    margin: 0;
+}

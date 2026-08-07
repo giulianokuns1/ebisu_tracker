@@ -1,0 +1,182 @@
+@import "Components/UI/Global.module";
+
+.dashboard {
+    max-width: 1480px;
+    margin: 0 auto;
+}
+
+.loadError {
+    background: linear-gradient(145deg, rgba(28, 45, 51, .92), rgba(20, 33, 38, .94));
+    border: 1px solid rgba(239, 103, 103, .28);
+    border-radius: 12px;
+    color: #dce8e6;
+    margin: 28px auto;
+    max-width: 520px;
+    padding: 24px;
+    text-align: center;
+}
+
+.loadError h1 { font-size: 22px; margin: 0; }
+.loadError p { color: #aebfbd; font-size: 13px; margin: 8px 0 18px; }
+.loadError button { background: $primaryColor; border: 0; border-radius: 7px; color: #062b29; cursor: pointer; font: inherit; font-size: 12px; font-weight: 800; padding: 10px 14px; }
+
+.dashboardHeader,
+.panelHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.dashboardHeader {
+    margin: 12px 0 26px;
+}
+
+.dashboardHeader h1,
+.panelHeader h2 {
+    color: #f4f8f7;
+    margin: 0;
+    letter-spacing: -0.04em;
+}
+
+.titleRow { align-items: center; display: flex; }
+.titleRow :global(button) { margin-right: 11px; vertical-align: initial; }
+
+.dashboardHeader h1 { font-size: clamp(30px, 4vw, 42px); font-weight: 700; }
+.panelHeader h2 { font-size: 17px; font-weight: 600; }
+.eyebrow, .panelKicker, .subtitle, .metricCard p { margin: 0; }
+.eyebrow, .panelKicker { color: $primaryColor; font-size: 11px; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
+.subtitle { color: #87969b; font-size: 14px; margin-top: 4px; }
+
+.periodControl {
+    align-items: center;
+    background: rgba(25, 40, 46, .74);
+    border: 1px solid rgba(141, 180, 177, .14);
+    border-radius: 9px;
+    color: #d6e0df;
+    display: inline-flex;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 9px;
+    padding: 11px 14px;
+    white-space: nowrap;
+}
+
+.periodControl select { appearance: none; background: transparent; border: 0; color: inherit; cursor: pointer; font: inherit; font-size: 13px; font-weight: 600; outline: 0; }
+
+.container { display: grid; gap: 16px; }
+.metricGrid { display: grid; gap: 16px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.metricCard, .panel, .activityPanel {
+    background: linear-gradient(145deg, rgba(28, 45, 51, .92), rgba(20, 33, 38, .94));
+    border: 1px solid rgba(146, 182, 180, .12);
+    border-radius: 12px;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .14);
+}
+
+.metricCard {
+    min-height: 156px;
+    overflow: hidden;
+    padding: 18px;
+    position: relative;
+}
+
+.metricCard::after {
+    background: currentColor;
+    border-radius: 50%;
+    content: '';
+    filter: blur(1px);
+    height: 90px;
+    opacity: .07;
+    position: absolute;
+    right: -28px;
+    top: -28px;
+    width: 90px;
+}
+
+.metricIcon { align-items: center; background: rgba(255, 255, 255, .06); border-radius: 10px; display: flex; height: 34px; justify-content: center; margin-bottom: 14px; width: 34px; }
+.metricIcon i { font-size: 16px; }
+.metricCard p { color: #aab8bc; font-size: 12px; font-weight: 600; }
+.currencyValues { display: grid; gap: 3px; margin-top: 5px; }
+.currencyValues strong, .savingsMetric strong { color: currentColor; font-size: 17px; font-weight: 700; letter-spacing: -.02em; }
+.currencyValues strong span { color: currentColor; font-size: 12px; font-weight: 700; opacity: .75; }
+.paid { color: #4fd6be; }
+.pending { color: #f29b4b; }
+.expense { color: #5ac6ee; }
+.savingsMetric { color: #a78bfa; }
+.savingsMetric a { color: #a78bfa; display: block; font-size: 12px; font-weight: 600; margin-top: 7px; text-decoration: none; }
+
+.visualGrid { display: grid; gap: 16px; grid-template-columns: minmax(0, .95fr) minmax(0, 1.35fr); }
+.visualGrid + .visualGrid { margin-top: 16px; }
+.panel, .activityPanel { padding: 19px; }
+.panelHeader { margin-bottom: 14px; }
+.currencySelect select { appearance: none; background: rgba(255, 255, 255, .03); border: 1px solid rgba(157, 191, 188, .16); border-radius: 7px; color: #dce8e6; cursor: pointer; font: inherit; font-size: 12px; padding: 7px 29px 7px 9px; }
+.currencySelect { position: relative; }
+.currencySelect select:focus-visible { outline: 2px solid $primaryColor; outline-offset: 2px; }
+
+.doughnutContent { align-items: center; display: grid; gap: 20px; grid-template-columns: 185px 1fr; min-height: 223px; }
+.doughnutWrap { height: 185px; position: relative; width: 185px; }
+.doughnutCenter { align-items: center; display: flex; flex-direction: column; inset: 0; justify-content: center; pointer-events: none; position: absolute; }
+.doughnutCenter span { color: #aab9bb; font-size: 11px; }
+.doughnutCenter strong { color: #f2f9f8; font-size: 19px; letter-spacing: -.05em; }
+.doughnutCenter small { color: #839397; font-size: 11px; }
+.legend { display: grid; gap: 16px; }
+.legendRow { align-items: flex-start; display: flex; gap: 10px; }
+.legendDot { border-radius: 50%; height: 9px; margin-top: 5px; width: 9px; }
+.legendRow div { display: grid; }
+.legendRow strong { color: #dce6e5; font-size: 12px; }
+.legendRow span { color: #849397; font-size: 11px; }
+.lineChart { height: 223px; }
+
+.expensesSection :global(.expenseGridContainer) { margin: 0; }
+.activityPanel { min-height: 190px; }
+.viewAll { color: $primaryColor; font-size: 12px; font-weight: 700; text-decoration: none; }
+.tableContainer { margin-top: 4px; }
+.dashboardTableHeader, .dashboardTableRow { display: grid; grid-template-columns: 1.4fr 1fr 1fr; }
+.dashboardTableHeader { border-bottom: 1px solid rgba(150, 184, 181, .13); color: #78888d; font-size: 11px; font-weight: 700; letter-spacing: .04em; padding: 8px 0; text-transform: uppercase; }
+.dashboardTableRow { border-bottom: 1px solid rgba(150, 184, 181, .08); color: #d5dfdf; font-size: 13px; padding: 10px 0; }
+.dashboardTableRow:last-child { border: 0; }
+.dashboardTableCell:nth-child(2) { color: $primaryColor; font-weight: 600; }
+.dashboardMobileTable { display: none; }
+.emptyContainer { color: #8b9a9d; font-size: 13px; padding: 25px 0; }
+
+.emptySetupContainer { align-items: center; display: flex; justify-content: center; min-height: 55vh; }
+.wizardCtaButton { background: $primaryColor; border-radius: 9px; color: #062d2a; display: inline-flex; font-weight: 800; padding: 13px 20px; text-decoration: none; }
+
+@media (max-width: 1200px) {
+    .metricGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .visualGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 767px) {
+    .dashboardHeader { align-items: stretch; flex-direction: column; gap: 14px; margin: 4px 0 18px; }
+    .dashboardHeader h1 { font-size: 31px; }
+    .periodControl { align-self: flex-start; }
+    .metricGrid { gap: 10px; grid-template-columns: 1fr; }
+    .metricCard { min-height: 124px; padding: 15px; }
+    .metricIcon { float: right; margin: 0; }
+    .visualGrid { gap: 10px; }
+    .panel, .activityPanel { padding: 15px; }
+    .doughnutContent { grid-template-columns: 145px 1fr; min-height: 175px; }
+    .doughnutWrap { height: 145px; width: 145px; }
+    .doughnutCenter strong { font-size: 15px; }
+    .lineChart { height: 210px; }
+    .panelHeader { gap: 10px; }
+    .currencySelect select { max-width: 148px; overflow: hidden; text-overflow: ellipsis; }
+    .dashboardTable { display: none; }
+    .dashboardMobileTable { display: grid; }
+    .dashboardMobileTable .dashboardTableRow { gap: 2px; grid-template-columns: 1fr; padding: 11px 0; }
+    .dashboardMobileTable .dashboardTableCell:last-child { color: #809095; font-size: 11px; }
+}
+
+@media (max-width: 390px) {
+    .doughnutContent { gap: 11px; grid-template-columns: 126px 1fr; }
+    .doughnutWrap { height: 126px; width: 126px; }
+    .legend { gap: 9px; }
+}
+
+@media (max-width: 480px) {
+    .doughnutContent { grid-template-columns: 1fr; justify-items: center; min-height: 0; }
+    .legend { justify-self: stretch; width: 100%; }
+    .legendRow { justify-content: center; }
+}

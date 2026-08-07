@@ -1,0 +1,200 @@
+@import "Components/UI/Global.module";
+
+.paymentMethodListContainer {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-row-gap: 15px;
+
+    @media (max-width: 767px) {
+        grid-row-gap: 10px;
+    }
+}
+
+.paymentMethodCard {
+    margin: 0;
+    padding: 10px;
+    border: solid 1px $cardBackground;
+    border-radius: 5px;
+    background-color: $cardBackground;
+    display: grid;
+    grid-template-columns: 100%;
+    max-width: 1480px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+
+    @media (max-width: 767px) {
+        margin-left: 10px;
+        margin-right: 10px;
+        padding: 15px;
+        font-size: 16px;
+    }
+}
+
+.paymentMethodCardTitleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.defaultBadge {
+    background-color: $buttonBackgroundColorPrimary;
+    color: #fff;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.paymentMethodsForm,
+.paymentMethodForm {
+    margin: 20px;
+
+    @media (max-width: 767px) {
+        margin: 10px;
+        // width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+.formInputWrapper {
+    margin: 10px 0;
+}
+
+.formInputLabel {
+    margin: 0 0 10px 10px;
+}
+
+.formWrapper {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+
+    @media (max-width: 767px) {
+        margin-bottom: 15px;
+        grid-gap: 12px;
+    }
+}
+
+.inputText {
+    @extend .globalInput;
+}
+
+.formIconPickerWrapper {
+    grid-column: span 2;
+}
+
+.paymentMethodsCreateButton {
+    @extend .globalLinkButton;
+    max-width: 270px;
+    margin: 30px 0;
+
+    @media (max-width: 767px) {
+        max-width: 100%;
+        margin: 15px 0;
+    }
+}
+
+.paymentMethodsCreateButton:hover,
+.paymentMethodsCreateButton:active {
+    outline: none;
+    text-decoration: none;
+}
+
+.pageTitle {
+    // margin-left: 20px;
+
+    @media (max-width: 767px) {
+        margin-left: 10px;
+    }
+}
+
+.createButtonWrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+
+    @media (min-width: 768px) {
+        justify-content: flex-start;
+        margin-left: 0;
+    }
+
+    @media (max-width: 767px) {
+        margin-left: 0;
+    }
+}
+
+.formButtonsContainer {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    gap: 10px;
+    width: 100%;
+    margin-top: 10px;
+
+    @media (max-width: 767px) {
+        grid-template-columns: 1fr;
+        margin-top: 15px;
+    }
+}
+
+.formSubmitButton {
+    width: 100%;
+    min-width: 0;
+
+    button {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+.formDeleteButton {
+    place-self: end;
+
+    @media (max-width: 767px) {
+        place-self: stretch;
+
+        button {
+            width: 100%;
+        }
+    }
+}
+
+.formInputWrapperCheckbox {
+    @extend .formInputWrapper;
+    display: grid;
+    grid-template-columns: 90px auto;
+    justify-content: start;
+    align-items: center;
+}
+
+.checkboxLabel {
+    margin: 0 0 0 10px;
+}
+
+.inputDisabled {
+    display: none;
+}
+
+.paymentMethodCard:hover {
+    background-color: $hoverBackground;
+}
+
+.currenciesSelectContainer {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.currencySelectContainer {
+    display: grid;
+    grid-template-columns: 50px auto;
+    grid-gap: 10px;
+    margin: 15px;
+}

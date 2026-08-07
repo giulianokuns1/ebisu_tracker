@@ -1,0 +1,16 @@
+.shell { background: linear-gradient(145deg, rgba(28, 45, 51, .92), rgba(15, 27, 33, .96)); border: 1px solid rgba(146, 182, 180, .13); border-radius: 14px; box-shadow: 0 16px 38px rgba(0, 0, 0, .12); padding: 22px; }
+.section + .section { border-top: 1px solid rgba(146, 182, 180, .12); margin-top: 24px; padding-top: 24px; }
+.section header { align-items: center; display: flex; gap: 10px; margin-bottom: 17px; }
+.section header > span { align-items: center; background: rgba(79, 214, 190, .1); border-radius: 50%; color: #4fd6be; display: flex; height: 34px; justify-content: center; width: 34px; }
+.section h2 { color: #edf7f5; font-size: 15px; margin: 0; }
+.section h2 small { color: #9aacab; font-size: 12px; font-weight: 500; margin-left: 6px; }
+.sectionBody { display: grid; gap: 14px; }
+.actions { align-items: center; border-top: 1px solid rgba(146, 182, 180, .12); display: flex; justify-content: space-between; margin-top: 24px; padding-top: 18px; }
+.rightActions { display: flex; gap: 10px; margin-left: auto; }
+.actions button { border-radius: 8px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 800; min-height: 40px; padding: 0 14px; }
+.cancel { background: rgba(146, 182, 180, .08); border: 1px solid rgba(146, 182, 180, .2); color: #edf7f5; }
+.delete { background: transparent; border: 1px solid rgba(239, 103, 103, .62); color: #ffaaa4; }
+.primary { background: #4fd6be; border: 1px solid #6fe4d0; color: #062b29; }
+.primary i, .delete i { margin-right: 6px; }
+.cancel:hover { background: rgba(146, 182, 180, .16); }.delete:hover { background: rgba(239, 103, 103, .1); }.primary:hover { background: #6ae8d8; }
+@media (max-width: 600px) { .shell { padding: 16px; }.actions { align-items: center; display: grid; gap: 10px; grid-template-columns: auto minmax(0, 1fr); }.delete { grid-column: 1; grid-row: 1; min-height: 38px; padding: 0 12px; }.rightActions { display: contents; margin: 0; }.cancel { grid-column: 2; grid-row: 1; justify-self: stretch; }.primary { grid-column: 1 / -1; grid-row: 2; width: 100%; }.actions button { justify-content: center; } }

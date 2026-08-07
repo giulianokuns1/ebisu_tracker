@@ -1,0 +1,237 @@
+@import "Components/UI/Global.module";
+
+.pageTitle {
+    margin-bottom: 12px;
+}
+
+.wizardCard {
+    background: linear-gradient(145deg, rgba(28, 45, 51, .92), rgba(15, 27, 33, .96));
+    border: 1px solid rgba(146, 182, 180, .13);
+    border-radius: 14px;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .12);
+    padding: 22px;
+}
+
+.stepHeader {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.stepSubtext {
+    color: $inputTextColor;
+    margin-bottom: 16px;
+}
+
+.expenseStepMessage {
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border: 1px solid rgba(81, 224, 207, 0.35);
+    border-radius: 8px;
+    background: rgba(81, 224, 207, 0.08);
+    color: $inputTextColor;
+    line-height: 1.4;
+}
+
+.optionsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.optionCard {
+    border: 1px solid $inputBorder;
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 72px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: $inputBackground;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    line-height: 1.35;
+}
+
+.optionCard:hover {
+    background: #102127;
+    border-color: rgba(81, 224, 207, .48);
+}
+
+.selected {
+    border-color: $buttonBackgroundColorPrimary;
+    background: rgba(81, 224, 207, 0.12);
+}
+
+.inlineField {
+    margin-top: 10px;
+}
+
+.inlineLabel {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: $inputTextColor;
+}
+
+.inlineInput,
+.inlineSelect {
+    @extend .globalInput;
+}
+
+.inlineSelect {
+    padding-right: 34px;
+}
+
+.sectionNav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 14px;
+}
+
+.sectionIndex {
+    color: $inputTextColor;
+}
+
+.arrowButton {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: $buttonBackgroundColorPrimary;
+    color: #062b29;
+    font-size: 20px;
+}
+
+.saveButton {
+    max-width: 220px;
+}
+
+.saveButtonRow {
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.saveSpinner {
+    display: flex;
+    align-items: center;
+}
+
+.miniForm {
+    border-top: 1px solid $inputBorder;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.amountRow {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(170px, 1fr);
+    gap: 12px;
+    margin-bottom: 10px;
+    align-items: center;
+    background: $inputBackground;
+    border: 1px solid $inputBorder;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.defaultWrap {
+    margin-top: 12px;
+    max-width: 320px;
+}
+
+.separatorRow {
+    grid-column: 1 / -1;
+    color: $inputTextColor;
+    border-top: 1px solid $inputBorder;
+    padding-top: 10px;
+    margin-top: 2px;
+}
+
+.addCard {
+    border: 1px dashed $buttonBackgroundColorPrimary;
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    color: $buttonBackgroundColorPrimary;
+    font-weight: 700;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.optionCardLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.editableText {
+    cursor: text;
+    border: 1px dashed transparent;
+    border-radius: 6px;
+    padding: 6px 8px;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+}
+
+.editableText:hover {
+    border-color: $inputBorder;
+}
+
+.editableTextInline {
+    cursor: text;
+}
+
+.inlineEditName {
+    background: transparent;
+    border: none;
+    color: #fff;
+    width: 100%;
+    outline: none;
+    padding: 0;
+    margin: 0;
+}
+
+.editExpenseButton {
+    border: none;
+    background: transparent;
+    color: $buttonBackgroundColorPrimary;
+    font-size: 18px;
+}
+
+.expenseEditModalBody {
+    display: grid;
+    grid-template-columns: 100%;
+    gap: 2px;
+}
+
+.amountCurrencyName {
+    color: $inputTextColor;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.expenseEditActions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.amountsSection {
+    margin-top: 14px;
+}
+
+.amountsSectionTitle {
+    margin-bottom: 10px;
+    color: $inputTextColor;
+    font-size: 13px;
+    letter-spacing: 0.2px;
+}

@@ -1,0 +1,9 @@
+@import "Components/UI/Global.module";
+
+.container {
+    display: inline-flex;
+}
+
+.deleteButton { background: transparent !important; border: 1px solid rgba(239, 103, 103, .62) !important; border-radius: 8px !important; color: #ffaaa4 !important; font-size: 12px !important; height: 40px !important; min-width: 104px; text-transform: none !important; }
+.deleteButton:hover { background: rgba(239, 103, 103, .1) !important; }
+@media (max-width: 700px) { .container, .deleteButton { width: 100%; } }

@@ -1,0 +1,105 @@
+@import "Components/UI/Global.module";
+
+.headerMenu {
+    padding: 0;
+    display: grid;
+    color: white;
+    grid-template-columns: 100%;
+    width: 100%;
+    justify-items: end;
+    margin-top: 0;
+
+    @media (max-width: 992px) {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background-color: $generalBackgroundColor;
+        // padding: 10px 5px;
+        margin-top: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+}
+
+.mobileHeaderContent {
+    display: none;
+
+    @media (max-width: 992px) {
+        display: grid;
+        grid-template-columns: 50px 1fr 50px;
+        align-items: center;
+        justify-items: center;
+        width: 100%;
+    }
+}
+
+.desktopHeaderContent {
+    display: block;
+
+    @media (max-width: 992px) {
+        display: none;
+    }
+}
+
+.hamburgerSpacer {
+    width: 100%;
+}
+
+.hamburgerButton { background: transparent; border: 0; color: #e5f0ee; cursor: pointer; display: none; height: 50px; padding: 0; place-self: center; width: 50px; }
+@media (max-width: 992px) { .hamburgerButton { display: grid; place-items: center; } }
+
+.logoLink {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logoLink:hover {
+    text-decoration: none;
+}
+
+.logoContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logoImg {
+    height: 42px;
+    width: 42px;
+}
+
+.avatar {
+    background: $buttonBackgroundColorPrimary;
+    color: #ffffff;
+    width: 30px;
+    height: 30px;
+}
+
+.userContainer {
+    display: grid;
+    // grid-template-columns: auto 70px;
+    // grid-gap: 15px;
+    grid-template-columns: 100%;
+    margin: 20px;
+    align-items: center;
+}
+
+.nameContainer {
+    font-size: 20px;
+    @extend .textGradientBackground;
+}
+
+.headerMenuLink {
+    text-decoration: none;
+}
+
+.headerMenuLink:hover {
+    text-decoration: none;
+}
+
+.avatarContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

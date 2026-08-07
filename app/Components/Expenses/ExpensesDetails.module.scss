@@ -1,0 +1,89 @@
+@import "Components/UI/Global.module";
+@import "Components/Expenses/Expenses.module";
+
+.container {
+    display: grid;
+    grid-template-columns: 100%;
+    margin: 0 10px;
+}
+
+.card {
+    margin: 10px;
+    padding: 20px;
+    border: solid 1px $cardBackground;
+    border-radius: 5px;
+    background-color: $cardBackground;
+    display: grid;
+    grid-template-columns: 100%;
+    //max-width: 1000px;
+    text-align: center;
+}
+
+.cardAmountContainer {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-gap: 10px;
+    margin-top: 20px;
+    justify-items: center;
+}
+
+.cardAmountContainerContent {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-gap: 10px;
+}
+
+.amountText {
+    @extend .textGradientBackground;
+    font-size: 20px;
+    color: $inputTextColor;
+    text-align: center;
+}
+
+@media (max-width: 767px) {}
+
+.monthPaymentCardContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    justify-items: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboardChart {
+    width: 300px;
+}
+
+.monthPaymentCard {
+    @extend .card;
+    height: 100%;
+    place-self: center stretch;
+    margin: 0;
+}
+
+.monthPaymentCardDataContainer {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-gap: 20px;
+    justify-items: center;
+    align-items: center;
+}
+
+.cardTitle {
+    @extend .textGradientBackground;
+    font-size: 20px;
+}
+
+.amount {
+    @extend .textGradientBackground;
+}
+
+.summary {
+    @extend .expenseGridContainerMonthText;
+    margin-bottom: 0;
+}
+
+.summaryCard {
+    @extend .card;
+    margin: 10px 0 10px 0;
+}

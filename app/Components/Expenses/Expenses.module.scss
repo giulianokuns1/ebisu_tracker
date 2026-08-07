@@ -1,0 +1,728 @@
+@import "Components/UI/Global.module";
+
+.expensesCreateButton {
+    @extend .globalLinkButton;
+    max-width: 200px;
+
+    @media (max-width: 767px) {
+        max-width: 100%;
+    }
+}
+
+.expensesCreateButton:hover,
+.expensesCreateButton:active {
+    outline: none;
+    text-decoration: none;
+}
+
+.createButtonWrapper {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+
+    @media (min-width: 768px) {
+        justify-content: flex-start;
+        // margin-left: 20px;
+    }
+
+    @media (max-width: 767px) {
+        margin: 15px 10px;
+    }
+}
+
+.searchContainer {
+    @extend .formInputWrapper;
+    display: grid;
+    grid-template-columns: 100px auto;
+    align-items: center;
+}
+
+.searchLabel {
+    @extend .formInputLabel;
+    margin: 0;
+}
+
+.searchInput {
+    @extend .globalInput;
+}
+
+.filterButton {
+    align-items: center;
+    background: rgba(11, 27, 32, .72);
+    border: 1px solid rgba(146, 182, 180, .18);
+    border-radius: 8px;
+    color: #d8e5e3;
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    gap: 7px;
+    min-height: 38px;
+    padding: 0 13px;
+}
+
+.filterButton:hover { border-color: rgba(81, 224, 207, .45); color: $primaryColor; }
+.filterButton:focus-visible { outline: 3px solid rgba(81, 224, 207, .18); outline-offset: 2px; }
+
+.pendingFilterTabs { display: flex; gap: 8px; }
+.pendingFilterTabs button { background: rgba(8, 22, 27, .62); border: 1px solid rgba(146, 182, 180, .16); border-radius: 7px; color: #aebdbc; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; padding: 8px 12px; }
+.pendingFilterTabs .activePendingFilter { background: rgba(81, 224, 207, .12); border-color: rgba(81, 224, 207, .32); color: $primaryColor; }
+
+.inputText {
+    @extend .globalInput;
+}
+
+.inputText::-webkit-outer-spin-button,
+.inputText::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.inputText[type=number] {
+    -moz-appearance: textfield;
+}
+
+.formInputLabelDate {
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.expenseListContainer {
+    display: grid;
+    grid-template-columns: 100%;
+}
+
+.expenseCard {
+    margin: 20px;
+    padding: 20px;
+    border: solid 1px $cardBackground;
+    border-radius: 5px;
+    background-color: $cardBackground;
+    display: grid;
+    grid-template-columns: 15% 65% 20%;
+    max-width: 1480px;
+}
+
+.categoryContainer {
+    display: grid;
+    grid-template-columns: 100%;
+    justify-items: center;
+    border-right: solid 2px $categoryIconColor;
+    align-items: center;
+}
+
+.categoryIcon {
+    color: $categoryIconColor;
+    font-size: 40px;
+}
+
+.categoryName {
+    color: $inputTextColor;
+}
+
+.mainCardContainer {
+    margin: 0 10px 0 20px;
+    padding: 10px 0;
+    display: grid;
+    grid-template-columns: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.mainCardContainer:hover {
+    background-color: $hoverBackground;
+}
+
+.name {
+    @extend .textGradientBackground;
+    font-size: 20px;
+    padding-bottom: 20px;
+    place-self: center;
+    text-align: center;
+    width: 100%;
+}
+
+.dateFrecuencyContainer {
+    place-self: center;
+    color: $inputTextColor;
+    text-align: center;
+    width: 100%;
+}
+
+.amountContainer {
+    place-self: center;
+    display: grid;
+    margin-top: 20px;
+    text-align: center;
+    width: 100%;
+}
+
+.actionsContainer {
+    display: grid;
+    grid-template-columns: 100%;
+    align-content: center;
+    place-self: center;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.actionsContainer:hover {
+    background-color: $hoverBackground;
+}
+
+.actionsPay {
+    place-self: center;
+}
+
+.actionsPayText {
+    place-self: center;
+    @extend .textGradientBackground;
+}
+
+.amount {
+    font-size: 18px;
+    color: $categoryIconColor;
+}
+
+.paymentIcon {
+    @extend .textGradientBackground;
+    font-size: 40px;
+}
+
+@media (max-width: 767px) {
+    .expenseCard {
+        grid-template-columns: 100%;
+        align-items: start;
+        margin: 0;
+    }
+
+    .categoryContainer {
+        border-right: none;
+        border-bottom: solid 1px $categoryIconColor;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        grid-template-columns: 50% 50%;
+        grid-gap: 10px;
+    }
+
+    .categoryIconContainer {
+        justify-self: end;
+    }
+
+    .categoryName {
+        justify-self: start;
+    }
+
+    .actionsContainer {
+        // grid-template-columns: 50% 50%;
+        // grid-gap: 10px;
+        // width: 100%;
+        // margin-top: 15px;
+    }
+
+    .actionsPay {
+        // justify-self: end;
+    }
+
+    .actionsPayText {
+        justify-self: start;
+    }
+}
+
+.formButtonsContainer {
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+
+.formDeleteButton {
+    place-self: end;
+}
+
+.paymentHeader {
+    text-align: center;
+    background: $buttonBackgroundColorPrimary !important;
+}
+
+.paymentModalContainer {
+    display: grid;
+    grid-template-columns: 100%;
+    justify-content: center;
+}
+
+.addPaymentButton {
+    margin-top: 20px;
+}
+
+.createCategoryModalContainer {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 100%;
+    justify-content: center;
+}
+
+.categoryDialogHeader { background: #12242a !important; border-bottom: 1px solid rgba(146, 182, 180, .12); color: #edf7f5 !important; padding: 18px 22px !important; }
+.categoryDialogHeader :global(.p-dialog-title) { font-size: 18px; font-weight: 750; }
+.categoryDialogHeader :global(.p-dialog-header-icon) { color: #aebfbd; }
+.categoryDialog :global(.p-dialog-content) { background: #12242a; color: #edf7f5; padding: 22px; }
+@media (max-width: 640px) { .categoryDialog :global(.p-dialog-content) { padding: 16px; } }
+
+.inlineCreateCategoryAction {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 10px;
+
+    @media (max-width: 767px) {
+        margin-top: 0;
+    }
+}
+
+.inlineCreateCategoryButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid $categoryIconColor;
+    border-radius: 999px;
+    color: $categoryIconColor;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 8px 14px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.inlineCreateCategoryButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.inlineCreateCategoryButtonIcon {
+    font-size: 14px;
+}
+
+.paymentContainer {
+    display: grid;
+    width: 100%;
+}
+
+.addPaymentFullWidthTrigger {
+    @extend .globalLinkButton;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 0;
+
+    @media (max-width: 767px) {
+        width: 100%;
+    }
+}
+
+.formAmountCurrencyContainer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px;
+    gap: 14px;
+    align-items: center;
+}
+
+.amountTableHeader {
+    margin-bottom: -5px;
+}
+
+.currencySelect {
+    @extend .inputText;
+    padding: 12px;
+}
+
+.formTableLabel {
+    color: #dce8e6;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.addExpenseAmountButton {
+    align-items: center;
+    background: rgba(79, 214, 190, .04);
+    border: 1px dashed rgba(79, 214, 190, .72);
+    border-radius: 7px;
+    color: #4fd6be;
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    padding: 11px 14px;
+    text-align: center;
+    width: 100%;
+}
+
+.addExpenseAmountButton:hover {
+    background: rgba(79, 214, 190, .1);
+}
+
+.removeExpenseAmountButton {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: #aebdbc;
+    display: flex;
+    font-size: 24px;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+}
+
+.disabledRemoveExpenseAmountButton {
+    @extend .removeExpenseAmountButton;
+    cursor: not-allowed !important;
+    opacity: 0.5;
+}
+
+.expenseGridContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 10px;
+    margin-top: 10px;
+}
+
+.dashboardExpensePanel {
+    background: linear-gradient(145deg, rgba(28, 45, 51, .92), rgba(20, 33, 38, .94));
+    border: 1px solid rgba(146, 182, 180, .12);
+    border-radius: 12px;
+    padding: 14px;
+}
+
+@media (max-width: 1270px) {
+    .expenseGridContainer {
+        grid-template-columns: 1fr;
+        grid-gap: 20px;
+    }
+}
+
+@media (max-width: 767px) {
+    .expenseGridContainer {
+        grid-template-columns: 100%;
+        grid-gap: 15px;
+        margin: 0;
+    }
+}
+
+.expenseGridCard {
+    padding: 7px 3px;
+    margin-bottom: 0;
+    border: 0;
+    border-bottom: solid 1px rgba(150, 184, 181, .1);
+    border-radius: 0;
+    background-color: transparent;
+    display: grid;
+    grid-template-columns: auto 80px;
+}
+
+@media (max-width: 767px) {
+    .expenseGridCard {
+        padding: 10px;
+        margin: 10px;
+    }
+}
+
+.mainCardGridContainer {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: auto 80px 200px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.nameGrid {
+    // @extend .textGradientBackground;
+    color: #bebebe;
+    font-size: 16px;
+    place-self: center start;
+    padding-left: 10px;
+}
+
+.amountGridContainer {
+    place-self: center;
+    display: grid;
+    text-align: center;
+    width: 100%;
+}
+
+.amountGrid {
+    font-size: 16px;
+    color: $categoryIconColor;
+}
+
+.paymentGridIcon {
+    @extend .textGradientBackground;
+    font-size: 24px;
+}
+
+.expenseGridContainerMonthText {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: #edf7f5;
+    font-weight: 600;
+
+    a {
+        color: $primaryColor;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+}
+
+@media (max-width: 767px) {
+    .expenseGridContainerMonthText {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .mainCardGridContainer {
+        grid-template-columns: auto 60px 120px;
+    }
+
+    .nameGrid {
+        font-size: 14px;
+        padding-left: 5px;
+    }
+
+    .amountGrid {
+        font-size: 14px;
+    }
+
+    .paymentGridIcon {
+        font-size: 20px;
+    }
+}
+
+.expenseGridDetialedContainer {
+    display: grid;
+    grid-template-columns: 700px auto;
+    grid-gap: 10px;
+}
+
+.expenseGridDetailedExpenses {}
+
+@media (max-width: 1500px) {
+    .expenseGridDetialedContainer {
+        grid-template-columns: 500px auto;
+    }
+}
+
+@media (max-width: 1300px) {
+    .expenseGridDetialedContainer {
+        grid-template-columns: 100%;
+    }
+
+    //.expenseGridDetailedDetails {
+    //    grid-row-start: 1;
+    //}
+    //.expenseGridDetailedExpenses {
+    //    grid-row-start: 2;
+    //}
+}
+
+.progressBarContainer {
+    grid-column: span 2;
+    margin-bottom: 5px;
+}
+
+// Dashboard expense panels use a single row as the payment affordance.
+.dashboardExpensePanel .paymentContainer { display: contents; }
+
+.dashboardExpensePanel .expenseGridCard {
+    align-items: center;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(150, 184, 181, .1);
+    border-radius: 0;
+    color: inherit;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 38px minmax(120px, 1fr) auto auto;
+    gap: 12px;
+    margin: 0;
+    padding: 11px 5px;
+    text-align: left;
+    width: 100%;
+}
+
+.dashboardExpensePanel .expenseGridCard:hover { background: rgba(255, 255, 255, .035); }
+.dashboardExpensePanel > :nth-last-child(2) .expenseGridCard { border-bottom: 0; }
+.dashboardExpensePanel .expenseGridCard:focus-visible { outline: 2px solid $primaryColor; outline-offset: -2px; }
+.expenseCategoryIcon { align-items: center; background: rgba(131, 170, 173, .12); border-radius: 50%; color: #d9e9e6; display: flex; height: 34px; justify-content: center; width: 34px; }
+.expenseCategoryIcon i { font-size: 15px; }
+.expenseRowDetails { display: grid; min-width: 0; }
+.expenseRowDetails strong { color: #e7f0ef; font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.expenseRowDetails small { color: #829397; font-size: 10px; }
+.dashboardExpensePanel .amountGrid { color: $primaryColor; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.paymentStatus { border-radius: 6px; font-size: 10px; font-weight: 700; padding: 5px 9px; white-space: nowrap; }
+.statusPaid { background: rgba(62, 188, 134, .14); color: #59d49d; }
+.statusPending { background: rgba(242, 155, 75, .15); color: #f2a54f; }
+.paymentProgress { display: grid; gap: 5px; grid-column: 2 / -1; }
+.paymentProgress > span { color: #829397; font-size: 10px; }
+.paymentProgress :global(.ProgressBar_progressBarContainer__*) { height: 4px; }
+.expensePanelTotal { align-items: center; border-top: 1px solid rgba(150, 184, 181, .1); display: flex; font-size: 13px; justify-content: space-between; margin: 2px -14px -14px; padding: 14px; }
+.expensePanelTotal strong { color: #e7f0ef; }
+.expensePanelTotal span { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+.expensePanelTotal b { color: $primaryColor; font-size: 12px; }
+
+.paymentDialog :global(.p-dialog-content) { background: #12242a; color: #e6efee; padding: 0 22px 22px; }
+.paymentDialog :global(.p-dialog-header) { background: #12242a; padding: 10px; }
+.paymentDialog :global(.p-dialog-header-icon) { color: #9aacab; }
+.paymentModalIntro { border-bottom: 1px solid rgba(150, 184, 181, .13); margin-bottom: 20px; padding: 4px 0 17px; }
+.paymentModalIntro span { color: $primaryColor; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.paymentModalIntro h2 { color: #eff8f7; font-size: 23px; margin: 4px 0; }
+.paymentModalIntro p { color: #91a4a4; font-size: 13px; margin: 0; }
+.paymentModalContainer .formWrapper { gap: 14px; }
+.paymentModalContainer .formInputLabelDate { color: #dce8e6; display: block; font-size: 13px; font-weight: 650; margin: 0 0 8px; }
+.paymentModalContainer .inputText,
+.paymentModalContainer .amountInput { background: #0e1d22; border-color: rgba(126, 169, 167, .24); }
+.paymentModalContainer .currencySymbol { background: #0a171b; border-color: rgba(126, 169, 167, .24); border-right-color: rgba(126, 169, 167, .16); color: #9eb1b2; font-size: 13px; }
+.paymentModalContainer .amountInput { border-left: 0; }
+.paymentModalContainer .amountInput:focus-visible { border-left: 1px solid $primaryColor; }
+.paymentModalContainer .inputText:focus-visible,
+.paymentModalContainer .amountInput:focus-visible { box-shadow: 0 0 0 3px rgba(81, 224, 207, .14); }
+.paymentModalActions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.cancelPaymentButton { background: transparent; border: 1px solid rgba(150, 184, 181, .22); border-radius: 8px; color: #c9d7d5; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; padding: 0 17px; }
+.addPaymentButton { margin-top: 0; }
+
+@media (max-width: 767px) {
+    .dashboardExpensePanel .expenseGridCard { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; }
+    .dashboardExpensePanel .amountGrid { grid-column: 2; }
+    .dashboardExpensePanel .paymentStatus { grid-column: 3; grid-row: 1 / span 2; }
+    .paymentProgress { grid-column: 2 / -1; }
+    .expensePanelTotal { margin: 2px -14px -14px; }
+}
+
+.paidAmountWrapper {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    justify-items: center;
+}
+
+.currencySymbol {
+    color: $inputTextColor;
+    @extend .globalInput;
+    border-radius: 5px 0 0 5px;
+    text-align: center;
+}
+
+.currencySymbol:hover {
+    text-decoration: none !important;
+}
+
+.amountInput {
+    @extend .globalInput;
+    border-radius: 0 5px 5px 0;
+}
+
+.formAmountAddContainer {
+    margin: 14px 0 4px;
+}
+
+@media (max-width: 480px) {
+    .formAmountCurrencyContainer {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 32px;
+        grid-gap: 8px;
+    }
+}
+
+.expenseFormContainer {
+    padding: 0;
+    margin: 0;
+    display: grid;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.expenseFieldsGrid {
+    display: grid;
+    gap: 18px 36px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.categoryField { min-width: 0; }
+.fullRow { grid-column: 1 / -1; }
+.fieldHint { align-items: center; color: #91a5a5; display: flex; font-size: 11px; gap: 6px; margin-top: 8px; }
+.fieldHint i { color: #74d9cc; }
+
+.expenseEditorLayout { align-items: start; display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); }
+.expenseSummary { background: linear-gradient(145deg, rgba(28, 45, 51, .92), rgba(15, 27, 33, .96)); border: 1px solid rgba(146, 182, 180, .13); border-radius: 14px; padding: 20px; position: sticky; top: 20px; }
+.summaryHeader { align-items: center; display: flex; gap: 10px; margin-bottom: 22px; }.summaryHeader > span { align-items: center; background: rgba(79, 214, 190, .1); border-radius: 50%; color: #4fd6be; display: flex; height: 34px; justify-content: center; width: 34px; }.summaryHeader h2 { color: #edf7f5; font-size: 15px; margin: 0; }
+.summaryRow { align-items: center; display: flex; gap: 12px; margin: 16px 0; }.summaryRow > i { color: #a8b9b8; font-size: 15px; width: 16px; }.summaryRow span, .summaryAmounts > span { color: #91a5a5; display: block; font-size: 11px; }.summaryRow strong { color: #e5f0ee; display: block; font-size: 13px; margin-top: 3px; }
+.summaryAmounts { border-top: 1px solid rgba(146, 182, 180, .12); display: grid; gap: 7px; margin-top: 20px; padding-top: 17px; }.summaryAmounts > span i { margin-right: 7px; }.summaryAmounts strong { color: #4fd6be; font-size: 14px; }.summaryAmounts small { color: #91a5a5; font-size: 10px; font-weight: 500; margin-left: 5px; }
+@media (max-width: 980px) { .expenseEditorLayout { grid-template-columns: 1fr; }.expenseSummary { position: static; } }
+@media (max-width: 680px) { .expenseFieldsGrid { grid-template-columns: 1fr; gap: 14px; }.fullRow { grid-column: auto; } }
+
+.pageTitle {
+    margin: 0;
+
+    @media (max-width: 767px) {
+        margin-left: 10px;
+    }
+}
+
+.expensesForm {
+    margin: 20px;
+
+    @media (max-width: 767px) {
+        margin: 10px;
+    }
+}
+
+.formWrapper {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 767px) {
+        margin-bottom: 15px;
+        grid-gap: 12px;
+    }
+}
+
+.formContainer {
+    @media (max-width: 992px) {
+        margin: 0 10px;
+    }
+}
+
+.wizardSetupButtonWrapper {
+    margin: 10px 0 20px;
+}
+
+.wizardSetupButton {
+    display: inline-block;
+    background: #51E0CF;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 12px 18px;
+    box-shadow: 0 0 0 rgba(81, 224, 207, 0.7);
+    animation: wizardGlow 1.7s infinite;
+}
+
+@keyframes wizardGlow {
+    0% { box-shadow: 0 0 0 0 rgba(81, 224, 207, 0.8); }
+    70% { box-shadow: 0 0 0 12px rgba(81, 224, 207, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(81, 224, 207, 0); }
+}

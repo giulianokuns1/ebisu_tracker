@@ -1,0 +1,27 @@
+@import "Global.module";
+
+.picker { min-width: 0; }
+.searchLabel { color: #edf7f5; display: block; font-size: 14px; font-weight: 700; margin: 0 0 10px; }
+.searchLabel span { color: #ff8383; }
+.searchWrap { align-items: center; background: rgba(13, 24, 30, .72); border: 1px solid rgba(146, 182, 180, .14); border-radius: 10px; display: flex; gap: 10px; padding: 0 15px; }
+.searchWrap > i { color: #aebfbd; font-size: 17px; }
+.search { background: transparent; border: 0; color: #edf7f5; font: inherit; font-size: 14px; outline: 0; padding: 15px 0; width: 100%; }
+.search::placeholder { color: #83969a; }
+.searchWrap:focus-within { border-color: #28d6ce; box-shadow: 0 0 0 3px rgba(40, 214, 206, .1); }
+.browser { background: linear-gradient(145deg, rgba(21, 33, 40, .98), rgba(15, 26, 32, .98)); border: 1px solid rgba(146, 182, 180, .1); border-radius: 12px; margin-top: 22px; overflow: hidden; }
+.tabs { border-bottom: 1px solid rgba(146, 182, 180, .1); display: flex; gap: 6px; overflow-x: auto; padding: 11px 14px; scrollbar-width: thin; }
+.tab, .tabActive { align-items: center; background: transparent; border: 0; border-radius: 8px; color: #aab9b9; cursor: pointer; display: inline-flex; flex: 0 0 auto; font: inherit; font-size: 12px; gap: 8px; padding: 10px 12px; white-space: nowrap; }
+.tab:hover { background: rgba(79, 214, 190, .08); color: #dce8e6; }
+.tabActive { background: rgba(32, 191, 185, .16); color: #4fe0d0; font-weight: 800; }
+.iconGrid { display: grid; gap: 9px; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); max-height: 390px; overflow-y: auto; padding: 18px; }
+.iconButton, .iconSelected { align-items: center; background: linear-gradient(145deg, rgba(30, 43, 51, .86), rgba(22, 32, 39, .86)); border: 1px solid rgba(146, 182, 180, .08); border-radius: 9px; color: #e8f1ef; cursor: pointer; display: flex; font-size: 25px; height: 66px; justify-content: center; position: relative; }
+.iconButton:hover, .iconButton:focus-visible { border-color: rgba(79, 224, 208, .5); color: #59e1d2; outline: 0; }
+.iconSelected { border-color: #2bd7cf; box-shadow: inset 0 0 0 1px rgba(43, 215, 207, .2); color: #f5ffff; }
+.selectedMark { align-items: center; background: #2bd7cf; border-radius: 50%; color: #06332f; display: flex; font-size: 10px; height: 19px; justify-content: center; position: absolute; right: 7px; top: 7px; width: 19px; }
+.empty { color: #91a4a4; font-size: 13px; grid-column: 1 / -1; margin: 16px 0; text-align: center; }
+.legacyPicker { min-width: 0; }
+.legacyGrid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, 60px); height: 530px; margin-top: 10px; overflow-y: auto; padding: 10px; }
+.legacyIcon, .legacySelected { align-items: center; background: transparent; border: 0; border-radius: 5px; color: #dce8e6; cursor: pointer; display: inline-flex; font-size: 28px; height: 60px; justify-content: center; width: 60px; }
+.legacyIcon:hover, .legacySelected { background: $buttonBackgroundColorPrimary; color: #062b29; }
+@media (max-width: 600px) { .browser { margin-top: 16px; }.iconGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); max-height: 350px; padding: 12px; }.iconButton, .iconSelected { height: 58px; }.tabs { padding: 8px; } }
+@media (max-width: 390px) { .iconGrid { gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: 310px; padding: 10px; }.iconButton, .iconSelected { height: 54px; }.tab, .tabActive { font-size: 11px; padding: 9px 10px; } }

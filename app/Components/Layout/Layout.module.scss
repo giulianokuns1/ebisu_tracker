@@ -1,0 +1,50 @@
+@import "Components/UI/Global.module";
+
+$textColor: rgb(195 195 195 / 73%);
+
+.appContainer {
+    background-color: $generalBackgroundColor;
+    color: #ffffff;
+    box-shadow: 68px 1px 43px -9px rgba(0,0,0,0.18) inset;
+    -webkit-box-shadow: 68px 1px 43px -9px rgba(0,0,0,0.18) inset;
+    -moz-box-shadow: 68px 1px 43px -9px rgba(0,0,0,0.18) inset;
+    font-family: var(--font-inter, 'Inter', sans-serif);
+}
+.container {
+    color: white;
+    width: 100%;
+    background-color: $generalBackgroundColor;
+    min-height: 100vh;
+}
+.content {
+    z-index: 10 !important;
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.gradientGlow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(
+        ellipse 120% 100% at 50% 0%,
+        rgba(81, 224, 207, 0.16) 0%,
+        rgba(81, 224, 207, 0.06) 30%,
+        rgba(81, 224, 207, 0.02) 60%,
+        transparent 100%
+    );
+}
+
+.mainContent {
+    margin: 84px 0 0;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}

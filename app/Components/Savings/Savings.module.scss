@@ -1,0 +1,238 @@
+@import "Components/UI/Global.module";
+
+.goalForm { display:grid; gap:14px; }.commentField label { color:#dce8e6; display:block; font-size:13px; font-weight:650; margin-bottom:8px; }.commentField textarea { @extend .globalInput; min-height:90px; resize:vertical; }
+.goalDetailLayout { align-items:start; display:grid; gap:16px; grid-template-columns:minmax(0,680px) minmax(280px,1fr); }.goalTransactions { background:linear-gradient(145deg,rgba(28,45,51,.92),rgba(20,33,38,.94)); border:1px solid rgba(146,182,180,.12); border-radius:12px; padding:18px; }.goalTransactions h3{color:#edf7f5;font-size:15px;margin:0 0 12px}.goalTransactions>div{border-top:1px solid rgba(146,182,180,.1);display:grid;grid-template-columns:auto 1fr auto;gap:8px;padding:10px 0}.goalTransactions span,.goalTransactions p{color:#96a8a8;font-size:11px;margin:0}.goalTransactions b{color:$primaryColor;font-size:12px}@media(max-width:900px){.goalDetailLayout{grid-template-columns:1fr}.goalForm{max-width:none}}
+
+.savingsCreateButton {
+    @extend .globalLinkButton;
+    max-width: 200px;
+
+    @media (max-width: 767px) {
+        max-width: 100%;
+    }
+}
+
+.savingsCreateButton:hover,
+.savingsCreateButton:active {
+    outline: none;
+    text-decoration: none;
+}
+
+.createButtonWrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+
+    @media (min-width: 768px) {
+        justify-content: flex-start;
+        margin-left: 0;
+    }
+
+    @media (max-width: 767px) {
+        margin-left: 0;
+    }
+}
+
+.savingListContainer {
+    display: grid;
+    grid-template-columns: 100%;
+}
+
+.savingCard {
+    // margin: 20px;
+    padding: 15px 20px;
+    border: solid 1px $cardBackground;
+    border-radius: 5px;
+    background-color: $cardBackground;
+    display: flex;
+    flex-direction: column;
+    max-width: 1480px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: $hoverBackground;
+    }
+
+    @media (max-width: 767px) {
+        margin: 10px;
+        padding: 12px 15px;
+    }
+}
+
+.categoryContainer {
+    display: grid;
+    grid-template-columns: 100%;
+    justify-items: center;
+    border-right: solid 2px $categoryIconColor;
+    align-items: center;
+}
+
+.categoryIcon {
+    color: $categoryIconColor;
+    font-size: 40px;
+}
+
+.categoryName {
+    color: $inputTextColor;
+}
+
+.mainCardContainer {
+    margin: 0 10px 0 20px;
+    padding: 10px 0;
+    display: grid;
+    grid-template-columns: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.mainCardContainer:hover {
+    background-color: $hoverBackground;
+}
+
+.savingName {
+    @extend .textGradientBackground;
+    font-size: 20px;
+    margin-bottom: 8px;
+
+    @media (max-width: 767px) {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+}
+
+.savingAmount {
+    font-size: 18px;
+    color: $categoryIconColor;
+    margin-bottom: 5px;
+
+    @media (max-width: 767px) {
+        font-size: 16px;
+        margin-bottom: 3px;
+    }
+}
+
+.savingDate {
+    color: $inputTextColor;
+    font-size: 14px;
+
+    @media (max-width: 767px) {
+        font-size: 12px;
+    }
+}
+
+.name {
+    @extend .textGradientBackground;
+    font-size: 25px;
+    place-self: center;
+    text-align: center;
+    width: 100%;
+
+    @media (max-width: 767px) {
+        font-size: 18px;
+    }
+}
+
+.dateFrecuencyContainer {
+    place-self: center;
+    color: $inputTextColor;
+    text-align: center;
+    width: 100%;
+}
+
+.amountContainer {
+    place-self: center;
+    display: grid;
+    margin-top: 20px;
+    text-align: center;
+    width: 100%;
+
+    @media (max-width: 767px) {
+        margin-top: 0;
+    }
+}
+
+.amount {
+    font-size: 25px;
+    color: $categoryIconColor;
+
+    @media (max-width: 767px) {
+        font-size: 18px;
+    }
+}
+
+.savingIcon {
+    @extend .textGradientBackground;
+    font-size: 40px;
+}
+
+.savingAccountsListContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    border-bottom: solid 2px $buttonBackgroundColorPrimary;
+    grid-gap: 10px;
+    padding-bottom: 30px;
+
+    @media (max-width: 767px) {
+        grid-template-columns: 100%;
+        grid-gap: 8px;
+        padding-bottom: 20px;
+    }
+}
+
+.savingAccountsCard {
+    padding: 15px 20px;
+    border: solid 1px $cardBackground;
+    border-radius: 5px;
+    background-color: $cardBackground;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    @media (max-width: 767px) {
+        padding: 10px 15px;
+    }
+}
+
+.savingAccountName {
+    @extend .textGradientBackground;
+    font-size: 18px;
+
+    @media (max-width: 767px) {
+        font-size: 14px;
+    }
+}
+
+.savingAccountAmount {
+    @extend .textGradientBackground;
+    font-size: 18px;
+
+    @media (max-width: 767px) {
+        font-size: 14px;
+    }
+}
+
+.savingAccountsContainer {
+    // margin: 20px;
+    max-width: 1480px;
+
+    @media (max-width: 767px) {
+        // margin: 10px;
+    }
+}
+
+.form {
+    // margin: 20px;
+
+    @media (max-width: 767px) {
+        // margin: 10px;
+    }
+}
+
+.pageTitle {
+    // margin-left: 20px;
+
+    @media (max-width: 767px) {
+        // margin-left: 10px;
+    }
+}

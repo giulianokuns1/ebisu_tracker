@@ -1,0 +1,170 @@
+$buttonBackgroundColorPrimary: #51E0CF;
+$primaryColor: $buttonBackgroundColorPrimary;
+$buttonBackgroundColorSecondary: #51E0CF;
+$secondaryColor: $buttonBackgroundColorSecondary;
+$inputTextColor: #d5e1df;
+$categoryIconColor: #f4df4b;
+$hoverBackground: rgba(255, 255, 255, 0.06);
+$cardBackground: #14262c;
+$inputBackground: #0e1d22;
+$inputBorder: rgba(126, 169, 167, .24);
+$generalBackgroundColor: #18191c;
+$successGreenColor: #42A341;
+$textColor: rgb(195 195 195 / 73%);
+
+.gradientText {
+    color: $buttonBackgroundColorPrimary;
+    display: inline-block;
+    padding: max(0em, calc(calc(1.3em - var(--framer-line-height, 1.3em)) / 2));
+    margin: min(0em, calc(calc(1.3em - var(--framer-line-height, 1.3em)) / -2));
+}
+
+.globalInput {
+    border: solid 1px $inputBorder;
+    background-color: $inputBackground;
+    color: $inputTextColor;
+    border-radius: 7px;
+    padding: 11px 12px;
+    width: 100%;
+    box-sizing: border-box;
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.35;
+    transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.globalInput::placeholder { color: #708287; opacity: 1; }
+
+.globalInput:hover { border-color: rgba(126, 190, 184, .42); background-color: #102127; }
+
+.globalInput:focus-visible {
+    background-color: #102329;
+    border-color: $buttonBackgroundColorPrimary;
+    box-shadow: 0 0 0 3px rgba(81, 224, 207, .14);
+    outline: 0;
+}
+
+.globalInput:disabled,
+.globalInput[readonly] {
+    background-color: #0b171b;
+    color: #7e9093;
+    cursor: not-allowed;
+    opacity: .72;
+}
+
+.globalLinkButton {
+    align-items: center;
+    background: $buttonBackgroundColorPrimary;
+    border: 0;
+    border-radius: 10px;
+    box-sizing: border-box;
+    color: #062b29;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    font-size: 16px;
+    font-weight: 700;
+    height: 54px;
+    justify-content: center;
+    letter-spacing: .4px;
+    line-height: 1;
+    max-width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 3px;
+    text-decoration: none;
+    text-transform: uppercase;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.globalLinkButton:active {
+    outline: 0;
+}
+
+.globalLinkButton:hover {
+    background: #68ead9;
+    color: #041f1d;
+    outline: 0;
+}
+
+.formInputWrapper {
+    margin: 10px 0;
+    width: 100%;
+}
+
+.formWrapper {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-gap: 10px;
+    margin-bottom: 20px;
+}
+
+.formInputLabel {
+    color: #dce8e6;
+    display: block;
+    font-size: 13px;
+    font-weight: 650;
+    margin: 0 0 8px;
+}
+
+.inputError {
+    color: #ff8989;
+    font-size: 12px;
+    margin: 6px 0 0;
+}
+
+.pageTitle {
+    // margin-left: 20px;
+    margin-bottom: 20px;
+}
+
+.createButtonWrapper {
+    margin-left: 20px;
+    display: flex;
+}
+
+.textGradientBackground {
+    color: $buttonBackgroundColorPrimary;
+}
+
+.deleteButton {
+    background-image: linear-gradient(to right bottom, #bd2828, #c22a2f, #c72b37, #cc2e3e, #d03045) !important;
+}
+
+.filtersContainer {
+    background: linear-gradient(145deg, rgba(28, 45, 51, .92), rgba(20, 33, 38, .94));
+    border: 1px solid rgba(146, 182, 180, .12);
+    border-radius: 12px;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .12);
+    margin-bottom: 16px;
+    max-width: 100%;
+    padding: 16px;
+
+    @media (max-width: 767px) {
+        padding: 15px 10px;
+        margin: 0 0 10px;
+        box-sizing: border-box;
+    }
+}
+
+.gradientBackground {
+    background: linear-gradient(300deg, deepskyblue, darkviolet, blue);
+    background-size: 180% 180%;
+    animation: gradient-animation 18s ease infinite;
+}
+
+@keyframes gradient-animation {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}

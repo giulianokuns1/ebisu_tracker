@@ -1,0 +1,144 @@
+@import "Components/UI/Global.module";
+
+.accountsCreateButton {
+    @extend .globalLinkButton;
+    max-width: 200px;
+}
+
+.accountsCreateButton:hover,
+.accountsCreateButton:active {
+    outline: none;
+    text-decoration: none;
+}
+
+.accountListContainer {
+    display: grid;
+    grid-template-columns: 100%;
+}
+
+.accountCard {
+    margin: 5px;
+    padding: 10px 15px;
+    border: solid 1px $cardBackground;
+    border-radius: 5px;
+    background-color: $cardBackground;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1480px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: $hoverBackground;
+    }
+
+    @media (max-width: 767px) {
+        margin: 10px;
+        padding: 12px 15px;
+    }
+}
+
+.name {
+    @extend .textGradientBackground;
+    font-size: 20px;
+    flex: 1;
+
+    @media (max-width: 767px) {
+        font-size: 18px;
+    }
+}
+
+.accountNumber {
+    @extend .textGradientBackground;
+    font-size: 18px;
+    margin-left: 20px;
+    text-align: right;
+
+    @media (max-width: 767px) {
+        font-size: 16px;
+        margin-left: 15px;
+    }
+}
+
+.dateFrecuencyContainer {
+    place-self: center;
+    color: $inputTextColor;
+    text-align: center;
+    width: 100%;
+}
+
+.amountContainer {
+    place-self: center;
+    display: grid;
+    margin-top: 20px;
+    text-align: center;
+    width: 100%;
+}
+
+.amount {
+    font-size: 25px;
+    color: $categoryIconColor;
+}
+
+.accountIcon {
+    @extend .textGradientBackground;
+    font-size: 40px;
+
+    @media (max-width: 767px) {
+        font-size: 35px;
+    }
+}
+
+.pageTitle {
+    // margin-left: 20px;
+
+    @media (max-width: 767px) {
+        margin-left: 10px;
+    }
+}
+
+.createButtonWrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+
+    @media (min-width: 768px) {
+        justify-content: flex-start;
+        margin-left: 0;
+    }
+
+    @media (max-width: 767px) {
+        margin-left: 0;
+    }
+}
+
+.Form {
+    margin: 20px;
+
+    @media (max-width: 767px) {
+        margin: 10px;
+    }
+}
+
+.formWrapper {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 767px) {
+        margin-bottom: 15px;
+        grid-gap: 12px;
+    }
+}
+
+.formHelperText {
+    font-size: 14px;
+    color: $inputTextColor;
+    margin: -4px 0 0 10px;
+    line-height: 1.4;
+}

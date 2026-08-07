@@ -1,0 +1,10 @@
+@import "Components/UI/Global.module";
+@import "Components/Expenses/Expenses.module";
+
+.expenseDetailsContainer {
+    padding: 20px;
+    border: solid 1px $cardBackground;
+    border-radius: 5px;
+    background-color: $cardBackground;
+    display: grid;
+}

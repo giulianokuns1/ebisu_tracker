@@ -1,0 +1,13 @@
+@import "Components/UI/Global.module";
+@import "Components/LoginRegister/LoginRegister.module";
+
+.registerContainer {
+    @extend .container;
+    //@media (max-width: 767px) {
+    //    min-height: 100vh;
+    //    margin-bottom: 300px;
+    //}
+}
+.rotate {
+    transform: rotateY(0deg);
+}

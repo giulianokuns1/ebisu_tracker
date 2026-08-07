@@ -1,0 +1,17 @@
+@import "Components/UI/Global.module";
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(5, 150px);
+    grid-gap: 20px;
+    margin-left: 20px;
+}
+
+.selectContainer {
+    width: 100%;
+}
+
+.languageSelect {
+    @extend .globalInput;
+    width: 100%;
+}

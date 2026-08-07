@@ -1,0 +1,51 @@
+@import "Components/UI/Global.module";
+
+.container {
+    display: grid;
+    justify-self: center;
+    width: 100%;
+}
+
+.card {
+    padding: 20px;
+    border: solid 1px $cardBackground;
+    border-radius: 5px;
+    background-color: $cardBackground;
+    display: grid;
+    grid-template-columns: 100%;
+    max-width: 1000px;
+    text-align: center;
+}
+
+.monthPaymentCardContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 15px;
+}
+
+.dashboardChart {
+    width: 300px;
+}
+
+.monthPaymentCard {
+    @extend .card;
+    height: 100%;
+    place-self: center stretch;
+}
+
+.monthPaymentCardDataContainer {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-gap: 20px;
+    justify-items: center;
+    align-items: center;
+}
+
+.cardTitle {
+    @extend .textGradientBackground;
+    font-size: 20px;
+}
+
+.amount {
+    @extend .textGradientBackground;
+}

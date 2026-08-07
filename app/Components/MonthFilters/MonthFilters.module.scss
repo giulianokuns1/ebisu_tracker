@@ -1,0 +1,50 @@
+@import "Components/UI/Global.module";
+
+.monthFilterContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    justify-items: center;
+}
+
+.monthSelectContainer {
+    @extend .formInputWrapper;
+    margin: 10px;
+    display: grid;
+    grid-template-columns: 100px auto;
+    align-items: center;
+}
+
+.formInputLabel {
+    @extend .formInputLabel;
+    margin: 0;
+}
+
+.inputText {
+    @extend .globalInput;
+}
+
+.inputText::-webkit-outer-spin-button,
+.inputText::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.inputText[type=number] {
+    -moz-appearance: textfield;
+}
+
+.selectWrapper {
+    // margin-right: 30px;
+}
+
+.monthFilterAll {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    margin: 10px;
+    grid-gap: 10px;
+}
+
+.checkboxLabel {
+    @extend .formInputLabel;
+}

@@ -1,0 +1,94 @@
+@import "Components/UI/Global.module";
+
+.header {
+    align-items: center;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    left: 50%;
+    max-width: 1440px;
+    padding: 20px 34px;
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    width: 100%;
+    font-size: 15px;
+    font-weight: 600;
+    z-index: 10;
+}
+
+.logoBrand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.logoBrand:hover,
+.logoBrand:focus-visible { text-decoration: none; }
+
+.logoBox {
+    border-radius: 8px;
+    // background-color: $cardBackground;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.logoImg {
+    object-fit: contain;
+}
+
+.brandName {
+    color: #fff;
+    display: grid;
+    font-size: 18px;
+    font-weight: 700;
+    gap: 3px;
+    line-height: 1;
+}
+
+.brandName small { color: #819295; font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+
+.loginContainer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.navigation { display: flex; gap: 34px; justify-content: center; }
+.navigation a { color: #dce9e7; font-size: 13px; text-decoration: none; }
+.navigation a:hover { color: $primaryColor; }
+
+.loginButton {
+    color: #fff !important;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: $hoverBackground;
+        background: rgba(255, 255, 255, 0.08) !important;
+        color: #fff !important;
+        text-decoration: none !important;
+    }
+}
+
+.signupButton { background: $primaryColor; border-radius: 8px; color: #062b29 !important; font-size: 13px; font-weight: 800; padding: 11px 17px; text-decoration: none; }
+.signupButton:hover { background: #6ae8d8; color: #062b29 !important; text-decoration: none; }
+
+@media (max-width: 700px) {
+    .header { display: flex; gap: 10px; justify-content: space-between; padding: 16px 20px; }
+    .navigation { display: none; }
+    .logoBrand { gap: 7px; min-width: 0; }
+    .brandName { font-size: 14px; }
+    .brandName small { font-size: 7px; }
+    .logoImg { height: 32px; width: 32px; }
+    .loginButton { display: none; }
+    .signupButton { flex: 0 0 auto; font-size: 11px; padding: 10px 12px; white-space: nowrap; }
+}

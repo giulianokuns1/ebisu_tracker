@@ -1,0 +1,62 @@
+@import "Components/UI/Global.module";
+
+.pageTitle {
+    margin-bottom: 10px;
+}
+
+.settingsCard {
+    background: linear-gradient(145deg, rgba(28, 45, 51, .92), rgba(20, 33, 38, .94));
+    border: 1px solid rgba(146, 182, 180, .12);
+    border-radius: 12px;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .12);
+    max-width: 680px;
+    padding: 22px;
+}
+
+.settingBlock {
+    margin-bottom: 20px;
+}
+
+.settingLabel {
+    display: block;
+    margin: 0 0 10px 10px;
+}
+
+.toggleLabel {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    gap: 10px;
+}
+
+.toggleLabel input {
+    accent-color: $primaryColor;
+    height: 17px;
+    width: 17px;
+}
+
+.settingHelp {
+    color: $textColor;
+    font-size: 13px;
+    margin: 7px 0 0 27px;
+}
+
+.saveButtonWrapper {
+    display: flex;
+    justify-content: flex-end;
+    max-width: none;
+}
+
+.saveSettings { align-items: center; background: $primaryColor; border: 1px solid #6fe4d0; border-radius: 8px; color: #062b29; cursor: pointer; display: inline-flex; font: inherit; font-size: 12px; font-weight: 800; gap: 7px; min-height: 40px; padding: 0 14px; }
+.saveSettings:hover { background: #6ae8d8; }
+
+@media (max-width: 767px) {
+    .settingsCard {
+        margin: 0 10px;
+        padding: 15px;
+    }
+
+    .saveButtonWrapper {
+        max-width: 100%;
+    }
+}

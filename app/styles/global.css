@@ -1,0 +1,187 @@
+@import "~bootstrap-icons/font/bootstrap-icons.css";
+@import 'primeicons/primeicons.css';
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/Montserrat-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Montserrat-Bold';
+    src: url('/fonts/Montserrat-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Orbitron';
+    src: url('/fonts/Orbitron-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Orbitron-ExtraBold';
+    src: url('/fonts/Orbitron-ExtraBold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Orbitron-Bold';
+    src: url('/fonts/Orbitron-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+html,
+body {
+    padding: 0;
+    margin: 0;
+    /*font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,*/
+    /*Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;*/
+    font-family: 'Montserrat', sans-serif !important;
+    line-height: 1.6;
+    font-size: 16px;
+    background-color: #18191c;
+}
+
+h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0.67em 0;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0.75em 0;
+}
+
+h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0.83em 0;
+}
+
+h4 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 1em 0;
+}
+
+h5 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 1.17em 0;
+}
+
+h6 {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 1.33em 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+a {
+    color: #0070f3;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+.react-datepicker {
+    border: solid 1px #51E0CF !important;
+}
+.react-datepicker__input-container {
+    & input {
+        border: solid 1px rgba(126, 169, 167, .24);
+        background-color: #0e1d22;
+        color: #d5e1df;
+        border-radius: 7px;
+        box-sizing: border-box;
+        font: inherit;
+        font-size: 14px;
+        line-height: 1.35;
+        padding: 11px 12px;
+        width: 100%;
+        outline-width: 0;
+    }
+    :hover {
+        border: solid 1px #51E0CF;
+        box-shadow: 0 0 0 3px rgba(81, 224, 207, .14);
+    }
+}
+.react-datepicker__input-container:focus-visible {
+    border: none;
+}
+.react-datepicker-ignore-onclickoutside {
+
+}
+.react-datepicker__header  {
+    background-color: #102127 !important;
+}
+.react-datepicker__month-container {
+    background-color: #102127;
+    color: white;
+    border: solid 1px #51E0CF !important;
+}
+.react-datepicker__current-month {
+    color: white !important;
+}
+.react-datepicker__day-name {
+    color: white !important;
+}
+.react-datepicker__day {
+    color: white !important;
+}
+.react-datepicker__day:hover {
+    background: #51E0CF;
+}
+.react-datepicker__day--selected {
+    background: #51E0CF;
+}
+.react-datepicker__day--in-range,
+.react-datepicker__day--in-selecting-range {
+    background: rgba(81, 224, 207, .22) !important;
+    color: #ffffff !important;
+}
+.react-datepicker__day--range-start,
+.react-datepicker__day--range-end {
+    background: #51E0CF !important;
+    color: #062b29 !important;
+    font-weight: 700;
+}
+.react-datepicker__day--keyboard-selected {
+    background: rgba(81, 224, 207, 0.5);
+}
+.react-datepicker__navigation--next {
+    top: 10px !important;
+}
+.react-datepicker__navigation--previous {
+    top: 10px !important;
+}
+.react-datepicker__triangle {
+    display: none !important;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    transition: background-color 0s 600000s, color 0s 600000s;
+}
+/* styles/global.css */
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #18191c; /* Background color behind the particles */
+}
+.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
+    background: #51E0CF !important;
+}

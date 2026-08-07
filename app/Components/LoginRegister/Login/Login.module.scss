@@ -1,0 +1,6 @@
+@import "Components/UI/Global.module";
+@import "Components/LoginRegister/LoginRegister.module";
+
+.rotate {
+    transform: rotateY(180deg);
+}

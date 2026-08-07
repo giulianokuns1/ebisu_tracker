@@ -1,0 +1,58 @@
+@import "../Global.module";
+
+.progressBarContainer {
+    width: 100%;
+    background-color: #2a2b2e;
+    border-radius: 4px;
+    height: 4px;
+    position: relative;
+}
+
+.progressBar {
+    height: 100%;
+    width: 100%;
+    background-color: rgba(132, 162, 164, .16);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progressBarFill {
+    height: 100%;
+    width: 0;
+    // background: $buttonBackgroundColorPrimary;
+    background: linear-gradient(90deg, #2a9f91, #51e0cf);
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: width 0.5s ease-in-out;
+}
+
+.percentageLabel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 0.6rem;
+
+    @media (max-width: 1000px) {
+        display: none;
+    }
+}
+
+.percentageLabelMobile {
+    @extend .percentageLabel;
+    display: none;
+
+    @media (max-width: 1000px) {
+        display: block;
+    }
+}
+
+.progressBarFillFull {
+    @extend .progressBarFill;
+    // background: none;
+    // background-color: $successGreenColor !important;
+}

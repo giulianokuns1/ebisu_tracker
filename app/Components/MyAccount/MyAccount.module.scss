@@ -1,0 +1,26 @@
+@import "Components/UI/Global.module";
+
+.container {
+    background: linear-gradient(145deg, rgba(28, 45, 51, .92), rgba(20, 33, 38, .94));
+    border: 1px solid rgba(146, 182, 180, .13);
+    border-radius: 14px;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .12);
+    margin: 0;
+    max-width: 840px;
+    padding: 30px;
+    width: 100%;
+}
+
+.formWrapper { display: grid; gap: 14px 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.formWrapper > div:last-child { grid-column: 1 / -1; }
+.actions { border-top: 1px solid rgba(146, 182, 180, .12); display: flex; justify-content: flex-end; margin-top: 24px; padding-top: 18px; }
+.saveButton { background: #4fd6be !important; border: 1px solid #6fe4d0 !important; border-radius: 8px !important; color: #062b29 !important; font-size: 12px !important; height: 40px !important; min-width: 132px; text-transform: none !important; }
+.logoutWrapper {
+    border-top: 1px solid rgba(146, 182, 180, .12);
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 24px;
+    padding-top: 18px;
+}
+
+@media (max-width: 700px) { .container { padding: 20px; }.formWrapper { grid-template-columns: 1fr; }.formWrapper > div:last-child { grid-column: auto; }.actions { justify-content: stretch; }.saveButton { width: 100%; }.logoutWrapper { justify-content: stretch; }.logout { width: 100%; } }

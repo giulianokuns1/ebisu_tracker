@@ -1,0 +1,64 @@
+@import "../../Global.module";
+
+.inputText {
+    @extend .globalInput;
+}
+.inputText::-webkit-outer-spin-button,
+.inputText::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.inputText[type=number] {
+    -moz-appearance: textfield;
+}
+.formButtonsContainer {
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+.formDeleteButton {
+    place-self: end;
+}
+.formDateWrapper {
+    display: grid;
+    grid-template-columns: 100%;
+}
+.formCheckboxList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 0 10px;
+}
+.formCheckbox {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    align-items: center;
+    gap: 10px;
+}
+.checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+.checkbox:checked {
+    background-color: $buttonBackgroundColorPrimary;
+}
+.formInputWrapperCheckbox {
+    @extend .formInputWrapper;
+    display: grid;
+    grid-template-columns: 48px auto;
+    justify-content: start;
+    align-items: center;
+}
+
+.checkboxInput :global(.p-inputswitch-slider) {
+    background: #263a41;
+    border: 1px solid rgba(132, 172, 170, .24);
+    box-shadow: none;
+}
+
+.checkboxInput:global(.p-inputswitch.p-inputswitch-checked) :global(.p-inputswitch-slider) { background: #248f84; }
+.checkboxInput:global(.p-inputswitch.p-focus) :global(.p-inputswitch-slider) { box-shadow: 0 0 0 3px rgba(81, 224, 207, .16); }
+.checkboxLabel { color: #dce8e6; cursor: pointer; font-size: 13px; font-weight: 650; }

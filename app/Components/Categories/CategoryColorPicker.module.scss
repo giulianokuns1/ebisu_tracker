@@ -1,0 +1,20 @@
+.picker { position: relative; }
+.trigger { align-items: center; background: rgba(9, 21, 27, .5); border: 1px solid rgba(146, 182, 180, .14); border-radius: 9px; color: #e7f1ef; cursor: pointer; display: flex; gap: 9px; padding: 7px 9px; text-align: left; width: 100%; }
+.trigger:hover, .trigger[aria-expanded="true"] { border-color: rgba(79, 214, 190, .55); }
+.trigger > span:nth-child(2) { display: grid; gap: 2px; }
+.trigger small { color: #94a8a9; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+.trigger strong { font-size: 11px; letter-spacing: .05em; }
+.trigger > i { color: #9fb2b1; font-size: 11px; margin-left: auto; }
+.swatch { border: 2px solid rgba(255, 255, 255, .35); border-radius: 6px; box-shadow: 0 2px 8px rgba(0, 0, 0, .25); display: block; height: 24px; width: 24px; }
+.popover { background: #15242a; border: 1px solid rgba(146, 182, 180, .22); border-radius: 12px; box-shadow: 0 18px 38px rgba(0, 0, 0, .35); padding: 14px; position: absolute; right: 0; top: calc(100% + 8px); width: 232px; z-index: 5; }
+.popover :global(.react-colorful) { height: 150px; width: 100%; }
+.popover :global(.react-colorful__saturation) { border-radius: 8px; }
+.popover :global(.react-colorful__hue) { border-radius: 8px; height: 12px; margin-top: 12px; }
+.popover :global(.react-colorful__pointer) { border-color: #f4fffe; height: 17px; width: 17px; }
+.hexField { align-items: center; background: rgba(7, 18, 23, .76); border: 1px solid rgba(146, 182, 180, .16); border-radius: 8px; color: #8fa5a5; display: flex; font-size: 14px; gap: 3px; margin-top: 14px; padding: 10px 11px; }
+.hexField input { background: transparent; border: 0; color: #e9f4f2; font: inherit; font-weight: 700; outline: 0; text-transform: uppercase; width: 100%; }
+.presets { display: grid; gap: 8px; grid-template-columns: repeat(8, 1fr); margin-top: 14px; }
+.preset, .selectedPreset { background: transparent; border: 0; border-radius: 50%; cursor: pointer; padding: 2px; }
+.preset span, .selectedPreset span { border: 1px solid rgba(255, 255, 255, .24); border-radius: 50%; display: block; height: 20px; width: 20px; }
+.selectedPreset { box-shadow: 0 0 0 2px #e8f9f6; }
+@media (max-width: 520px) { .popover { left: 0; right: auto; width: min(270px, calc(100vw - 72px)); } }

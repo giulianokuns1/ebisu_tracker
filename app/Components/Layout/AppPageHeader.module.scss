@@ -1,0 +1,13 @@
+@import "Components/UI/Global.module";
+
+.header { align-items: flex-start; display: flex; gap: 20px; justify-content: space-between; margin: 8px 0 20px; }
+.header h1 { color: #f1f8f7; font-size: clamp(27px, 3vw, 34px); letter-spacing: -.04em; margin: 0; }
+.title { align-items: center; display: flex; }
+.title :global(button) { margin-right: 11px; vertical-align: initial; }
+.eyebrow { color: $primaryColor !important; font-size: 11px !important; font-weight: 800; letter-spacing: .11em; margin: 0 0 4px !important; text-transform: uppercase; }
+.header p { color: #84969a; font-size: 13px; margin: 3px 0 0; }
+.action { align-items: center; background: $primaryColor; border-radius: 8px; color: #062b29; display: inline-flex; font-size: 12px; font-weight: 800; gap: 7px; min-height: 38px; padding: 0 14px; text-decoration: none; white-space: nowrap; }
+.actions { align-items: center; display: flex; gap: 10px; }
+.action:hover { background: #6ae8d8; color: #041f1d; text-decoration: none; }
+.action:focus-visible { outline: 3px solid rgba(81, 224, 207, .25); outline-offset: 2px; }
+@media (max-width: 600px) { .header { align-items: stretch; flex-direction: column; gap: 13px; margin-top: 2px; } .actions { width: 100%; } .action { flex: 1; justify-content: center; } }

@@ -1,0 +1,29 @@
+@import "Components/UI/Global.module";
+@import "Components/Expenses/Expenses.module";
+
+.container {
+    display: grid;
+    grid-template-columns: minmax(0, 550px) auto minmax(0, 450px);
+    grid-gap: 20px;
+
+    // padding-left: 20px;
+    @media (max-width: 1550px) {
+        grid-template-columns: 100%;
+    }
+
+    @media (min-width: 1551px) and (max-width: 2050px) {
+        grid-template-columns: minmax(0, 550px) minmax(750px, 750px);
+    }
+}
+
+.createContainer {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 1480px;
+    width: 100%;
+}
+
+.editContainer {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 1480px;
+    width: 100%;
+}

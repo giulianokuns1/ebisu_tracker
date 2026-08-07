@@ -1,0 +1,19 @@
+{
+  "name": "ebisu-tracker",
+  "private": true,
+  "workspaces": [
+    "app",
+    "api"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace money_tracker_app\" \"npm run start --workspace money_tracker_api\"",
+    "app:dev": "npm run dev --workspace money_tracker_app",
+    "app:build": "npm run build --workspace money_tracker_app",
+    "app:lint": "npm run lint --workspace money_tracker_app",
+    "api:dev": "npm run start --workspace money_tracker_api",
+    "api:start": "npm run start-server --workspace money_tracker_api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

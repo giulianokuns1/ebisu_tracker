@@ -1,0 +1,117 @@
+@import "Components/UI/Global.module";
+
+.appContainer {
+    background-color: $generalBackgroundColor;
+    color: #ffffff;
+    box-shadow: 68px 1px 43px -9px rgba(0, 0, 0, 0.18) inset;
+    -webkit-box-shadow: 68px 1px 43px -9px rgba(0, 0, 0, 0.18) inset;
+    -moz-box-shadow: 68px 1px 43px -9px rgba(0, 0, 0, 0.18) inset;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 250px auto;
+    min-height: 100vh;
+    grid-template-rows: 100%;
+
+    @media (max-width: 992px) {
+        grid-template-columns: auto;
+    }
+}
+
+.sidebarCollapsed {
+    grid-template-columns: 76px auto;
+}
+
+.menu {
+    background: linear-gradient(180deg, #102127 0%, $generalBackgroundColor 58%);
+    color: #ffffff;
+    border-right: solid 1px rgba(121, 174, 170, .16);
+    z-index: 10;
+
+    @media (min-width: 993px) {
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
+
+    @media (max-width: 992px) {
+        position: fixed;
+        top: 0;
+        left: -250px;
+        width: 250px;
+        height: 100%;
+        background-color: $generalBackgroundColor;
+        transition: left 0.3s ease-in-out;
+        z-index: 1000;
+    }
+
+    &.menuVisible {
+        left: 0;
+    }
+}
+
+@media (max-width: 992px) {
+    .sidebarCollapsed { grid-template-columns: auto; }
+}
+
+.backdrop {
+    display: none;
+
+    @media (max-width: 992px) {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        cursor: pointer;
+    }
+}
+
+.mainContent {
+    background-color: $generalBackgroundColor;
+    color: #ffffff;
+    box-shadow: 68px 1px 43px -9px rgba(0, 0, 0, 0.18) inset;
+    -webkit-box-shadow: 68px 1px 43px -9px rgba(0, 0, 0, 0.18) inset;
+    -moz-box-shadow: 68px 1px 43px -9px rgba(0, 0, 0, 0.18) inset;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    @media (max-width: 992px) {}
+}
+
+.content {
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 18px 30px 32px;
+    flex: 1;
+
+    @media (max-width: 992px) {
+        padding: 15px 12px 22px;
+    }
+}
+
+.pageContent {
+    margin: 0 auto;
+    max-width: 1480px;
+    width: 100%;
+}
+
+.hamburgerButton {
+    display: none;
+    color: white;
+
+    @media (max-width: 992px) {
+        display: block;
+        font-size: 18px;
+        cursor: pointer;
+        z-index: 1001;
+        position: fixed;
+        top: 10px;
+        left: 20px;
+    }
+}

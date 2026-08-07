@@ -1,0 +1,351 @@
+@import "Components/UI/Global.module";
+
+.filterButton {
+    align-items: center;
+    background: rgba(11, 27, 32, .72);
+    border: 1px solid rgba(146, 182, 180, .18);
+    border-radius: 8px;
+    color: #d8e5e3;
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    gap: 7px;
+    min-height: 38px;
+    padding: 0 13px;
+}
+
+.filterButton:hover { border-color: rgba(81, 224, 207, .45); color: $primaryColor; }
+.filterButton:focus-visible { outline: 3px solid rgba(81, 224, 207, .18); outline-offset: 2px; }
+
+.pageTitle {
+    // margin-left: 20px;
+
+    @media (max-width: 767px) {
+        margin-left: 10px;
+    }
+}
+
+.paymentForm {
+    margin: 20px;
+
+    @media (max-width: 767px) {
+        margin: 10px;
+    }
+}
+
+.formWrapper {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 767px) {
+        margin-bottom: 15px;
+        grid-gap: 12px;
+    }
+}
+
+.createButtonWrapper {
+    display: flex;
+    justify-content: center;
+    // margin: 20px 0;
+
+    @media (min-width: 768px) {
+        justify-content: flex-start;
+        margin-left: 0px;
+        margin-bottom: 10px;
+    }
+
+    @media (max-width: 767px) {
+        margin: 15px 10px;
+    }
+}
+
+.paymentsCreateButton {
+    @extend .globalLinkButton;
+    max-width: 200px;
+    border-radius: 10px;
+}
+
+.paymentsCreateButton:hover,
+.paymentsCreateButton:active {
+    outline: none;
+    text-decoration: none;
+}
+
+.paymentListContainer {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-gap: 10px;
+
+    @media (min-width: 768px) {
+        grid-gap: 0;
+    }
+
+    @media (max-width: 767px) {
+        margin: 0 10px;
+        grid-gap: 8px;
+    }
+}
+
+.embeddedInForm {
+    @media (max-width: 767px) {
+        .paymentListContainer {
+            margin: 0;
+        }
+    }
+}
+
+.paymentCard {
+    margin: 10px;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    display: grid;
+    grid-template-columns: 100%;
+    max-width: 1480px;
+    min-width: 0;
+
+    @media (min-width: 768px) {
+        margin: 0;
+    }
+
+    @media (max-width: 767px) {
+        margin: 10px;
+    }
+}
+
+.categoryContainer {
+    display: grid;
+    grid-template-columns: 100%;
+    justify-items: center;
+    border-right: solid 2px $categoryIconColor;
+    align-items: center;
+}
+
+.categoryIcon {
+    color: $categoryIconColor;
+    font-size: 40px;
+}
+
+.categoryName {
+    color: $inputTextColor;
+}
+
+.mainCardContainer {
+    margin: 0 0 0 0;
+    padding: 10px 0;
+    display: grid;
+    grid-template-columns: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.mainCardContainer:hover {
+    background-color: $hoverBackground;
+}
+
+.name {
+    @extend .textGradientBackground;
+    font-size: 20px;
+    place-self: center;
+    text-align: center;
+    width: 100%;
+}
+
+.dateFrecuencyContainer {
+    place-self: center;
+    color: $inputTextColor;
+    text-align: center;
+    width: 100%;
+}
+
+.amountContainer {
+    place-self: center;
+    display: grid;
+    margin-top: 20px;
+    text-align: center;
+    width: 100%;
+}
+
+.amount {
+    font-size: 18px;
+    color: $categoryIconColor;
+}
+
+.paymentIcon {
+    @extend .textGradientBackground;
+    font-size: 40px;
+}
+
+.paymentGridCard {
+    padding: 5px;
+    margin-bottom: 8px;
+    border: solid 1px $cardBackground;
+    border-radius: 5px;
+    background-color: $cardBackground;
+    display: grid;
+    width: 100%;
+    min-width: 0;
+
+    @media (min-width: 768px) {
+        margin: 5px 0px;
+    }
+}
+
+.embeddedInForm .paymentGridCard {
+    @media (min-width: 768px) {
+        margin: 0 0 8px 0;
+    }
+}
+
+.mainCardGridContainer {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    width: 100%;
+    min-width: 0;
+    cursor: pointer;
+    border-radius: 5px;
+    align-items: center;
+
+    @media (min-width: 768px) {
+        grid-template-columns: 1fr 0.8fr 2fr 1fr;
+    }
+}
+
+.nameGrid {
+    //@extend .textGradientBackground;
+    font-size: 16px;
+    place-self: center start;
+    padding-left: 10px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.amountGridContainer {
+    place-self: center end;
+    display: grid;
+    text-align: right;
+    width: 100%;
+}
+
+.amountGrid {
+    font-size: 16px;
+    color: $categoryIconColor;
+}
+
+.dateFrecuencyContainer {
+    place-self: center;
+    color: $inputTextColor;
+    text-align: center;
+    width: 100%;
+    min-width: 0;
+}
+
+.commentGrid {
+    display: none;
+    place-self: center start;
+    padding-left: 10px;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: $inputTextColor;
+    font-size: 14px;
+
+    @media (min-width: 768px) {
+        display: block;
+    }
+}
+
+.dateFrecuency {
+    font-size: 14px;
+}
+
+@media (max-width: 767px) {
+    .paymentCard {
+        margin: 0;
+        padding: 0;
+        grid-template-columns: 100%;
+    }
+
+    .paymentGridCard {
+        padding: 10px;
+        margin: 0;
+    }
+
+    .mainCardGridContainer {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .nameGrid {
+        font-size: 14px;
+        padding-left: 5px;
+    }
+
+    .amountGrid {
+        font-size: 14px;
+    }
+
+    .dateFrecuency {
+        font-size: 12px;
+    }
+}
+
+.paymentSkeleton {
+    margin: 20px;
+    max-width: 1480px;
+}
+
+.comment {
+    place-self: center;
+    text-align: center;
+    width: 100%;
+    color: $inputTextColor;
+}
+
+.paymentMethodContainer {
+    margin-top: 10px;
+    place-self: center;
+    color: $inputTextColor;
+    text-align: center;
+    width: 100%;
+}
+
+.paymentMethodLabel {
+    color: $inputTextColor;
+    font-size: 14px;
+}
+
+.paymentMethodName {
+    color: $categoryIconColor;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.searchContainer {
+    @extend .formInputWrapper;
+    // margin: 10px;
+    display: grid;
+    grid-template-columns: 100px auto;
+    align-items: center;
+}
+
+.searchLabel {
+    @extend .formInputLabel;
+    margin: 0;
+}
+
+.searchInput {
+    @extend .globalInput;
+}

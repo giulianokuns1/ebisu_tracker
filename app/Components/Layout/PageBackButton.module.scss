@@ -1,0 +1,26 @@
+.button {
+    align-items: center;
+    background: rgba(146, 182, 180, .08);
+    border: 1px solid rgba(146, 182, 180, .18);
+    border-radius: 7px;
+    color: #c8d7d5;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 15px;
+    height: 32px;
+    justify-content: center;
+    margin-right: 9px;
+    vertical-align: 3px;
+    width: 32px;
+}
+
+.button:hover {
+    background: rgba(79, 214, 190, .14);
+    border-color: rgba(79, 214, 190, .45);
+    color: #51e0cf
+}
+
+.button:focus-visible {
+    outline: 3px solid rgba(81, 224, 207, .25);
+    outline-offset: 2px
+}

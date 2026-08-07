@@ -1,0 +1,12 @@
+@import "Components/UI/Global.module";
+
+.buttonWrapper {
+    color-scheme: light;
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+
+    [role="button"] {
+        border-radius: 10px;
+    }
+}

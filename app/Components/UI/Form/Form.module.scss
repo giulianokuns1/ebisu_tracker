@@ -1,0 +1,96 @@
+@import "../Global.module";
+
+.inputText {
+    @extend .globalInput;
+}
+
+.inputText::-webkit-outer-spin-button,
+.inputText::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.inputText[type=number] {
+    -moz-appearance: textfield;
+}
+
+.formButtonsContainer {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    // gap: 10px;
+    width: 100%;
+    margin-top: 10px;
+
+    @media (max-width: 767px) {
+        align-items: center;
+        gap: 10px;
+        grid-template-columns: minmax(0, 1fr) auto;
+        margin-top: 15px;
+    }
+}
+
+.formSubmitButton {
+    width: 100%;
+    min-width: 0;
+
+    button {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    @media (max-width: 767px) {
+        width: 100%;
+    }
+}
+
+.formDeleteButton {
+    place-self: end;
+
+    @media (max-width: 767px) {
+        place-self: center end;
+        margin-top: 0;
+        button {
+            font-size: 12px;
+            height: 40px;
+            padding-left: 14px;
+            padding-right: 14px;
+            width: auto;
+        }
+    }
+}
+
+.formDateWrapper {
+    display: grid;
+    grid-template-columns: 100%;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.selectWrapper {
+    position: relative;
+    width: 100%;
+    z-index: 1;
+
+    select {
+        position: relative;
+        z-index: 1;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23bebebe' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 35px;
+    }
+
+    select:focus {
+        z-index: 100;
+    }
+
+    select option {
+        background: #102127;
+        color: #dce8e6;
+        z-index: 100;
+    }
+}
