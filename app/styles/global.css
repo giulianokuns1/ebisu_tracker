@@ -185,3 +185,4 @@ input:-webkit-autofill:focus {
 .p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
     background: #51E0CF !important;
 }
+ .turnstileWidget { display: flex; justify-content: center; width: 100%; }

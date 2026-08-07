@@ -26,7 +26,7 @@ const Turnstile = ({ onVerify, onExpire, onError }) => {
 
     if (!siteKey) return null;
 
-    return <><Script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" strategy="afterInteractive" onLoad={renderWidget} /><div ref={containerRef} /></>;
+    return <><Script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" strategy="afterInteractive" onLoad={renderWidget} /><div className="turnstileWidget" ref={containerRef} /></>;
 };
 
 export default Turnstile;
