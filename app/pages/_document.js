@@ -4,8 +4,8 @@ export default function Document() {
     return (
         <Html lang="en">
             <Head>
-                <link rel="icon" href="/img/logo3.0-removebg-preview.png?v=3" type="image/png" />
-                <link rel="apple-touch-icon" href="/img/logo3.0-removebg-preview.png?v=3" />
+                <link rel="icon" href="/favicon-96.png" sizes="96x96" type="image/png" />
+                <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
                 <link rel="manifest" href="/site.webmanifest" />
             </Head>
             <body>
