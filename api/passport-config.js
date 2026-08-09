@@ -43,6 +43,7 @@ passport.use('google-login', new CustomStrategy(
             }
             return callback(true, null);
         } catch (error) {
+            console.error('Google token verification failed:', error.message);
             return callback(error);
         }
     }

@@ -1,5 +1,5 @@
 import { GoogleLogin } from "@react-oauth/google";
-import React from "react";
+import React, { useState } from "react";
 import styles from "@/Components/Google/GoogleAuthButton.module.scss";
 import axios from "axios";
 import { API_AUTH_URL } from "@/constants";
@@ -7,8 +7,9 @@ import { useRouter } from "next/router";
 
 const GoogleAuthButton = () => {
     const router = useRouter();
+    const [error, setError] = useState('');
     const onLogin = async (credentialResponse) => {
-        // const decodedToken = jwtDecode(credentialResponse.credential);
+        setError('');
         try {
             const response = await axios.post(`${API_AUTH_URL}/google`, { token: credentialResponse.credential }, { withCredentials: true });
             if (response.data && response.data.token) {
@@ -18,6 +19,7 @@ const GoogleAuthButton = () => {
             }
         } catch (error) {
             console.error(error);
+            setError(error.response?.data?.message || 'Google sign-in could not be completed.');
         }
     }
 
@@ -28,13 +30,14 @@ const GoogleAuthButton = () => {
                     onLogin(credentialResponse);
                 }}
                 onError={() => {
-                    console.log('Login Failed');
+                    setError('Google sign-in was cancelled or unavailable.');
                 }}
                 theme={'filled_black'}
                 text={'continue_with'}
                 shape={'pill'}
                 size={'large'}
             />
+            {error && <p className={styles.error}>{error}</p>}
         </div>
 
     );

@@ -153,6 +153,7 @@ router.post('/google', [
         let today = new Date();
         let credentials = req.body.token;
         if (err) {
+            console.error('Google authentication failed:', err.message || err);
             return res.status(500).json({ message: 'An error occurred during login.' });
         }
         try {
