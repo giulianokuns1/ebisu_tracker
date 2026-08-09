@@ -142,6 +142,7 @@
 
 .emptySetupContainer { align-items: center; display: flex; justify-content: center; min-height: 55vh; }
 .wizardCtaButton { background: $primaryColor; border-radius: 9px; color: #062d2a; display: inline-flex; font-weight: 800; padding: 13px 20px; text-decoration: none; }
+.wizardCtaButton:hover { color: #062d2a; text-decoration: none; }
 
 @media (max-width: 1200px) {
     .metricGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
