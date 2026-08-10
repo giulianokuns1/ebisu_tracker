@@ -2,8 +2,15 @@
 node_modules/
 app/node_modules/
 api/node_modules/
+mobile/node_modules/
 app/.next/
 app/out/
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/android/build/
+mobile/android/keystore.properties
+mobile/android/*.jks
+mobile/android/*.keystore
 coverage/
 build/
 

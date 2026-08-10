@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/user');
 const { turnstileRequired, verifyTurnstileToken } = require('../utils/turnstile');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const authenticateToken = require("../middleware/authenticateToken");
 const authCookieOptions = {
@@ -22,7 +23,15 @@ const handleValidation = (req, res) => {
     return true;
 };
 
-router.post('/register', [
+const credentialLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    message: { message: 'Too many authentication attempts. Please try again later.' },
+});
+
+router.post('/register', credentialLimiter, [
     body('firstname').trim().notEmpty(),
     body('lastname').trim().notEmpty(),
     body('email').isEmail().normalizeEmail(),
@@ -76,7 +85,7 @@ router.post('/register', [
         res.status(500).json({ message: 'An error occurred during registration.' });
     }
 });
-router.post('/login', [
+router.post('/login', credentialLimiter, [
     body('email').isEmail().normalizeEmail(),
     body('password').isLength({ min: 8 }),
     body('turnstileToken').if(turnstileRequired).isString().notEmpty(),
@@ -142,7 +151,7 @@ router.get('/check-auth', authenticateToken, async (req, res) => {
         return res.status(401).json({ isAuthenticated: false, user: null });
     }
 });
-router.post('/google', [
+router.post('/google', credentialLimiter, [
     body('token').isString().notEmpty(),
 ], (req, res, next) => {
     if (!handleValidation(req, res)) {

@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "app",
-    "api"
+    "api",
+    "mobile"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace money_tracker_app\" \"npm run start --workspace money_tracker_api\"",
@@ -11,7 +12,12 @@
     "app:build": "npm run build --workspace money_tracker_app",
     "app:lint": "npm run lint --workspace money_tracker_app",
     "api:dev": "npm run start --workspace money_tracker_api",
-    "api:start": "npm run start-server --workspace money_tracker_api"
+    "api:start": "npm run start-server --workspace money_tracker_api",
+    "mobile:add:android": "npm run add:android --workspace ebisu_mobile",
+    "mobile:sync": "npm run sync --workspace ebisu_mobile",
+    "mobile:android": "npm run android --workspace ebisu_mobile",
+    "mobile:build:debug": "npm run build:debug --workspace ebisu_mobile",
+    "mobile:build:bundle": "npm run build:bundle --workspace ebisu_mobile"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

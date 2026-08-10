@@ -20,6 +20,7 @@ const cors = require('cors');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const passportConfig = require('./passport-config');
+const rateLimit = require('express-rate-limit');
 
 const sessionStore = new MySQLStore({
     host: process.env.DB_HOST || 'localhost',
@@ -73,12 +74,20 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 1_000,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    message: { message: 'Too many requests. Please try again later.' },
+});
+
 app.get('/', (req, res) => {
     res.status(200).json({ message: 'Money Tracker API' });
 });
 
 app.use('/auth', authRoutes);
-app.use('/api', apiRoutes);
+app.use('/api', apiLimiter, apiRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

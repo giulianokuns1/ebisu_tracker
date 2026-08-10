@@ -1,0 +1,19 @@
+{
+  "name": "ebisu_mobile",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "add:android": "npx cap add android",
+    "sync": "npx cap sync android",
+    "android": "npx cap open android",
+    "build:debug": "npx cap sync android && ./android/gradlew -p android assembleDebug",
+    "build:bundle": "npx cap sync android && ./android/gradlew -p android bundleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/core": "^6.2.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.1"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "appId": "com.ebisutracker.app",
+  "appName": "Ebisu Tracker",
+  "webDir": "www",
+  "server": {
+    "url": "https://ebisutracker.com",
+    "cleartext": false,
+    "allowNavigation": [
+      "ebisutracker.com",
+      "*.ebisutracker.com"
+    ]
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
