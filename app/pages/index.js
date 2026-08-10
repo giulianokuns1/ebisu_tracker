@@ -10,7 +10,7 @@ const HOME_DESCRIPTION =
 function HomePage() {
     const pageUrl = SITE_URL ? `${SITE_URL.replace(/\/$/, '')}` : '';
     const canonicalUrl = pageUrl || undefined;
-    const ogImageUrl = pageUrl ? `${pageUrl}/img/ebisu.jpg` : undefined;
+    const logoUrl = pageUrl ? `${pageUrl}/android-chrome-512x512.png` : undefined;
     const pageTitle = `${WEBSITE_NAME} | Personal Finance & Expense Tracker`;
     const faqJsonLd = {
         '@context': 'https://schema.org',
@@ -65,8 +65,8 @@ function HomePage() {
         name: WEBSITE_NAME,
         ...(pageUrl && {
             url: pageUrl,
-            logo: `${pageUrl}/img/logo.png`,
-            image: `${pageUrl}/img/ebisu.jpg`,
+            logo: logoUrl,
+            image: logoUrl,
             potentialAction: {
                 '@type': 'ViewAction',
                 target: pageUrl,
@@ -80,7 +80,7 @@ function HomePage() {
         name: pageTitle,
         description: HOME_DESCRIPTION,
         ...(canonicalUrl && { url: canonicalUrl }),
-        ...(pageUrl && { primaryImageOfPage: { '@type': 'ImageObject', url: `${pageUrl}/img/logo.png` } }),
+        ...(logoUrl && { primaryImageOfPage: { '@type': 'ImageObject', url: logoUrl } }),
     };
 
     return (
@@ -96,15 +96,15 @@ function HomePage() {
                 <meta property="og:description" content={HOME_DESCRIPTION} />
                 {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
                 <meta property="og:site_name" content={WEBSITE_NAME} />
-                {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
-                {ogImageUrl && <meta property="og:image:secure_url" content={ogImageUrl} />}
-                <meta property="og:image:alt" content="Ebisu Tracker dashboard preview" />
+                {logoUrl && <meta property="og:image" content={logoUrl} />}
+                {logoUrl && <meta property="og:image:secure_url" content={logoUrl} />}
+                <meta property="og:image:alt" content="Ebisu Tracker logo" />
                 <meta property="og:locale" content="en_US" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content={pageTitle} />
                 <meta name="twitter:description" content={HOME_DESCRIPTION} />
-                {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
-                <meta name="twitter:image:alt" content="Ebisu Tracker dashboard preview" />
+                {logoUrl && <meta name="twitter:image" content={logoUrl} />}
+                <meta name="twitter:image:alt" content="Ebisu Tracker logo" />
                 <meta name="application-name" content={WEBSITE_NAME} />
                 <script
                     type="application/ld+json"
