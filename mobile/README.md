@@ -10,6 +10,8 @@ npm run mobile:build:debug
 
 Install `android/app/build/outputs/apk/debug/app-debug.apk` through Android Studio or `adb`.
 
+The production shell loads `https://ebisutracker.com`, so website changes are not visible in the app until they are deployed. To test local frontend changes from a physical phone, run the Next.js app on your Mac's LAN address and temporarily replace the `server` section in `capacitor.config.json` with the values from `capacitor.config.local.json.example` after substituting your Mac's LAN IP. Do not commit that local URL.
+
 ## Play Internal Test Bundle
 
 Google Play requires a release-signed Android App Bundle.

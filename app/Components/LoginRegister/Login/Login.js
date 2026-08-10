@@ -65,7 +65,7 @@ const Login = ({ titleClass }) => {
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.userData));
-                router.push('/dashboard');
+                router.replace('/dashboard');
             }
         } catch (error) {
             setLoginError((error.response && error.response.data && error.response.data.message) || error.message || 'Error');
@@ -94,6 +94,7 @@ const Login = ({ titleClass }) => {
                     onChange={handleChange}
                     errorMessage={errors.password}
                     customErrorClass={styles.error}
+                    showPasswordToggle
                 />
                 {loginError && (
                     <div className={`${styles.error}`}>{t(loginError)}</div>

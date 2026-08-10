@@ -15,7 +15,7 @@ const GoogleAuthButton = () => {
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.userData));
-                router.push('/dashboard');
+                router.replace('/dashboard');
             }
         } catch (error) {
             console.error(error);

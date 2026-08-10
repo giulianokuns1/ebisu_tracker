@@ -56,8 +56,12 @@ export default function LayoutApp({ children }) {
         touchStartY.current = touch.clientY;
         isSwiping.current = false;
 
-        // Check if touch starts from the left edge (within 20px)
-        if (touch.clientX <= 20 && !isMenuOpenRef.current) {
+        // Give mobile users a forgiving left-side gesture zone without catching every swipe.
+        if (!isMenuOpenRef.current && touch.clientX <= window.innerWidth * 0.25) {
+            isSwiping.current = true;
+        }
+
+        if (isMenuOpenRef.current) {
             isSwiping.current = true;
         }
     };
@@ -70,10 +74,14 @@ export default function LayoutApp({ children }) {
         const deltaY = Math.abs(touch.clientY - touchStartY.current);
 
         // Only proceed if horizontal movement is greater than vertical (swipe gesture)
-        if (deltaX > 0 && deltaX > deltaY && deltaX > 50) {
-            // Swipe detected from left edge
-            if (!isMenuOpenRef.current) {
+        if (Math.abs(deltaX) > deltaY && Math.abs(deltaX) > 50) {
+            if (!isMenuOpenRef.current && deltaX > 0) {
                 openMenu();
+                isSwiping.current = false;
+            }
+
+            if (isMenuOpenRef.current && deltaX < 0) {
+                closeMenu();
                 isSwiping.current = false;
             }
         }

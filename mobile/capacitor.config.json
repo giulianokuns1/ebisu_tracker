@@ -3,7 +3,7 @@
   "appName": "Ebisu Tracker",
   "webDir": "www",
   "server": {
-    "url": "https://ebisutracker.com",
+    "url": "https://ebisutracker.com/login",
     "cleartext": false,
     "allowNavigation": [
       "ebisutracker.com",

@@ -78,7 +78,7 @@ const Register = ({ titleClass }) => {
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.userData));
-                router.push('/dashboard');
+                router.replace('/dashboard');
             } else {
                 setRegisterError(response.data.message);
             }
@@ -127,6 +127,7 @@ const Register = ({ titleClass }) => {
                     onChange={handleChange}
                     errorMessage={errors.password}
                     customErrorClass={styles.error}
+                    showPasswordToggle
                 />
                 {registerError && (
                     <div className={styles.registerError}>{t(registerError)}</div>
