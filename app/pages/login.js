@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { WEBSITE_NAME } from '@/constants';
 import { API_AUTH_URL } from '@/constants';
@@ -10,10 +10,12 @@ import { useRouter } from 'next/router';
 
 export default function LoginPage() {
     const router = useRouter();
+    const [isCheckingSession, setIsCheckingSession] = useState(true);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
+            setIsCheckingSession(false);
             return;
         }
 
@@ -28,9 +30,11 @@ export default function LoginPage() {
 
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            setIsCheckingSession(false);
         }).catch(() => {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            setIsCheckingSession(false);
         });
     }, [router]);
 
@@ -38,7 +42,7 @@ export default function LoginPage() {
         <Layout showParticles={false} isLogin={true}>
             <PublicPageSeo title={`Log In | ${WEBSITE_NAME}`} description="Log in to Ebisu Tracker to manage your expenses, payments, savings goals, and personal finance dashboard." path="/login" noIndex />
             <div className={styles.pageContainer}>
-                <Login />
+                {isCheckingSession ? <div className={styles.sessionLoader} aria-label="Checking session" /> : <Login />}
             </div>
         </Layout>
     );
