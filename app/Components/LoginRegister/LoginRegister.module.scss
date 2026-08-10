@@ -15,16 +15,38 @@
 }
 
 .sessionLoader {
-    border: 3px solid rgba(220, 232, 230, .2);
-    border-radius: 50%;
-    border-top-color: #42decf;
-    height: 32px;
-    width: 32px;
-    animation: sessionLoaderSpin .7s linear infinite;
+    align-items: center;
+    display: flex;
+    height: 88px;
+    justify-content: center;
+    width: 88px;
+
+    img {
+        animation: sessionLoaderBreathe 1.8s ease-in-out infinite;
+        filter: drop-shadow(0 0 0 rgba(66, 222, 207, 0));
+        height: 72px;
+        width: 72px;
+    }
 }
 
-@keyframes sessionLoaderSpin {
-    to { transform: rotate(360deg); }
+@keyframes sessionLoaderBreathe {
+    0%, 100% {
+        filter: drop-shadow(0 0 0 rgba(66, 222, 207, 0));
+        opacity: .78;
+        transform: scale(.9);
+    }
+
+    50% {
+        filter: drop-shadow(0 0 16px rgba(66, 222, 207, .5));
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sessionLoader img {
+        animation: none;
+    }
 }
 
 .formsRow {
