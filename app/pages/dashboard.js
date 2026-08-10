@@ -10,6 +10,8 @@ import Loading from "@/Components/UI/Loading";
 import axios from "axios";
 import { API_BASE_URL } from "@/constants";
 
+const SHOW_LOADING_TEST = false;
+
 function DashboardPage() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -35,6 +37,9 @@ function DashboardPage() {
         }
     }, [monthOffset]);
     useEffect(() => {
+        if (SHOW_LOADING_TEST) {
+            return;
+        }
         getData();
     }, [getData]);
     const onAddExpensePayment = () => {
@@ -48,7 +53,7 @@ function DashboardPage() {
             <Head>
                 <title>{`Dashboard | ${WEBSITE_NAME}`}</title>
             </Head>
-            {loading ? <Loading /> : error ? <div className={styles.loadError}><h1>{t('Dashboard unavailable')}</h1><p>{t('We could not load your dashboard right now.')}</p><button type="button" onClick={getData}>{t('Try again')}</button></div> : data && <Dashboard data={data} onAddExpensePayment={onAddExpensePayment} monthOffset={monthOffset} onPeriodChange={onPeriodChange} />}
+            {SHOW_LOADING_TEST || loading ? <Loading /> : error ? <div className={styles.loadError}><h1>{t('Dashboard unavailable')}</h1><p>{t('We could not load your dashboard right now.')}</p><button type="button" onClick={getData}>{t('Try again')}</button></div> : data && <Dashboard data={data} onAddExpensePayment={onAddExpensePayment} monthOffset={monthOffset} onPeriodChange={onPeriodChange} />}
         </LayoutApp>
     );
 }
