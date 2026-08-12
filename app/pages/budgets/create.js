@@ -16,7 +16,7 @@ function BudgetCreatePage() {
             <Head>
                 <title>{`Add Budget | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="New budget" title={t('Add Budget')} description="Set a spending limit for a category." />
+            <AppPageHeader eyebrow={t('New budget')} title={t('Add Budget')} description={t('Set a spending limit for a category.')} />
             <div className={styles.budgetForm}>
                 <BudgetsForm />
             </div>

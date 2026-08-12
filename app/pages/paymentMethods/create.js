@@ -16,7 +16,7 @@ function PaymentMethodsCreatePage() {
             <Head>
                 <title>{`Create Payment Method | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Payment setup" title={t('Create Payment Method')} description="Save a payment method for future expenses." />
+            <AppPageHeader eyebrow={t('Payment setup')} title={t('Create Payment Method')} description={t('Save a payment method for future expenses.')} />
             <div className={styles.paymentMethodForm}>
                 <PaymentMethodsForm />
             </div>

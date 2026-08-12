@@ -16,7 +16,7 @@ function ExpensesCreatePage() {
             <Head>
                 <title>{`Create Expense | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="New expense" title={t('Create Expense')} description={t('Add an expense and its payment schedule.')} />
+            <AppPageHeader eyebrow={t('New expense')} title={t('Create Expense')} description={t('Add an expense and its payment schedule.')} />
             <div className={styles.expensesForm}>
                 <ExpenseFormDetails />
             </div>

@@ -28,6 +28,7 @@ router.get('/newExpenseData', authenticateToken, expenseController.newExpenseDat
 router.post('/createExpense', authenticateToken, expenseController.createUpdateExpense);
 router.post('/deleteExpense', authenticateToken, expenseController.deleteExpense);
 router.post('/deleteExpenseAmount', authenticateToken, expenseController.deleteExpenseAmount);
+router.post('/updateExpenseMonthAmounts', authenticateToken, expenseController.updateMonthAmounts);
 
 router.get('/getCategories', authenticateToken, categoryController.getCategories);
 router.get('/getCategory', authenticateToken, categoryController.getCategory);

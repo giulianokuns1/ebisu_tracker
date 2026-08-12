@@ -10,10 +10,16 @@ module.exports = class ExpenseAmountSchedule {
      * @param {Number} expenseAmountId
      * @returns {Object}
      */
-    static get(expenseAmountId) {
-        return knex('expense_amount_schedule')
+    static get(expenseAmountId, year = null) {
+        const query = knex('expense_amount_schedule')
             .select()
-            .where('expense_amount_id', expenseAmountId)
+            .where('expense_amount_id', expenseAmountId);
+
+        if (year) {
+            query.where('year', year);
+        }
+
+        return query
             .then((expenseAmountSchedule) => {
                 return expenseAmountSchedule;
             })
@@ -28,11 +34,12 @@ module.exports = class ExpenseAmountSchedule {
      * @param {String} month
      * @returns {Object}
      */
-    static getByMonth(expenseAmountId, month) {
+    static getByMonth(expenseAmountId, month, year = new Date().getFullYear()) {
         return knex('expense_amount_schedule')
             .select()
             .where('expense_amount_id', expenseAmountId)
             .where('month', month)
+            .where('year', year)
             .then((expenseAmountSchedule) => {
                 return expenseAmountSchedule;
             })
@@ -100,11 +107,12 @@ module.exports = class ExpenseAmountSchedule {
      * @param {Number} amount
      * @returns {Object}
      */
-    static upsert(userId, expenseAmountId, month, amount) {
+    static upsert(userId, expenseAmountId, year, month, amount) {
         return knex('expense_amount_schedule')
             .where({
                 expense_amount_id: expenseAmountId,
                 user_id: userId,
+                year,
                 month: month
             })
             .first()
@@ -115,6 +123,7 @@ module.exports = class ExpenseAmountSchedule {
                         .where({
                             expense_amount_id: expenseAmountId,
                             user_id: userId,
+                            year,
                             month: month
                         })
                         .update({
@@ -124,9 +133,10 @@ module.exports = class ExpenseAmountSchedule {
                             // Return the updated record
                             return knex('expense_amount_schedule')
                                 .where({
-                                    expense_amount_id: expenseAmountId,
-                                    user_id: userId,
-                                    month: month
+                            expense_amount_id: expenseAmountId,
+                            user_id: userId,
+                            year,
+                            month: month
                                 })
                                 .first();
                         });
@@ -136,6 +146,7 @@ module.exports = class ExpenseAmountSchedule {
                         .insert({
                             expense_amount_id: expenseAmountId,
                             user_id: userId,
+                            year,
                             month: month,
                             amount: amount
                         })
@@ -151,23 +162,12 @@ module.exports = class ExpenseAmountSchedule {
                 throw error;
             });
     }
-    static getByMonth(expenseAmountId, month) {
-        return knex('expense_amount_schedule')
-            .select()
-            .where('expense_amount_id', expenseAmountId)
-            .where('month', month)
-            .then((expenseAmountSchedule) => {
-                return expenseAmountSchedule;
-            })
-            .catch((error) => {
-                throw error;
-            });
-    }
-    static getByUserId(userId, month) {
+    static getByUserId(userId, month, year = new Date().getFullYear()) {
         return knex('expense_amount_schedule')
             .select()
             .where('user_id', userId)
             .where('month', month)
+            .where('year', year)
             .then((expenseAmountSchedule) => {
                 return expenseAmountSchedule;
             })
@@ -176,4 +176,3 @@ module.exports = class ExpenseAmountSchedule {
             });
     }
 };
-

@@ -15,7 +15,7 @@ function BillsPage() {
             <Head>
                 <title>{`Bills | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Upcoming commitments" title={t('Bills')} description="Review your recurring bills and due dates." />
+            <AppPageHeader eyebrow={t('Upcoming commitments')} title={t('Bills')} description={t('Review your recurring bills and due dates.')} />
         </LayoutApp>
     );
 }

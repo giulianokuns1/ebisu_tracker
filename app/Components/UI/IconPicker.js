@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import icons from '@/public/icons.json';
 import styles from './IconPicker.module.scss';
+import { useTranslation } from '@/Hooks/useTranslation';
 
 const tabs = [
     { id: 'all', label: 'All Icons', icon: 'bi-grid' },
@@ -15,6 +16,7 @@ const tabs = [
 const popular = ['house', 'building', 'bank', 'wallet2', 'currency-dollar', 'piggy-bank', 'bar-chart-line', 'pie-chart', 'cart', 'bag', 'gift', 'tag', 'basket', 'cup-hot', 'heart', 'car-front', 'airplane', 'train-front', 'fuel-pump', 'bicycle', 'camera', 'book', 'controller', 'phone', 'laptop', 'sun', 'cloud', 'umbrella', 'lightning'];
 
 export default function IconPicker({ onSelect, selectedIcon, categoryMode = false }) {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState('');
     const [tab, setTab] = useState('all');
     const normalizeIcon = (icon) => (icon || '').replace(/^bi\s+bi-/, '').replace(/^bi-/, '').trim();
@@ -32,17 +34,17 @@ export default function IconPicker({ onSelect, selectedIcon, categoryMode = fals
     }, [iconsArray, searchQuery, tab]);
 
     if (!categoryMode) return <div className={styles.legacyPicker}>
-        <label className={styles.searchLabel} htmlFor="icon-search">Search icons</label>
-        <div className={styles.searchWrap}><i className="bi bi-search" aria-hidden="true" /><input id="icon-search" className={styles.search} type="search" placeholder="Search icons" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
-        <div className={styles.legacyGrid}>{iconsArray.filter((icon) => icon.includes(searchQuery.toLowerCase())).map((icon) => <button key={icon} type="button" className={normalizedSelectedIcon === icon ? styles.legacySelected : styles.legacyIcon} onClick={() => onSelect(icon)} aria-label={`Select ${icon.replaceAll('-', ' ')}`}><i className={`bi bi-${icon}`} aria-hidden="true" /></button>)}</div>
+        <label className={styles.searchLabel} htmlFor="icon-search">{t('Search icons')}</label>
+        <div className={styles.searchWrap}><i className="bi bi-search" aria-hidden="true" /><input id="icon-search" className={styles.search} type="search" placeholder={t('Search icons')} value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
+        <div className={styles.legacyGrid}>{iconsArray.filter((icon) => icon.includes(searchQuery.toLowerCase())).map((icon) => <button key={icon} type="button" className={normalizedSelectedIcon === icon ? styles.legacySelected : styles.legacyIcon} onClick={() => onSelect(icon)} aria-label={`${t('Select')} ${icon.replaceAll('-', ' ')}`}><i className={`bi bi-${icon}`} aria-hidden="true" /></button>)}</div>
     </div>;
 
-    return <section className={styles.picker} aria-label="Choose an icon">
-        <label className={styles.searchLabel} htmlFor="category-icon-search">Choose Icon <span aria-hidden="true">*</span></label>
-        <div className={styles.searchWrap}><i className="bi bi-search" aria-hidden="true" /><input id="category-icon-search" className={styles.search} type="search" placeholder="Search icons..." value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
+    return <section className={styles.picker} aria-label={t('Choose an icon')}>
+        <label className={styles.searchLabel} htmlFor="category-icon-search">{t('Choose Icon')} <span aria-hidden="true">*</span></label>
+        <div className={styles.searchWrap}><i className="bi bi-search" aria-hidden="true" /><input id="category-icon-search" className={styles.search} type="search" placeholder={t('Search icons...')} value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
         <div className={styles.browser}>
-            <div className={styles.tabs} role="tablist" aria-label="Icon groups">{tabs.map((item) => <button key={item.id} type="button" role="tab" aria-selected={tab === item.id} className={tab === item.id ? styles.tabActive : styles.tab} onClick={() => setTab(item.id)}><i className={`bi ${item.icon}`} aria-hidden="true" />{item.label}</button>)}</div>
-            <div className={styles.iconGrid}>{displayedIcons.map((icon) => <button key={icon} type="button" className={normalizedSelectedIcon === icon ? styles.iconSelected : styles.iconButton} onClick={() => onSelect(icon)} aria-label={`Select ${icon.replaceAll('-', ' ')}`} aria-pressed={normalizedSelectedIcon === icon}><i className={`bi bi-${icon}`} aria-hidden="true" />{normalizedSelectedIcon === icon && <span className={styles.selectedMark}><i className="bi bi-check" aria-hidden="true" /></span>}</button>)}{!displayedIcons.length && <p className={styles.empty}>No icons match your search.</p>}</div>
+            <div className={styles.tabs} role="tablist" aria-label={t('Icon groups')}>{tabs.map((item) => <button key={item.id} type="button" role="tab" aria-selected={tab === item.id} className={tab === item.id ? styles.tabActive : styles.tab} onClick={() => setTab(item.id)}><i className={`bi ${item.icon}`} aria-hidden="true" />{t(item.label)}</button>)}</div>
+            <div className={styles.iconGrid}>{displayedIcons.map((icon) => <button key={icon} type="button" className={normalizedSelectedIcon === icon ? styles.iconSelected : styles.iconButton} onClick={() => onSelect(icon)} aria-label={`${t('Select')} ${icon.replaceAll('-', ' ')}`} aria-pressed={normalizedSelectedIcon === icon}><i className={`bi bi-${icon}`} aria-hidden="true" />{normalizedSelectedIcon === icon && <span className={styles.selectedMark}><i className="bi bi-check" aria-hidden="true" /></span>}</button>)}{!displayedIcons.length && <p className={styles.empty}>{t('No icons match your search.')}</p>}</div>
         </div>
     </section>;
 }

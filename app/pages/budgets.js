@@ -39,7 +39,7 @@ function BudgetsPage() {
             <Head>
                 <title>{`Budgets | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Spending plans" title={t('Budgets')} description="Set limits and stay on top of category spending." />
+            <AppPageHeader eyebrow={t('Spending plans')} title={t('Budgets')} description={t('Set limits and stay on top of category spending.')} />
             <div className={styles.createButtonWrapper}>
                 <Link className={styles.budgetsCreateButton} href='/budgets/create' >{t('Add Budget')}</Link>
             </div>

@@ -20,11 +20,8 @@ const getMonthlyTrend = async (userId, endOffset, currencies) => {
     }
     const results = await Promise.all(periods.map(async ({ month, year }) => {
         const previous = new Date(year, month - 2, 1);
-        const [payments, creditPayments] = await Promise.all([
-            Payment.getPayments(userId, month, year),
-            Payment.getCreditPayments(userId, previous.getMonth() + 1, previous.getFullYear()),
-        ]);
-        return { month, year, data: await ExpenseLibrary.getExpensesExtended(userId, month, payments, creditPayments, currencies) };
+        const payments = await Payment.getPayments(userId, month, year);
+        return { month, year, data: await ExpenseLibrary.getExpensesExtended(userId, month, payments, currencies, year) };
     }));
     results.forEach(({ month, year, data }) => {
         const label = new Date(year, month - 1, 1).toLocaleDateString('en', { month: 'short' });
@@ -46,8 +43,6 @@ exports.get = async (req, res, next) => {
         var paymentsNextMonth;
         var currentMonth;
         var currencies;
-        var creditPayments;
-        var creditPaymentsNextMonth;
         var lastMonth;
         var nextMonth;
         var monthText;
@@ -70,11 +65,9 @@ exports.get = async (req, res, next) => {
             year = currentPeriod.year;
             payments = await Payment.getPayments(userId, currentMonth, year);
             paymentsNextMonth = await Payment.getPayments(userId, nextMonth, nextPeriod.year);
-            creditPayments = await Payment.getCreditPayments(userId, lastMonth, previousPeriod.year);
-            creditPaymentsNextMonth = await Payment.getCreditPayments(userId, currentMonth, year);
             currencies = await Currency.getCurrencies(userId);
-            expensesExtended = await ExpenseLibrary.getExpensesExtended(userId, currentMonth, payments, creditPayments, currencies);
-            expensesNextMonthExtended = await ExpenseLibrary.getExpensesExtended(userId, nextMonth, paymentsNextMonth, creditPaymentsNextMonth, currencies);
+            expensesExtended = await ExpenseLibrary.getExpensesExtended(userId, currentMonth, payments, currencies, year);
+            expensesNextMonthExtended = await ExpenseLibrary.getExpensesExtended(userId, nextMonth, paymentsNextMonth, currencies, nextPeriod.year);
             expensesNextMonth = expensesNextMonthExtended.expenses;
             const [monthlyTrend, savings, user] = await Promise.all([
                 getMonthlyTrend(userId, monthOffset, currencies),
@@ -106,11 +99,8 @@ exports.getNavigationSummary = async (req, res) => {
         const { month, year } = getMonthDetails();
         const previous = getMonthDetails(1);
         const currencies = await Currency.getCurrencies(userId);
-        const [payments, creditPayments] = await Promise.all([
-            Payment.getPayments(userId, month, year),
-            Payment.getCreditPayments(userId, previous.month, previous.year),
-        ]);
-        const data = await ExpenseLibrary.getExpensesExtended(userId, month, payments, creditPayments, currencies);
+        const payments = await Payment.getPayments(userId, month, year);
+        const data = await ExpenseLibrary.getExpensesExtended(userId, month, payments, currencies, year);
         const pendingCount = data.expenses.filter((expense) => !expense.isFullPaid && Number(expense.paymentTotal || 0) < Number(expense.amount || 0)).length;
         return res.json({ pendingCount });
     } catch (error) {

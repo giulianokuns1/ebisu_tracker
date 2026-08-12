@@ -4,6 +4,7 @@ import ExpenseForm from "@/Components/Expenses/ExpensesForm";
 import axios from "axios";
 import {API_BASE_URL} from "@/constants";
 import ExpensePaymentsList from './ExpensePaymentsList';
+import ExpenseAmountPlan from './ExpenseAmountPlan';
 
 const ExpenseFormDetails = ({ expenseId }) => {
     const [expenseData, setExpenseData] = useState(null);
@@ -49,6 +50,7 @@ const ExpenseFormDetails = ({ expenseId }) => {
                             newExpenseData={newExpenseData}
                         />
                         {expenseData && <ExpensePaymentsList payments={expenseData.payments || []} />}
+                        {expenseData && [2, 3].includes(Number(expenseData.expense?.type_id)) && <ExpenseAmountPlan expense={expenseData.expense} expenseAmounts={expenseData.expenseAmounts || []} expenseSchedule={expenseData.expenseSchedule || []} amountSchedule={expenseData.expenseAmountSchedule || []} onSaved={fetchExpense} />}
                     </div>
                 </div>
             )}

@@ -26,12 +26,14 @@ exports.createExpensePayment = async (req, res, next) => {
         let originalAmount;
         let date;
         const userId = req.user && req.user.id;
-        const { expense, amount, comment, paymentMethod, paymentDate, isFullPaid } = req.body;
-        if (userId && expense && amount && paymentMethod && paymentDate) {
+        const { expense, amount, amounts, comment, paymentMethod, paymentDate, isFullPaid } = req.body;
+        const paymentLines = Array.isArray(amounts) ? amounts : [{ expenseAmountId: expense?.expense_amount_id, amount, originalAmount: expense?.amount, isFullPaid }];
+        if (userId && expense && paymentLines.length && paymentMethod && paymentDate) {
             date = moment(paymentDate).format('YYYY-MM-DD HH:mm:ss');
-            originalAmount = expense && expense.amount;
-            payment = await PaymentLibrary.createPayment(userId, expense.expense_amount_id, paymentMethod, amount, comment, originalAmount, expense, date, isFullPaid);
-            payment = payment && payment[0];
+            payment = await Promise.all(paymentLines.filter((line) => Number(line.amount) > 0).map((line) => {
+                const originalAmount = line.originalAmount ?? expense.amount;
+                return PaymentLibrary.createPayment(userId, line.expenseAmountId, paymentMethod, line.amount, comment, originalAmount, expense, date, Boolean(line.isFullPaid));
+            }));
         }
         res.json({ payment });
     } catch (error) {
@@ -55,7 +57,7 @@ exports.getPayment = async (req, res, next) => {
             expenses = await Promise.all(expenses.map(async (expense) => {
                 if (expense.expense_amounts && expense.expense_amounts.length > 0) {
                     expense.expense_amounts = await Promise.all(expense.expense_amounts.map(async (expenseAmount) => {
-                        const expenseAmountSchedule = await ExpenseAmountSchedule.getByMonth(expenseAmount.id, currentMonth);
+                        const expenseAmountSchedule = await ExpenseAmountSchedule.getByMonth(expenseAmount.id, currentMonth, moment().year());
                         if (expenseAmountSchedule.length > 0) {
                             expenseAmount.amount = expenseAmountSchedule[0].amount;
                         }
@@ -84,7 +86,7 @@ exports.newPaymentData = async (req, res, next) => {
             expenses = await Promise.all(expenses.map(async (expense) => {
                 if (expense.expense_amounts && expense.expense_amounts.length > 0) {
                     expense.expense_amounts = await Promise.all(expense.expense_amounts.map(async (expenseAmount) => {
-                        const expenseAmountSchedule = await ExpenseAmountSchedule.getByMonth(expenseAmount.id, currentMonth);
+                        const expenseAmountSchedule = await ExpenseAmountSchedule.getByMonth(expenseAmount.id, currentMonth, moment().year());
                         if (expenseAmountSchedule.length > 0) {
                             expenseAmount.amount = expenseAmountSchedule[0].amount;
                         }

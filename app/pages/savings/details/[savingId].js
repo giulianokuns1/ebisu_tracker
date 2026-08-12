@@ -19,7 +19,7 @@ function SavingDetailsPage() {
             <Head>
                 <title>{`Edit Goal | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Goal details" title={t('Edit Goal')} description="Review your target and recorded contributions." />
+            <AppPageHeader eyebrow={t('Goal details')} title={t('Edit Goal')} description={t('Review your target and recorded contributions.')} />
             <div className={styles.form}>
                 <SavingsForm savingId={savingId} />
             </div>

@@ -19,7 +19,7 @@ function CategoriesDetailsPage() {
             <Head>
                 <title>{`Category | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Category details" title={t('Edit Category')} description="Update how this category appears in your transactions." />
+            <AppPageHeader eyebrow={t('Category details')} title={t('Edit Category')} description={t('Update how this category appears in your transactions.')} />
             <div className={styles.categoryForm}>
                 <CategoriesForm categoryId={categoryId} />
             </div>

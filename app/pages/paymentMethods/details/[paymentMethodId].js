@@ -19,7 +19,7 @@ function PaymentMethodsDetailsPage() {
             <Head>
                 <title>{`Edit Payment Method | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Payment setup" title={t('Edit Payment Method')} description="Review and update this payment method." />
+            <AppPageHeader eyebrow={t('Payment setup')} title={t('Edit Payment Method')} description={t('Review and update this payment method.')} />
             <div className={styles.paymentMethodForm}>
                 <PaymentMethodsForm paymentMethodId={paymentMethodId} />
             </div>

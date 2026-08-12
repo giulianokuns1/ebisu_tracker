@@ -26,6 +26,6 @@ function SavingsPage() {
     }, [range]);
     useEffect(() => { load().catch(() => setData({ goals: [], totals: {}, transactions: [] })); }, [load]);
     const clearRange = () => setRange([new Date(new Date().getFullYear(), 0, 1), new Date()]);
-    return <LayoutApp><Head><title>{`Savings | ${WEBSITE_NAME}`}</title></Head><AppPageHeader eyebrow="Goal planning" title={t('Savings')} description={t('Track your savings and achieve your financial goals.')} actionHref="/savings/create" actionLabel={t('Add Goal')} secondaryAction={<DateRangeFilter value={range} onChange={setRange} onClear={clearRange} />} />{data ? <SavingsDashboard data={data} onRefresh={load} range={range} /> : <Loading />}</LayoutApp>;
+    return <LayoutApp><Head><title>{`Savings | ${WEBSITE_NAME}`}</title></Head><AppPageHeader eyebrow={t('Goal planning')} title={t('Savings')} description={t('Track your savings and achieve your financial goals.')} actionHref="/savings/create" actionLabel={t('Add Goal')} secondaryAction={<DateRangeFilter value={range} onChange={setRange} onClear={clearRange} />} />{data ? <SavingsDashboard data={data} onRefresh={load} range={range} /> : <Loading />}</LayoutApp>;
 }
 export default withAuth(SavingsPage);

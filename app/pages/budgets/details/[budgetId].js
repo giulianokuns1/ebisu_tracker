@@ -19,7 +19,7 @@ function BudgetsDetailsPage() {
             <Head>
                 <title>{`Budget | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Budget details" title={t('Budget')} description="Review and update this spending limit." />
+            <AppPageHeader eyebrow={t('Budget details')} title={t('Budget')} description={t('Review and update this spending limit.')} />
             <div className={styles.budgetsForm}>
                 <BudgetsForm budgetId={budgetId} />
             </div>

@@ -19,7 +19,7 @@ function PaymentsDetailsPage() {
             <Head>
                 <title>{`Edit Payment | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Payment details" title={t('Edit Payment')} description="Review and update this payment." />
+            <AppPageHeader eyebrow={t('Payment details')} title={t('Edit Payment')} description={t('Review and update this payment.')} />
             <div className={styles.expensesForm}>
                 <PaymentsForm paymentId={paymentId} />
             </div>

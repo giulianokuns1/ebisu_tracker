@@ -42,7 +42,7 @@ function PaymentMethodsPage() {
             <Head>
                 <title>{`Payment Methods | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Payment setup" title={t('Payment Methods')} description={t('Manage how you pay your expenses.')} actionHref="/paymentMethods/create" actionLabel={t('Add Method')} />
+            <AppPageHeader eyebrow={t('Payment setup')} title={t('Payment Methods')} description={t('Manage how you pay your expenses.')} actionHref="/paymentMethods/create" actionLabel={t('Add Method')} />
             {loading ? (
                 <Loading />
             ) : paymentMethods && (

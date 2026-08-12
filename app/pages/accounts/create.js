@@ -16,7 +16,7 @@ function AccountCreatePage() {
             <Head>
                 <title>{`Add Account | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="New account" title={t('Add Account')} description="Add an account to organize your finances." />
+            <AppPageHeader eyebrow={t('New account')} title={t('Add Account')} description={t('Add an account to organize your finances.')} />
             <div className={styles.Form}>
                 <AccountsForm />
             </div>

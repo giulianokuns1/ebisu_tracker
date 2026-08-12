@@ -5,9 +5,11 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { WEBSITE_NAME } from '@/constants';
 import Hamburger from 'hamburger-react';
+import { useTranslation } from '@/Hooks/useTranslation';
 
 const HeaderMenu = ({ isMenuOpen, closeMenu, toggleMenu }) => {
     const router = useRouter();
+    const { t } = useTranslation();
 
     const handleLogoClick = (e) => {
         // If on dashboard and menu is open, close the menu instead of navigating
@@ -20,7 +22,7 @@ const HeaderMenu = ({ isMenuOpen, closeMenu, toggleMenu }) => {
     return (
         <div className={styles.headerMenu}>
             <div className={styles.mobileHeaderContent}>
-                <button type="button" className={styles.hamburgerButton} onClick={toggleMenu} aria-label="Toggle navigation"><Hamburger size={20} toggled={isMenuOpen} /></button>
+                <button type="button" className={styles.hamburgerButton} onClick={toggleMenu} aria-label={t('Toggle navigation')}><Hamburger size={20} toggled={isMenuOpen} /></button>
                 <Link href="/dashboard" className={styles.logoLink} onClick={handleLogoClick}>
                     <div className={styles.logoContainer}>
                         <Image

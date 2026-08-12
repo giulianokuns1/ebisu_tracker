@@ -15,7 +15,7 @@ function ActivityPage() {
             <Head>
                 <title>{`Activity | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Timeline" title={t('Activity')} description="Review recent changes to your finances." />
+            <AppPageHeader eyebrow={t('Timeline')} title={t('Activity')} description={t('Review recent changes to your finances.')} />
         </LayoutApp>
     );
 }

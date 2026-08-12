@@ -4,7 +4,7 @@ import { useTranslation } from '@/Hooks/useTranslation';
 import ExpensesGridItem from "@/Components/Expenses/View/ExpenseGridItem";
 import Link from 'next/link';
 
-const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, onAddExpensePayment, showNextMonth = true }) => {
+const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, onAddExpensePayment, showNextMonth = true, monthEdits, setMonthEdits, onSaveMonthEdits }) => {
     const { t } = useTranslation();
 
     const totalsByCurrency = (items) => items.reduce((totals, expense) => {
@@ -13,6 +13,16 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
         totals[key].amount += Number(expense.amount || 0);
         return totals;
     }, {});
+    const groupCreditExpenses = (items) => {
+        const groups = new Map();
+        items.forEach((expense) => {
+            const key = expense.payment_method_id ? `credit-${expense.payment_method_id}` : `expense-${expense.id}-${expense.expense_amount_id}`;
+            const group = groups.get(key) || { ...expense, currencyAmounts: [] };
+            group.currencyAmounts.push(expense);
+            groups.set(key, group);
+        });
+        return Array.from(groups.values());
+    };
     const renderTotal = (items) => <div className={styles.expensePanelTotal}><strong>{t('Total')}</strong><span>{Object.values(totalsByCurrency(items)).map((total) => <b key={total.symbol}>{total.symbol} {total.amount.toFixed(2)}</b>)}</span></div>;
 
     return (
@@ -20,10 +30,10 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
             <div className={styles.expenseGridContainer}>
                 <div className={styles.dashboardExpensePanel}>
                     <div className={styles.expenseGridContainerMonthText}>
-                        <span>{t(monthText)}</span><Link href="/expenses">{t('View All')}</Link>
+                        <span>{t(monthText)}</span><span>{Object.keys(monthEdits || {}).length > 0 && <button type="button" className={styles.updateMonthButton} onClick={onSaveMonthEdits}>{t('Update Month')}</button>}<Link href="/expenses">{t('View All')}</Link></span>
                     </div>
-                    {expenses.map((expense) => (
-                        <ExpensesGridItem key={'grid_item_' + expense.id + '_' + expense.expense_amount_id} expense={expense} onAddExpensePayment={onAddExpensePayment} />
+                    {groupCreditExpenses(expenses).map((expense) => (
+                        <ExpensesGridItem key={'grid_item_' + expense.id + '_' + expense.expense_amount_id} expense={expense} onAddExpensePayment={onAddExpensePayment} monthEdits={monthEdits} setMonthEdits={setMonthEdits} />
                     ))}
                     {renderTotal(expenses)}
                 </div>
@@ -31,7 +41,7 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
                     <div className={styles.expenseGridContainerMonthText}>
                         <span>{t(nextMonthText)}</span><Link href="/expenses">{t('View All')}</Link>
                     </div>
-                    {expensesNextMonth.map((expense) => (
+                    {groupCreditExpenses(expensesNextMonth).map((expense) => (
                         <ExpensesGridItem
                             key={'grid_item_nm_' + expense.id + '_' + expense.expense_amount_id}
                             expense={expense}

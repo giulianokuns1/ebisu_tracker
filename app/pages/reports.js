@@ -20,6 +20,7 @@ import Loading from "@/Components/UI/Loading";
 import { API_BASE_URL, WEBSITE_NAME } from "@/constants";
 import { withAuth } from "@/Hoc/withAuth";
 import styles from "@/Components/Dashboard/Dashboard.module.scss";
+import { useTranslation } from "@/Hooks/useTranslation";
 
 ChartJS.register(
   ArcElement,
@@ -34,6 +35,7 @@ ChartJS.register(
 );
 
 function ReportsPage() {
+  const { t } = useTranslation();
   const [data, setData] = useState(null);
   useEffect(() => {
     const load = async () => {
@@ -79,10 +81,10 @@ function ReportsPage() {
       <div className={styles.dashboard}>
         <header className={styles.dashboardHeader}>
           <div>
-            <p className={styles.eyebrow}>Financial intelligence</p>
-            <div className={styles.titleRow}><PageBackButton /><h1>Reports</h1></div>
+            <p className={styles.eyebrow}>{t('Financial intelligence')}</p>
+            <div className={styles.titleRow}><PageBackButton /><h1>{t('Reports')}</h1></div>
             <p className={styles.subtitle}>
-              Review your expense, income, and cash-flow trends.
+              {t('Review your expense, income, and cash-flow trends.')}
             </p>
           </div>
         </header>
@@ -90,8 +92,8 @@ function ReportsPage() {
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
               <div>
-                <p className={styles.panelKicker}>Expenses by category</p>
-                <h2>Where your money goes</h2>
+                <p className={styles.panelKicker}>{t('Expenses by category')}</p>
+                <h2>{t('Where your money goes')}</h2>
               </div>
             </div>
             <div className={styles.lineChart}>
@@ -117,8 +119,8 @@ function ReportsPage() {
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
               <div>
-                <p className={styles.panelKicker}>Expenses vs income</p>
-                <h2>Monthly comparison</h2>
+                <p className={styles.panelKicker}>{t('Expenses vs income')}</p>
+                <h2>{t('Monthly comparison')}</h2>
               </div>
             </div>
             <div className={styles.lineChart}>
@@ -127,12 +129,12 @@ function ReportsPage() {
                   labels,
                   datasets: [
                     {
-                      label: "Expenses",
+                      label: t('Expenses'),
                       data: data.monthly.map((item) => item.expenses),
                       backgroundColor: "#ef6b7a",
                     },
                     {
-                      label: "Income",
+                      label: t('Income'),
                       data: data.monthly.map((item) => item.income),
                       backgroundColor: "#4fd6be",
                     },
@@ -147,8 +149,8 @@ function ReportsPage() {
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
               <div>
-                <p className={styles.panelKicker}>Cash flow</p>
-                <h2>Income minus expenses</h2>
+                <p className={styles.panelKicker}>{t('Cash flow')}</p>
+                <h2>{t('Income minus expenses')}</h2>
               </div>
             </div>
             <div className={styles.lineChart}>
@@ -157,7 +159,7 @@ function ReportsPage() {
                   labels,
                   datasets: [
                     {
-                      label: "Cash flow",
+                      label: t('Cash flow'),
                       data: data.monthly.map(
                         (item) => item.income - item.expenses
                       ),
@@ -175,8 +177,8 @@ function ReportsPage() {
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
               <div>
-                <p className={styles.panelKicker}>Top expenses</p>
-                <h2>Category ranking</h2>
+                <p className={styles.panelKicker}>{t('Top expenses')}</p>
+                <h2>{t('Category ranking')}</h2>
               </div>
             </div>
             <div className={styles.legend}>

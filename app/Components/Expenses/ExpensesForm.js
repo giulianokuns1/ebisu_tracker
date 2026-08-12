@@ -551,7 +551,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
                 <form className={styles.createCategoryModalContainer} onSubmit={(event) => { event.preventDefault(); createCategory(); }}>
                     <div className={categoryStyles.editorIntro}>
                         <div>
-                            <label className={categoryStyles.nameField}>Category Name <span aria-hidden="true">*</span>
+                            <label className={categoryStyles.nameField}>{t('Category Name')} <span aria-hidden="true">*</span>
                                 <div className={`${categoryStyles.nameInputWrap} ${newCategoryNameError ? categoryStyles.nameInputError : ''}`}>
                                     <input value={newCategoryName} onChange={(event) => setNewCategoryName(event.target.value)} onBlur={() => setNewCategoryNameError(newCategoryName.trim() ? '' : t('Name is required'))} aria-invalid={Boolean(newCategoryNameError)} autoFocus />
                                     {newCategoryName.trim() && <i className="bi bi-check-circle-fill" aria-hidden="true" />}
@@ -573,7 +573,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
                 </form>
             </Dialog>
             <div className={styles.expenseEditorLayout}><FormShell><form onSubmit={handleFormSubmit}>
-                <FormSection icon="bi-file-earmark-text" title="Basic Information"><div className={styles.expenseFieldsGrid}>
+                <FormSection icon="bi-file-earmark-text" title={t('Basic Information')}><div className={styles.expenseFieldsGrid}>
                     <FormInput
                         label={t('Name')}
                         type={'text'}
@@ -609,7 +609,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
                         </div>
                     </div>
                 </div></FormSection>
-                <FormSection icon="bi-calendar3" title="Schedule"><div className={styles.expenseFieldsGrid}>
+                <FormSection icon="bi-calendar3" title={t('Schedule')}><div className={styles.expenseFieldsGrid}>
                     <div><FormSelect
                         label={t('Frequency')}
                         values={expensesTypes}
@@ -619,7 +619,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
                         defaultLabel={t('Select a Frequency')}
                         onBlur={validateType}
                         errorMessage={typeError}
-                    /><small className={styles.fieldHint}><i className="bi bi-info-circle" aria-hidden="true" /> How often is this expense?</small></div>
+                    /><small className={styles.fieldHint}><i className="bi bi-info-circle" aria-hidden="true" /> {t('How often is this expense?')}</small></div>
                     {isScheduled && <div><FormInput label={t('Due day')} type={'number'} value={expenseDueDay} onChange={(e) => setExpenseDueDay(e.target.value)} onBlur={validateDueDay} errorMessage={dueDayError} min={1} max={31} /></div>}
                     {!isScheduled && !isMonthlyFrequency && <div><FormDate label={t('Due date')} value={expenseDueDate} onChange={(date) => setExpenseDueDate(date)} onBlur={validateDate} errorMessage={dateError} /></div>}
                     {!isScheduled && isMonthlyFrequency && <div><FormInput label={t('Due day')} type={'number'} value={expenseDueDay || ''} onChange={handleMonthlyDueDayChange} onBlur={validateDueDay} errorMessage={dueDayError} min={1} max={28} /></div>}
@@ -631,7 +631,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
                             <div>{t('If you want to set a fixed amount for the current month, you can do it in the amount section.')}</div>
                         </div>
                     }
-                <FormSection icon="bi-cash-stack" title="Amount & Currency"><ExpenseAmounts
+                <FormSection icon="bi-cash-stack" title={t('Amount & Currency')}><ExpenseAmounts
                         expenseAmounts={expenseAmounts}
                         setExpenseAmountsAmount={setExpenseAmountsAmount}
                         setExpenseAmountsCurrency={setExpenseAmountsCurrency}
@@ -643,8 +643,8 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
                         handleDeleteExpenseAmount={handleDeleteExpenseAmount}
                         handleAddExpenseAmount={handleAddExpenseAmount}
                     /></FormSection>
-                <FormActionBar editing={Boolean(expenseId)} onCancel={() => router.push('/expenses')} onDelete={handleDelete} createLabel="Create Expense" updateLabel="Update Expense" />
-            </form></FormShell><aside className={styles.expenseSummary}><div className={styles.summaryHeader}><span><i className="bi bi-receipt" aria-hidden="true" /></span><h2>Expense Summary</h2></div><SummaryRow icon="bi-type" label="Name" value={expenseName || 'Not set'} /><SummaryRow icon="bi-tags" label="Category" value={selectedCategory?.name || 'Not set'} /><SummaryRow icon="bi-calendar3" label="Frequency" value={selectedExpenseTypeData?.name || 'Not set'} /><SummaryRow icon="bi-calendar-event" label="Due date" value={expenseDueDate ? expenseDueDate.toLocaleDateString() : 'Not set'} /><div className={styles.summaryAmounts}><span><i className="bi bi-currency-dollar" aria-hidden="true" /> Amount</span>{expenseAmounts?.length ? expenseAmounts.map((item, index) => { const currency = selectedCurrencyName(item.currency_id); return <strong key={`${item.currency_id}-${index}`}>{currency?.symbol || ''} {Number(item.amount || 0).toFixed(2)} <small>{currency?.name || ''}</small></strong>; }) : <strong>Not set</strong>}</div></aside></div>
+                <FormActionBar editing={Boolean(expenseId)} onCancel={() => router.push('/expenses')} onDelete={handleDelete} createLabel={t('Create Expense')} updateLabel={t('Update Expense')} />
+            </form></FormShell><aside className={styles.expenseSummary}><div className={styles.summaryHeader}><span><i className="bi bi-receipt" aria-hidden="true" /></span><h2>{t('Expense Summary')}</h2></div><SummaryRow icon="bi-type" label={t('Name')} value={expenseName || t('Not set')} /><SummaryRow icon="bi-tags" label={t('Category')} value={selectedCategory?.name || t('Not set')} /><SummaryRow icon="bi-calendar3" label={t('Frequency')} value={selectedExpenseTypeData?.name || t('Not set')} /><SummaryRow icon="bi-calendar-event" label={t('Due date')} value={expenseDueDate ? expenseDueDate.toLocaleDateString() : t('Not set')} /><div className={styles.summaryAmounts}><span><i className="bi bi-currency-dollar" aria-hidden="true" /> {t('Amount')}</span>{expenseAmounts?.length ? expenseAmounts.map((item, index) => { const currency = selectedCurrencyName(item.currency_id); return <strong key={`${item.currency_id}-${index}`}>{currency?.symbol || ''} {Number(item.amount || 0).toFixed(2)} <small>{currency?.name || ''}</small></strong>; }) : <strong>{t('Not set')}</strong>}</div></aside></div>
         </div>
     );
 };

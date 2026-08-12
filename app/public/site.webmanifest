@@ -4,8 +4,8 @@
   "description": "Personal finance and expense tracker for payments, budgets, savings goals, and spending insights.",
   "start_url": "/",
   "icons": [
-    { "src": "/favicon-96.png", "sizes": "96x96", "type": "image/png" },
-    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/favicon-96.png?v=2", "sizes": "96x96", "type": "image/png" },
+    { "src": "/android-chrome-512x512.png?v=2", "sizes": "512x512", "type": "image/png" }
   ],
   "theme_color": "#18191c",
   "background_color": "#18191c",

@@ -83,7 +83,7 @@ function ExpensesPage() {
             <Head>
                 <title>{`Expenses | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Spending ledger" title={t('Expenses')} description={t('Manage and track all your expenses.')} actionHref="/expenses/create" actionLabel={t('Add Expense')} secondaryAction={<button type="button" className={styles.filterButton} onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}><i className="bi bi-funnel" aria-hidden="true" /> {t('Filter')} <i className={`bi ${filtersOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden="true" /></button>} />
+            <AppPageHeader eyebrow={t('Spending ledger')} title={t('Expenses')} description={t('Manage and track all your expenses.')} actionHref="/expenses/create" actionLabel={t('Add Expense')} secondaryAction={<button type="button" className={styles.filterButton} onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}><i className="bi bi-funnel" aria-hidden="true" /> {t('Filter')} <i className={`bi ${filtersOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden="true" /></button>} />
             {filtersOpen && <div className={styles.filtersContainer}>
                 <MonthFilter onMonthChange={handleMonthChange} defaultMonth={selectedMonth} displayShowAll={true} onShowAllChange={handleShowAllChange} showAllChecked={showAllChecked} />
                 <div className={styles.searchContainer}>

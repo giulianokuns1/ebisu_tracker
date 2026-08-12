@@ -49,7 +49,7 @@ function PendingExpensesPage() {
             <Head>
                 <title>{`Pending Expenses | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Attention needed" title={t('Pending Expenses')} description={t('Review and manage outstanding expenses.')} secondaryAction={<button type="button" className={styles.filterButton} onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}><i className="bi bi-funnel" aria-hidden="true" /> {t('Filter')} <i className={`bi ${filtersOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden="true" /></button>} />
+            <AppPageHeader eyebrow={t('Attention needed')} title={t('Pending Expenses')} description={t('Review and manage outstanding expenses.')} secondaryAction={<button type="button" className={styles.filterButton} onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}><i className="bi bi-funnel" aria-hidden="true" /> {t('Filter')} <i className={`bi ${filtersOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden="true" /></button>} />
             {filtersOpen && <div className={styles.filtersContainer}><div className={styles.pendingFilterTabs}><button type="button" className={statusFilter === 'pending' ? styles.activePendingFilter : ''} onClick={() => setStatusFilter('pending')}>{t('Pending')} ({pendingExpenses?.length || 0})</button><button type="button" className={statusFilter === 'paid' ? styles.activePendingFilter : ''} onClick={() => setStatusFilter('paid')}>{t('Paid')} ({paidExpenses?.length || 0})</button><button type="button" className={statusFilter === 'all' ? styles.activePendingFilter : ''} onClick={() => setStatusFilter('all')}>{t('All')}</button></div></div>}
             {loading ? (
                 <Loading />

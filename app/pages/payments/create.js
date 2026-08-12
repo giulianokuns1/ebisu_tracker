@@ -19,7 +19,7 @@ function PaymentsCreatePage() {
             <Head>
                 <title>{`Create Payment | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="New payment" title={t('Create Payment')} description={t('Record a payment against an expense.')} />
+            <AppPageHeader eyebrow={t('New payment')} title={t('Create Payment')} description={t('Record a payment against an expense.')} />
             <div className={styles.paymentForm}>
                 <PaymentsForm defaultExpenseId={expenseId} />
             </div>

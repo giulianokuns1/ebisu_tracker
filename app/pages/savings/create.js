@@ -16,7 +16,7 @@ function SavingCreatePage() {
             <Head>
                 <title>{`Create Goal | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="New savings goal" title={t('Create Goal')} description="Set a target and begin tracking progress." />
+            <AppPageHeader eyebrow={t('New savings goal')} title={t('Create Goal')} description={t('Set a target and begin tracking progress.')} />
             <div className={styles.form}>
                 <SavingsForm />
             </div>

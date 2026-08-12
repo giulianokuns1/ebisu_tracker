@@ -1,15 +1,47 @@
 import styles from '@/Components/Expenses/Expenses.module.scss';
-import React from "react";
+import React, { useRef, useState } from "react";
 import { useTranslation } from '@/Hooks/useTranslation';
 import ExpensesPayment from "@/Components/Expenses/ExpensePayment";
 import ProgressBar from "@/Components/UI/ProgressBar/ProgressBar";
+import axios from 'axios';
+import { API_BASE_URL } from '@/constants';
 
-const ExpensesGridItem = ({ expense, onAddExpensePayment, isNextMonth, showAll }) => {
+const ExpensesGridItem = ({ expense, onAddExpensePayment, isNextMonth, showAll, monthEdits, setMonthEdits }) => {
     const { t } = useTranslation();
-    const paidAmount = Number(expense.paymentTotal || 0);
-    const totalAmount = Number(expense.amount || 0);
-    const isPaid = Boolean(expense.isFullPaid) || paidAmount >= totalAmount;
-    const percentage = totalAmount ? Math.min(100, (paidAmount / totalAmount) * 100) : 0;
+    const currencyAmounts = expense.currencyAmounts || [expense];
+    const isMultiCurrencyCredit = currencyAmounts.length > 1;
+    const currencyProgress = currencyAmounts.map((amount) => {
+        const total = Number(amount.amount || 0);
+        const paid = Number(amount.paymentTotal || 0);
+        return { ...amount, total, paid, percentage: total > 0 ? Math.min(100, (paid / total) * 100) : 0 };
+    });
+    const paidAmount = currencyProgress.reduce((sum, amount) => sum + amount.paid, 0);
+    const totalAmount = currencyProgress.reduce((sum, amount) => sum + amount.total, 0);
+    const isPaid = totalAmount > 0 && currencyProgress.every((amount) => amount.paid >= amount.total);
+    const percentage = totalAmount > 0 ? Math.min(100, (paidAmount / totalAmount) * 100) : 0;
+    const [isEditing, setIsEditing] = useState(false);
+    const [displayAmount, setDisplayAmount] = useState(totalAmount);
+    const [draftAmount, setDraftAmount] = useState('');
+    const ignoreNextRowClick = useRef(false);
+    const canEdit = !isNextMonth && [2, 3].includes(Number(expense.type_id)) && !isMultiCurrencyCredit;
+    const editValue = monthEdits?.[expense.id]?.amounts?.[expense.expense_amount_id]?.amount ?? totalAmount;
+    const updateAmount = (value) => setMonthEdits((current) => ({ ...current, [expense.id]: { expenseId: expense.id, amounts: { ...(current[expense.id]?.amounts || {}), [expense.expense_amount_id]: { expenseAmountId: expense.expense_amount_id, amount: value } } } }));
+    const finishEditing = async () => {
+        ignoreNextRowClick.current = true;
+        setIsEditing(false);
+        const nextAmount = Number(draftAmount);
+        if (!Number.isFinite(nextAmount) || nextAmount < 0 || nextAmount === totalAmount) return;
+        setDisplayAmount(nextAmount);
+        const token = localStorage.getItem('token');
+        const date = new Date();
+        if (isNextMonth) date.setMonth(date.getMonth() + 1);
+        await axios.post(`${API_BASE_URL}/updateExpenseMonthAmounts`, {
+            expenseId: expense.id,
+            year: date.getFullYear(),
+            month: date.getMonth() + 1,
+            amounts: [{ expenseAmountId: expense.expense_amount_id, amount: nextAmount }],
+        }, { headers: { Authorization: `Bearer ${token}` } });
+    };
 
     return (
         <div>
@@ -18,12 +50,12 @@ const ExpensesGridItem = ({ expense, onAddExpensePayment, isNextMonth, showAll }
                 onAddExpensePayment={onAddExpensePayment}
                 isNextMonth={isNextMonth}
                 renderTrigger={(openPayment) => (
-                    <button type="button" className={styles.expenseGridCard} onClick={openPayment}>
+                    <button type="button" className={styles.expenseGridCard} onClick={(event) => { if (event.target.closest(`.${styles.amountGrid}`)) return; if (ignoreNextRowClick.current) { ignoreNextRowClick.current = false; return; } if (isEditing) { finishEditing(); return; } openPayment(); }}>
                         <span className={styles.expenseCategoryIcon}><i className={expense.category_icon || 'bi bi-receipt'} aria-hidden="true" /></span>
                         <span className={styles.expenseRowDetails}><strong>{t(expense.name)}</strong><small>{showAll ? t(expense.dueDateDay) : t(expense.formattedGridDueDate)}</small></span>
-                        <span className={styles.amountGrid}>{expense.currency_symbol} {totalAmount.toFixed(2)}</span>
+                        <span className={`${styles.amountGrid} ${isMultiCurrencyCredit ? styles.multiCurrencyAmount : ''}`}>{currencyAmounts.map((amount) => <span key={amount.expense_amount_id} onClick={(event) => { if (!canEdit) return; event.stopPropagation(); setDraftAmount(String(amount.amount)); setIsEditing(true); }}>{amount.currency_symbol} {isEditing && Number(amount.expense_amount_id) === Number(expense.expense_amount_id) ? <input className={styles.dashboardInlineAmount} autoFocus type="number" min="0" step="0.01" value={draftAmount} onFocus={(event) => event.target.select()} onClick={(event) => event.stopPropagation()} onChange={(event) => { setDraftAmount(event.target.value); updateAmount(event.target.value); }} onBlur={finishEditing} onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur(); if (event.key === 'Escape') { ignoreNextRowClick.current = false; setIsEditing(false); } }} /> : Number(amount.amount || displayAmount).toFixed(2)}</span>)}</span>
                         <span className={`${styles.paymentStatus} ${isPaid ? styles.statusPaid : styles.statusPending}`}>{isPaid ? t('Paid') : t('Pending')}</span>
-                        {!showAll && <span className={styles.paymentProgress}><span>{expense.currency_symbol} {paidAmount.toFixed(2)} / {totalAmount.toFixed(2)} · {percentage.toFixed(0)}%</span><ProgressBar value={paidAmount} maxValue={totalAmount} isFullPaid={isPaid} /></span>}
+                        {!showAll && <span className={styles.paymentProgress}><span className={isMultiCurrencyCredit ? styles.multiCurrencyProgress : undefined}>{currencyProgress.map((amount) => <b key={amount.expense_amount_id}>{amount.currency_symbol} {amount.paid.toFixed(2)} / {amount.total.toFixed(2)} · {amount.percentage.toFixed(0)}%</b>)}</span><ProgressBar value={paidAmount} maxValue={totalAmount || 1} isFullPaid={isPaid} /></span>}
                     </button>
                 )}
             />

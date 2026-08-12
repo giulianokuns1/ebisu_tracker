@@ -310,7 +310,7 @@ function WizardSetupPage() {
                 <title>{`Wizard Setup | ${WEBSITE_NAME}`}</title>
             </Head>
             <Toast ref={toastRef} position="top-center" />
-            <AppPageHeader eyebrow="Guided setup" title={t('Wizard Setup')} description="Configure the essentials for your tracker." />
+            <AppPageHeader eyebrow={t('Guided setup')} title={t('Wizard Setup')} description={t('Configure the essentials for your tracker.')} />
             <div className={styles.wizardCard}>
                 {isLoadingWizard && <Loading small={true} />}
                 {!isLoadingWizard && (

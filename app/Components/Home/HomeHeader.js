@@ -25,7 +25,7 @@ const HomeHeader = ({ isLogin }) => {
                         </div>
                         <span className={styles.brandName}>{WEBSITE_NAME}<small>{t('Expense tracker')}</small></span>
                     </Link>
-                    <nav className={styles.navigation} aria-label="Main navigation">
+                    <nav className={styles.navigation} aria-label={t('Main navigation')}>
                         <a href="#features">{t('Features')}</a>
                         <a href="#how-it-works">{t('How it Works')}</a>
                     </nav>

@@ -18,7 +18,7 @@ function ExpensesDetailsPage() {
             <Head>
                 <title>{`Edit Expense | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Expense details" title={t('Edit Expense')} description="Review and update this expense." />
+            <AppPageHeader eyebrow={t('Expense details')} title={t('Edit Expense')} description={t('Review and update this expense.')} />
             <div className={styles.formContainer}>
                 {expenseId && <ExpenseFormDetails expenseId={expenseId} />}
             </div>

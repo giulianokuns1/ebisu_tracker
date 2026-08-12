@@ -481,6 +481,11 @@
     }
 }
 
+.updateMonthButton { background: #4fd6be; border: 0; border-radius: 6px; color: #092027; cursor: pointer; font: inherit; font-size: 11px; font-weight: 800; margin-right: 10px; padding: 6px 9px; }
+.dashboardInlineAmount { background: transparent; border: 0; color: inherit; font: inherit; font-size: inherit; font-weight: inherit; outline: 0; padding: 0; text-align: right; width: 76px; }
+.multiCurrencyAmount { align-items: flex-end; display: grid; gap: 4px; justify-items: end; }.multiCurrencyAmount > span { white-space: nowrap; }
+.multiCurrencyProgress { display: flex !important; flex-wrap: wrap; gap: 4px 10px; }.multiCurrencyProgress b { color: #829397; font-size: 10px; font-weight: 500; white-space: nowrap; }
+
 @media (max-width: 767px) {
     .expenseGridContainerMonthText {
         font-size: 18px;
@@ -596,6 +601,8 @@
 .paymentModalContainer .amountInput:focus-visible { box-shadow: 0 0 0 3px rgba(81, 224, 207, .14); }
 .paymentModalActions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 .cancelPaymentButton { background: transparent; border: 1px solid rgba(150, 184, 181, .22); border-radius: 8px; color: #c9d7d5; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; padding: 0 17px; }
+.editExpenseButton { background: transparent; border: 0; color: $primaryColor; cursor: pointer; font: inherit; font-size: 12px; font-weight: 750; margin-right: auto; padding: 10px 4px; }
+.editExpenseButton:hover { color: #8af0e4; }
 .addPaymentButton { margin-top: 0; }
 
 @media (max-width: 767px) {
@@ -612,6 +619,13 @@
     align-items: center;
     justify-items: center;
 }
+
+.multiCurrencyPaymentRows { display: grid; gap: 10px; }
+.multiCurrencyPaymentRows .paidAmountWrapper { align-items: stretch; grid-template-columns: 54px minmax(0, 1fr); position: relative; }
+.multiCurrencyPaymentRows .paidAmountWrapper .currencySymbol,
+.multiCurrencyPaymentRows .paidAmountWrapper .amountInput { box-sizing: border-box; height: 42px; }
+.multiCurrencyPaymentRows .paidAmountWrapper small { color: #91a5a5; font-size: 10px; grid-column: 1 / -1; margin: 3px 0 4px; }
+.multiCurrencyRemaining { display: flex; flex-wrap: wrap; gap: 4px 10px; }.multiCurrencyRemaining span { white-space: nowrap; }
 
 .currencySymbol {
     color: $inputTextColor;

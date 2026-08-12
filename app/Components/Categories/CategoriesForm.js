@@ -62,10 +62,10 @@ export default function CategoriesForm({ categoryId }) {
 
     return <><ConfirmDialog /><form className={styles.categoryFormCard} onSubmit={handleSubmit}>
         <div className={styles.editorIntro}>
-            <div><label className={styles.nameField}>Category Name <span aria-hidden="true">*</span><div className={`${styles.nameInputWrap} ${submitted && !validName ? styles.nameInputError : ''}`}><input value={categoryName} onChange={(event) => setCategoryName(event.target.value)} aria-invalid={submitted && !validName} autoFocus />{validName && <i className="bi bi-check-circle-fill" aria-hidden="true" />}</div>{submitted && !validName && <small>Please enter a category name.</small>}</label><div className={styles.nameColorControl}><CategoryColorPicker color={categoryColor} onChange={setCategoryColor} /></div></div>
+            <div><label className={styles.nameField}>{t('Category Name')} <span aria-hidden="true">*</span><div className={`${styles.nameInputWrap} ${submitted && !validName ? styles.nameInputError : ''}`}><input value={categoryName} onChange={(event) => setCategoryName(event.target.value)} aria-invalid={submitted && !validName} autoFocus />{validName && <i className="bi bi-check-circle-fill" aria-hidden="true" />}</div>{submitted && !validName && <small>{t('Please enter a category name.')}</small>}</label><div className={styles.nameColorControl}><CategoryColorPicker color={categoryColor} onChange={setCategoryColor} /></div></div>
             <aside className={styles.previewCard}><p>{t('Preview')}</p><div className={styles.previewContent}><span className={styles.previewIcon} style={{ backgroundColor: `${categoryColor}33`, color: categoryColor }}><i className={`bi bi-${normalizeIcon(categoryIcon)}`} aria-hidden="true" /></span><div><strong>{categoryName || t('Category Name')}</strong><small>{t('This is how it will appear in your categories.')}</small></div></div></aside>
         </div>
         <IconPicker categoryMode onSelect={setCategoryIcon} selectedIcon={categoryIcon} />
-        <FormActionBar editing={isEditing} onCancel={() => router.push('/categories')} onDelete={requestDelete} createLabel="Create Category" updateLabel="Update Category" />
+        <FormActionBar editing={isEditing} onCancel={() => router.push('/categories')} onDelete={requestDelete} createLabel={t('Create Category')} updateLabel={t('Update Category')} />
     </form></>;
 }

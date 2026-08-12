@@ -38,7 +38,7 @@ function AccountsPage() {
             <Head>
                 <title>{`Accounts | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Financial structure" title={t('Accounts')} description={t('Manage your financial accounts.')} actionHref="/accounts/create" actionLabel={t('Add Account')} />
+            <AppPageHeader eyebrow={t('Financial structure')} title={t('Accounts')} description={t('Manage your financial accounts.')} actionHref="/accounts/create" actionLabel={t('Add Account')} />
             {loading ? (
                 <Loading />
             ) : accounts && (

@@ -16,7 +16,7 @@ function CategoriesCreatePage() {
             <Head>
                 <title>{`New Category | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="New category" title={t('Create Category')} description="Organize your transactions with a category." />
+            <AppPageHeader eyebrow={t('New category')} title={t('Create Category')} description={t('Organize your transactions with a category.')} />
             <div className={styles.categoryForm}>
                 <CategoriesForm />
             </div>

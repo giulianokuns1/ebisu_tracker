@@ -10,6 +10,7 @@ import FormSelect from "@/Components/UI/Form/FormSelect";
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 import FormCheckbox from "@/Components/UI/Form/Checkbox/FormCheckbox";
+import { useRouter } from 'next/router';
 
 const toNumber = (value) => {
     const number = Number(value);
@@ -19,6 +20,7 @@ const getRemainingAmount = (amountRecord) => Math.max(0, toNumber(amountRecord?.
 
 const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fullWidthButton, renderTrigger }) => {
     const { t } = useTranslation();
+    const router = useRouter();
 
     const getDefaultPaymentMethodId = () => {
         if (!expense || !expense.paymentMethods || !expense.paymentMethods.length) {
@@ -35,6 +37,7 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
 
     const [modalVisible, setModalVisible] = useState(false);
     const [amount, setAmount] = useState('');
+    const [amounts, setAmounts] = useState({});
     const [expenseAmount, setExpenseAmount] = useState(expense?.expense_amounts?.[0]?.id || expense?.expense_amount_id || '');
     const [dateError, setDateError] = useState('');
     const [comment, setComment] = useState('');
@@ -43,6 +46,8 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
     const notificationToast = useRef(null);
     const [paymentDate, setPaymentDate] = useState(today);
     const [isFullPaid, setIsFullPaid] = useState(false);
+    const expenseAmounts = expense?.currencyAmounts || expense?.expense_amounts || [];
+    const isMultiCurrency = expenseAmounts.length > 1;
 
     useEffect(() => {
         if (!expense || !expense.paymentMethods || !expense.paymentMethods.length) {
@@ -58,10 +63,12 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
         const amountRecord = defaultExpenseAmount || (expense?.expense_amount_id ? { id: expense.expense_amount_id, amount: expense.amount, paymentTotal: expense.paymentTotal } : null);
         setExpenseAmount(amountRecord?.id || '');
         setAmount(amountRecord ? String(getRemainingAmount(amountRecord)) : '');
+        setAmounts(Object.fromEntries(expenseAmounts.map((record) => [record.expense_amount_id || record.id, String(getRemainingAmount(record))])));
     }, [expense]);
 
     const validateAmount = () => {
-        if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+        const hasPayment = isMultiCurrency ? Object.values(amounts).some((value) => Number(value) > 0) : Number(amount) > 0;
+        if (!hasPayment) {
             setAmountError(t('Amount must be a number greater than 0'));
             return false;
         }
@@ -91,6 +98,12 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
                 {
                     expense: expenseForRequest,
                     amount: amount,
+                    amounts: isMultiCurrency ? expenseAmounts.map((record) => ({
+                        expenseAmountId: record.expense_amount_id || record.id,
+                        amount: amounts[record.expense_amount_id || record.id] || 0,
+                        originalAmount: record.amount,
+                        isFullPaid: Number(amounts[record.expense_amount_id || record.id] || 0) >= Number(record.amount || 0),
+                    })) : undefined,
                     comment: comment,
                     paymentMethod: paymentMethod,
                     paymentDate: paymentDate,
@@ -110,6 +123,7 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
             }
             setModalVisible(false);
             setAmount('');
+            setAmounts({});
             setComment('');
             onAddExpensePayment();
         } catch (error) {
@@ -128,6 +142,7 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
             ? getRemainingAmount(amountRecord)
             : getRemainingAmount(expense);
         setAmount(remaining ? String(remaining) : '');
+        setAmounts(Object.fromEntries(expenseAmounts.map((record) => [record.expense_amount_id || record.id, String(getRemainingAmount(record))])));
         setIsFullPaid(false);
         setModalVisible(true);
     }
@@ -159,7 +174,7 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
                     <div className={styles.paymentModalIntro}>
                         <span>{t('Record payment')}</span>
                         <h2>{t(expense.name)}</h2>
-                        <p>{displayCurrencySymbol || ''} {getRemainingAmount(selectedExpenseAmount || expense).toFixed(2)} {t('remaining')}</p>
+                        <p className={isMultiCurrency ? styles.multiCurrencyRemaining : undefined}>{isMultiCurrency ? expenseAmounts.map((record) => <span key={record.expense_amount_id || record.id}>{record.currency_symbol || ''} {getRemainingAmount(record).toFixed(2)} {t('remaining')}</span>) : <>{displayCurrencySymbol || ''} {getRemainingAmount(selectedExpenseAmount || expense).toFixed(2)} {t('remaining')}</>}</p>
                     </div>
                     <div className={styles.formWrapper}>
                         <FormSelect
@@ -170,7 +185,7 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
                             onChange={(e) => setPaymentMethod(e.target.value)}
                             hideDefault={true}
                         />
-                        {expense.expense_amounts && expense.expense_amounts.length > 1 && (
+                        {!isMultiCurrency && expense.expense_amounts && expense.expense_amounts.length > 1 && (
                             <FormSelect
                                 label={t('Expense Amount')}
                                 values={expense.expense_amounts}
@@ -186,20 +201,21 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
                                 hideDefault={true}
                             />
                         )}
-                        <div className={styles.formInputWrapper}>
+                        {isMultiCurrency ? <div className={styles.formInputWrapper}>
+                            <label className={styles.formInputLabel}>{t('Paid Amounts')}</label>
+                            <div className={styles.multiCurrencyPaymentRows}>{expenseAmounts.map((record) => {
+                                const id = record.expense_amount_id || record.id;
+                                return <div className={styles.paidAmountWrapper} key={id}><div className={styles.currencySymbol}>{record.currency_symbol || '—'}</div><input className={styles.amountInput} type="number" min="0" step="0.01" value={amounts[id] ?? ''} onChange={(event) => setAmounts((current) => ({ ...current, [id]: event.target.value }))} /><small>{(record.currency_symbol || '')} {getRemainingAmount(record).toFixed(2)} {t('remaining')}</small></div>;
+                            })}</div>
+                            <div className={styles.inputError}>{amountError}</div>
+                        </div> : <div className={styles.formInputWrapper}>
                             <label className={styles.formInputLabel}>{t('Paid Amount')}</label>
                             <div className={styles.paidAmountWrapper}>
                                 <div className={styles.currencySymbol}>{displayCurrencySymbol || '—'}</div>
-                                <input
-                                    className={styles.amountInput}
-                                    type="number"
-                                    value={amount}
-                                    onChange={(e) => setAmount(e.target.value)}
-                                    onBlur={validateAmount}
-                                />
+                                <input className={styles.amountInput} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} onBlur={validateAmount} />
                             </div>
                             <div className={styles.inputError}>{amountError}</div>
-                        </div>
+                        </div>}
                         <div className={styles.formInputWrapper}>
                             <label className={styles.formInputLabel}>{t('Comment')}</label>
                             <input
@@ -217,15 +233,16 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
                             dateFormat="dd/MM/yyyy"
                         />
                         <div className={styles.inputError}>{dateError}</div>
-                        <FormCheckbox
+                        {!isMultiCurrency && <FormCheckbox
                             label={t('Full paid')}
                             checked={isFullPaid}
                             onChange={handleFullPaid}
-                        />
+                        />}
                     </div>
                     <div className={styles.paymentModalActions}>
+                        <button type="button" className={styles.editExpenseButton} onClick={() => { setModalVisible(false); router.push(`/expenses/details/${expense.id}`); }}>{t('Edit expense')}</button>
                         <button type="button" className={styles.cancelPaymentButton} onClick={() => setModalVisible(false)}>{t('Cancel')}</button>
-                        <Button label={t('Add Payment')} customClass={styles.addPaymentButton} onClick={createExpensePayment} />
+                        <Button label={t(isMultiCurrency ? 'Add Payments' : 'Add Payment')} customClass={styles.addPaymentButton} onClick={createExpensePayment} />
                     </div>
                 </div>
             </Dialog>

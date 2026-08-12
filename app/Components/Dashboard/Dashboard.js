@@ -9,7 +9,7 @@ import PageBackButton from '@/Components/Layout/PageBackButton';
 
 ChartJS.register(ArcElement, CategoryScale, Filler, Legend, LineElement, LinearScale, PointElement, Tooltip);
 
-const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange }) => {
+const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, monthEdits, setMonthEdits, onSaveMonthEdits }) => {
     const { t } = useTranslation();
     const currencies = Object.entries(data.totalAmountByCurrency || {});
     const [selectedCurrencyId, setSelectedCurrencyId] = useState(currencies[0]?.[0] || '');
@@ -158,8 +158,11 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange }) =
                         expensesNextMonth={data.expensesNextMonth}
                         monthText={data.monthText}
                         nextMonthText={data.nextMonthText}
-                        onAddExpensePayment={onAddExpensePayment}
-                        showNextMonth={data.dashboardShowNextMonth !== false}
+                         onAddExpensePayment={onAddExpensePayment}
+                         showNextMonth={data.dashboardShowNextMonth !== false}
+                         monthEdits={monthEdits}
+                         setMonthEdits={setMonthEdits}
+                         onSaveMonthEdits={onSaveMonthEdits}
                     />
                 </section>
                 <section className={styles.activityPanel}>
@@ -222,14 +225,18 @@ const MetricCard = ({ icon, title, rows, tone, formatAmount }) => (
     </div>
 );
 
-const CurrencySelect = ({ currencies, value, onChange }) => currencies.length > 1 && (
-    <label className={styles.currencySelect}>
-        <span className="visually-hidden">Currency</span>
-        <select value={value} onChange={(event) => onChange(event.target.value)}>
-            {currencies.map(([id, value]) => <option key={id} value={id}>{value.currency?.symbol} {value.currency?.name}</option>)}
-        </select>
-    </label>
-);
+const CurrencySelect = ({ currencies, value, onChange }) => {
+    const { t } = useTranslation();
+
+    return currencies.length > 1 && (
+        <label className={styles.currencySelect}>
+            <span className="visually-hidden">{t('Currency')}</span>
+            <select value={value} onChange={(event) => onChange(event.target.value)}>
+                {currencies.map(([id, value]) => <option key={id} value={id}>{value.currency?.symbol} {value.currency?.name}</option>)}
+            </select>
+        </label>
+    );
+};
 
 const LegendRow = ({ tone, label, value, total, symbol, formatAmount }) => (
     <div className={styles.legendRow}>

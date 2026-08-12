@@ -43,7 +43,7 @@ function CategoriesPage() {
             <Head>
                 <title>{`Categories | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Organization" title={t('Categories')} description={t('Organize your expenses with categories.')} actionHref="/categories/create" actionLabel={t('Add Category')} />
+            <AppPageHeader eyebrow={t('Organization')} title={t('Categories')} description={t('Organize your expenses with categories.')} actionHref="/categories/create" actionLabel={t('Add Category')} />
             {/*<div className={styles.categoriesForm}>*/}
             {/*    <CategoriesForm addCategory={addCategory}/>*/}
             {/*</div>*/}

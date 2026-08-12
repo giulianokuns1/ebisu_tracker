@@ -13,7 +13,7 @@ function CurrenciesCreatePage() {
     return (
         <LayoutApp>
             <Head><title>{`Add Currency | ${WEBSITE_NAME}`}</title></Head>
-            <AppPageHeader eyebrow="Preferences" title={t('Add Currency')} description="Add a currency you use to track your money." />
+            <AppPageHeader eyebrow={t('Preferences')} title={t('Add Currency')} description={t('Add a currency you use to track your money.')} />
             <div className={styles.formContainer}><CurrenciesForm /></div>
         </LayoutApp>
     );

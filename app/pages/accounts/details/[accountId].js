@@ -19,7 +19,7 @@ function AccountsDetailsPage() {
             <Head>
                 <title>{`Account | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow="Account details" title={t('Account')} description="Review and update this financial account." />
+            <AppPageHeader eyebrow={t('Account details')} title={t('Account')} description={t('Review and update this financial account.')} />
             <div className={styles.accountsForm}>
                 <AccountsForm accountId={accountId} />
             </div>

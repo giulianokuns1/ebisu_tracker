@@ -7,6 +7,7 @@ const PaymentMethods = require('../models/paymentMethod');
 const Utils = require('../utils/utils');
 const ExpenseLibrary = require('../libraries/expense');
 const ExpenseSchedule = require('../models/expenseSchedule');
+const ExpenseAmountSchedule = require('../models/expenseAmountSchedule');
 const PaymentLibrary = require('../libraries/payment');
 const moment = require("moment");
 
@@ -15,7 +16,6 @@ exports.getExpenses = async (req, res, next) => {
         let lastMonth;
         let monthText;
         let payments;
-        let creditPayments;
         let currencies;
         let currentMonth = new Date().getMonth() + 1;
         let currentYear = new Date().getFullYear();
@@ -28,8 +28,7 @@ exports.getExpenses = async (req, res, next) => {
             lastMonth = month - 1;
             currencies = await Currency.getCurrencies(userId);
             payments = await Payment.getPayments(userId, showAll ? null : month, showAll ? null : currentYear);
-            creditPayments = await Payment.getCreditPayments(userId, showAll ? null : lastMonth, showAll ? null : currentYear);
-            expensesExtended = await ExpenseLibrary.getExpensesExtended(userId, month, payments, creditPayments, currencies, showAll);
+            expensesExtended = await ExpenseLibrary.getExpensesExtended(userId, month, payments, currencies, currentYear, showAll);
             const categorySummaryByCurrency = {};
             expensesExtended.expenses.forEach((expense) => {
                 const currencyId = expense.currency_id;
@@ -58,7 +57,6 @@ exports.getExpenses = async (req, res, next) => {
         res.json({
             ...expensesExtended,
             payments,
-            creditPayments,
             monthText
         });
     } catch (error) {
@@ -74,17 +72,20 @@ exports.getExpense = async (req, res, next) => {
         let expensesTypes;
         let currencies;
         let expenseSchedule;
+        let expenseAmountSchedule;
         let payments;
         let userId = req.user && req.user.id;
         let expenseId = req.query && req.query.expenseId;
         if (userId && expenseId) {
             expense = await Expense.getExpense(userId, expenseId);
             expense = expense && expense[0];
-            expenseAmounts = await ExpenseLibrary.getExpenseAmountByExpense(userId, expenseId);
+            const scheduleYear = Number(req.query && req.query.scheduleYear) || new Date().getFullYear();
+            expenseAmounts = await ExpenseLibrary.getExpenseAmountByExpense(userId, expenseId, scheduleYear);
             categories = await Category.getCategories(userId);
             expensesTypes = await ExpensesType.getExpensesType();
             currencies = await Currency.getCurrencies(userId);
             expenseSchedule = await ExpenseSchedule.get(expenseId);
+            expenseAmountSchedule = await Promise.all(expenseAmounts.map((amount) => ExpenseAmountSchedule.get(amount.id, scheduleYear)));
             payments = await PaymentLibrary.getPaymentsByExpense(userId, expenseId);
         }
         res.json({
@@ -94,6 +95,7 @@ exports.getExpense = async (req, res, next) => {
             expense,
             expenseAmounts,
             expenseSchedule,
+            expenseAmountSchedule: expenseAmountSchedule.flat(),
             payments: payments.payments,
             paymentsByMonth: payments.monthPayments,
             totalPaid: payments.totalPaid
@@ -128,7 +130,7 @@ exports.createUpdateExpense = async (req, res, next) => {
     try {
         let data;
         let expenseId;
-        const { id, name, category, expenseType, expenseDueDate, expenseAmounts, expenseDueDay, scheduledMonths, expensePaymentMethod } = req.body;
+        const { id, name, category, expenseType, expenseDueDate, expenseAmounts, expenseDueDay, scheduledMonths, amountSchedule } = req.body;
         const userId = req.user && req.user.id;
         data = {
             id: id,
@@ -139,7 +141,7 @@ exports.createUpdateExpense = async (req, res, next) => {
             expenseAmounts: expenseAmounts,
             expenseDueDay: expenseDueDay,
             scheduledMonths: scheduledMonths,
-            expensePaymentMethod: expensePaymentMethod
+            amountSchedule: amountSchedule
         }
         if (!userId) {
             res.status(401).json({ error: 'Unauthorized' });
@@ -179,6 +181,43 @@ exports.deleteExpenseAmount = async (req, res, next) => {
         res.status(500).json({ error: 'An error deleting the expense amount.' });
     }
 };
+exports.updateMonthAmounts = async (req, res) => {
+    try {
+        const userId = req.user && req.user.id;
+        const { expenseId, year, month, amounts } = req.body;
+        const scheduleYear = Number(year);
+        const scheduleMonth = Number(month);
+        if (!userId || !Number(expenseId) || !Number.isInteger(scheduleYear) || !Number.isInteger(scheduleMonth) || scheduleMonth < 1 || scheduleMonth > 12 || !Array.isArray(amounts)) {
+            return res.status(400).json({ error: 'Invalid monthly amount update.' });
+        }
+
+        const expense = await Expense.getExpense(userId, expenseId);
+        if (!expense.length || ![2, 3].includes(Number(expense[0].type_id))) {
+            return res.status(400).json({ error: 'This expense does not support a monthly plan.' });
+        }
+
+        const scheduledMonths = await ExpenseSchedule.get(expenseId);
+        if (Number(expense[0].type_id) === 2 && !scheduledMonths.some((item) => Number(item.month) === scheduleMonth)) {
+            return res.status(400).json({ error: 'This expense is not scheduled for the selected month.' });
+        }
+
+        const expenseAmounts = await Expense.getExpenseAmount(userId, expenseId);
+        const ownedAmountIds = new Set(expenseAmounts.map((item) => Number(item.id)));
+        for (const item of amounts) {
+            const amountId = Number(item.expenseAmountId);
+            const amount = Number(item.amount);
+            if (!ownedAmountIds.has(amountId) || !Number.isFinite(amount) || amount < 0) {
+                return res.status(400).json({ error: 'Invalid monthly amount.' });
+            }
+            await ExpenseAmountSchedule.upsert(userId, amountId, scheduleYear, scheduleMonth, amount);
+        }
+
+        return res.status(200).json({ message: 'Monthly amounts updated.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'An error occurred while updating monthly amounts.' });
+    }
+};
 exports.getPendingExpenses = async (req, res, next) => {
     try {
         let expenses;
@@ -187,7 +226,6 @@ exports.getPendingExpenses = async (req, res, next) => {
         let payments;
         let expensesIds = [];
         let paymentMethods = [];
-        let creditPayments;
         const userId = req.user && req.user.id;
         const currentDate = new Date();
         const month = currentDate.getMonth() + 1;
@@ -203,35 +241,7 @@ exports.getPendingExpenses = async (req, res, next) => {
             expenses = await Promise.all(expenses.map(async (expense) => {
                 expense.formattedDueDate = Utils.expenseFormattedDueDate(expense);
                 expense.isTotalPaid = true;
-                if (expense && expense.payment_method_id) {
-                    creditPayments = await ExpenseLibrary.getCreditExpenses(userId, month, year, paymentMethods, expense);
-                    expense.expense_amounts.map(async (expenseAmount) => {
-                        expenseAmount.payments = [];
-                        expenseAmount.paymentTotal = 0;
-                        expenseAmount.amount = 0;
-                        creditPayments.map((payment) => {
-                            if (payment.expense_amount_currency_id === expenseAmount.currency_id &&
-                                payment.payment_method_id === expense.payment_method_id) {
-                                expenseAmount.amount += parseFloat(payment.amount);
-                            }
-                        });
-                        payments.map((payment) => {
-                            if (payment.expense_amount_currency_id === expenseAmount.currency_id &&
-                                expense.payment_method_id &&
-                                payment.is_credit_payment &&
-                                payment.expense_amount_id === expenseAmount.id
-                            ) {
-                                expenseAmount.payments.push(payment);
-                                expenseAmount.paymentTotal += parseFloat(payment.amount);
-                            }
-                        });
-                        expenseAmount.isPaid = expenseAmount.paymentTotal >= expenseAmount.amount;
-                        if (!expenseAmount.isPaid) {
-                            expense.isTotalPaid = false;
-                        }
-                    });
-                } else {
-                    expense.expense_amounts.map((expenseAmount) => {
+                expense.expense_amounts.map((expenseAmount) => {
                         expenseAmount.payments = [];
                         expenseAmount.paymentTotal = 0;
                         payments.map((payment) => {
@@ -244,8 +254,7 @@ exports.getPendingExpenses = async (req, res, next) => {
                         if (!expenseAmount.isPaid) {
                             expense.isTotalPaid = false;
                         }
-                    });
-                }
+                });
 
                 if (expense.isTotalPaid) {
                     paidExpenses.push(expense);

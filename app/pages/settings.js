@@ -90,7 +90,7 @@ function SettingsPage() {
                 <title>{`Settings | ${WEBSITE_NAME}`}</title>
             </Head>
             <Toast ref={notificationToast} position={'top-center'} />
-            <AppPageHeader eyebrow="Workspace preferences" title={t('Settings')} description={t('Customize your tracker preferences.')} />
+            <AppPageHeader eyebrow={t('Workspace preferences')} title={t('Settings')} description={t('Customize your tracker preferences.')} />
             <FormShell className={styles.settingsCard}><form onSubmit={(event) => { event.preventDefault(); saveDefaultCurrency(); }}>
                 <div className={styles.settingBlock}>
                     <label className={styles.settingLabel}>{t('Language')}</label>

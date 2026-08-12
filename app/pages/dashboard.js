@@ -17,6 +17,7 @@ function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [monthOffset, setMonthOffset] = useState(0);
+    const [monthEdits, setMonthEdits] = useState({});
     const { t } = useTranslation();
     const getData = useCallback(async () => {
         setLoading(true);
@@ -46,14 +47,29 @@ function DashboardPage() {
         getData();
     }
     const onPeriodChange = (offset) => {
+        setMonthEdits({});
         setMonthOffset(offset);
+    };
+    const saveMonthEdits = async () => {
+        const target = new Date();
+        target.setDate(1);
+        target.setMonth(target.getMonth() - monthOffset);
+        const token = localStorage.getItem('token');
+        await Promise.all(Object.values(monthEdits).map((edit) => axios.post(`${API_BASE_URL}/updateExpenseMonthAmounts`, {
+            expenseId: edit.expenseId,
+            year: target.getFullYear(),
+            month: target.getMonth() + 1,
+            amounts: Object.values(edit.amounts),
+        }, { headers: { Authorization: `Bearer ${token}` } })));
+        setMonthEdits({});
+        getData();
     };
     return (
         <LayoutApp>
             <Head>
                 <title>{`Dashboard | ${WEBSITE_NAME}`}</title>
             </Head>
-            {SHOW_LOADING_TEST || loading ? <Loading /> : error ? <div className={styles.loadError}><h1>{t('Dashboard unavailable')}</h1><p>{t('We could not load your dashboard right now.')}</p><button type="button" onClick={getData}>{t('Try again')}</button></div> : data && <Dashboard data={data} onAddExpensePayment={onAddExpensePayment} monthOffset={monthOffset} onPeriodChange={onPeriodChange} />}
+            {SHOW_LOADING_TEST || loading ? <Loading /> : error ? <div className={styles.loadError}><h1>{t('Dashboard unavailable')}</h1><p>{t('We could not load your dashboard right now.')}</p><button type="button" onClick={getData}>{t('Try again')}</button></div> : data && <Dashboard data={data} onAddExpensePayment={onAddExpensePayment} monthOffset={monthOffset} onPeriodChange={onPeriodChange} monthEdits={monthEdits} setMonthEdits={setMonthEdits} onSaveMonthEdits={saveMonthEdits} />}
         </LayoutApp>
     );
 }

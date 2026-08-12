@@ -16,7 +16,7 @@ function CurrencyDetailsPage() {
     return (
         <LayoutApp>
             <Head><title>{`Currency | ${WEBSITE_NAME}`}</title></Head>
-            <AppPageHeader eyebrow="Currency details" title={t('Currency')} description="Review and update this currency." />
+            <AppPageHeader eyebrow={t('Currency details')} title={t('Currency')} description={t('Review and update this currency.')} />
             <div className={styles.formContainer}><CurrenciesForm currencyId={currencyId} /></div>
         </LayoutApp>
     );

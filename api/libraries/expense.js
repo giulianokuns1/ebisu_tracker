@@ -1,6 +1,5 @@
 const Expense = require("../models/expense");
 const Payment = require("../models/payment");
-const PaymentMethods = require("../models/paymentMethod");
 const Utils = require("../utils/utils");
 const ExpenseType = require("../models/expenseType");
 const ExpenseSchedule = require("../models/expenseSchedule");
@@ -35,7 +34,7 @@ exports.createUpdateExpense = async (userId, data) => {
         expenseId = expense && expense.length && expense[0];
     }
     if (expenseId && expenseAmounts) {
-        await this.updateExpenseAmounts(userId, expenseId, expenseAmounts, null, !!data.expensePaymentMethod);
+        await this.updateExpenseAmounts(userId, expenseId, expenseAmounts);
     }
     ExpenseSchedule.delete(expenseId);
     if (parseInt(data.expenseType, 10) === ExpenseType.SCHEDULED_ID && data.scheduledMonths) {
@@ -48,6 +47,20 @@ exports.createUpdateExpense = async (userId, data) => {
         });
         ExpenseSchedule.create(expenseScheduleData);
     }
+    if (expenseId && data.amountSchedule) {
+        const allowedMonths = isScheduled ? new Set((data.scheduledMonths || []).map((item) => Number(item.value))) : null;
+        const expenseAmountIds = new Set((await Expense.getExpenseAmount(userId, expenseId)).map((amount) => Number(amount.id)));
+        for (const item of data.amountSchedule) {
+            const expenseAmountId = Number(item.expenseAmountId);
+            const year = Number(item.year);
+            const month = Number(item.month);
+            const amount = Number(item.amount);
+            if (!expenseAmountIds.has(expenseAmountId) || !Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12 || amount < 0 || (allowedMonths && !allowedMonths.has(month))) {
+                continue;
+            }
+            await ExpenseAmountSchedule.upsert(userId, expenseAmountId, year, month, amount);
+        }
+    }
     return expenseId;
 }
 
@@ -59,28 +72,22 @@ exports.createUpdateExpense = async (userId, data) => {
  * @param expenseAmountsToDelete
  * @return {Promise<*|null>}
  */
-exports.updateExpenseAmounts = async (userId, expenseId, expenseAmounts, expenseAmountsToDelete = null, isCreditExpense = false) => {
+exports.updateExpenseAmounts = async (userId, expenseId, expenseAmounts, expenseAmountsToDelete = null) => {
     const orderedCurrencies = await Currency.getCurrencies(userId);
     const fallbackCurrencyId = orderedCurrencies && orderedCurrencies.length ? orderedCurrencies[0].id : null;
 
     if (expenseAmountsToDelete && expenseAmountsToDelete.length) {
         expenseAmountsToDelete.map(async (expenseAmount) => {
-            if (isCreditExpense) {
-                await ExpenseAmountSchedule.delete(expenseAmount.id);
-            }
             await Payment.deletePaymentsByExpenseAmount(userId, expenseAmount.id)
             await Expense.deleteExpenseAmount(expenseAmount.id);
         });
     }
     if (expenseAmounts && expenseAmounts.length) {
         expenseAmounts.map(async (expenseAmount) => {
-            if (isCreditExpense) {
-                await ExpenseAmountSchedule.delete(expenseAmount.id);
-            }
             const data = {
                 expense_id: expenseId,
                 currency_id: expenseAmount.currency_id || fallbackCurrencyId,
-                amount: isCreditExpense ? 0 : expenseAmount.amount
+                amount: expenseAmount.amount
             }
             if (!data.currency_id) {
                 return;
@@ -89,9 +96,6 @@ exports.updateExpenseAmounts = async (userId, expenseId, expenseAmounts, expense
                 await Expense.updateExpenseAmount(expenseAmount.id, data);
             } else if (!expenseAmount.id) {
                 await Expense.newExpenseAmount(data);
-            }
-            if (isCreditExpense && expenseAmount.amount > 0) {
-                await ExpenseAmountSchedule.upsert(userId, expenseAmount.id, moment().month() + 1, expenseAmount.amount);
             }
         });
     }
@@ -116,12 +120,6 @@ exports.deleteExpense = async (userId, expenseId) => {
  * @param expense
  * @return {Promise<*>}
  */
-exports.getCreditExpenses = async (userId, month, year, paymentMethods, expense) => {
-    let paymentMethod = paymentMethods.find((paymentMethod) => paymentMethod.id === expense.payment_method_id);
-    let lastMonthRange = Utils.getLastMonthBasedOnDueDay(paymentMethod.due_date_day, month);
-    expense.formattedDueDate = Utils.creditExpenseFormattedDueDate(paymentMethod.statement_date_day, month);
-    return Payment.getExpensesPayments(userId, null, year, lastMonthRange, 1);
-}
 /**
  * Get expenses
  * @param userId
@@ -130,28 +128,10 @@ exports.getCreditExpenses = async (userId, month, year, paymentMethods, expense)
  * @return {Promise<void>}
  */
 exports.getExpenses = async (userId, month, year ) => {
-    let creditPayments;
     let expenses = await Expense.getExpenses(userId, month, year);
-    let paymentMethods = await PaymentMethods.getPaymentMethods(userId);
     expenses = await Promise.all(expenses.map(async (expense) => {
         expense.formattedDueDate = Utils.expenseFormattedDueDate(expense, String(month));
         expense.formattedGridDueDate = Utils.expenseFormattedGridDueDate(expense, String(month));
-        expense.paymentMethods = paymentMethods;
-        if (expense.payment_method_id) {
-            creditPayments = await this.getCreditExpenses(userId, month, year, paymentMethods, expense);
-            expense.expense_amounts = await Promise.all(expense.expense_amounts.map(async (expenseAmount) => {
-                expenseAmount.payments = [];
-                expenseAmount.amount = 0;
-                creditPayments.forEach((payment) => {
-                    if (payment.expense_amount_currency_id === expenseAmount.currency_id && expense.payment_method_id === payment.payment_method_id) {
-                        expenseAmount.payments.push(payment);
-                        expenseAmount.amount += parseFloat(payment.amount);
-                    }
-                });
-                return expenseAmount;
-            }));
-            return expense;
-        }
         return expense;
     }));
     return expenses;
@@ -262,10 +242,9 @@ exports.getExpenses = async (userId, month, year ) => {
  * @param showAll
  * @return {Object}
  */
-exports.getExpensesExtended = async (userId, month, payments, creditPayments, currencies, showAll) => {
+exports.getExpensesExtended = async (userId, month, payments, currencies, year = new Date().getFullYear(), showAll) => {
     let expenses = await Expense.getExpensesByAmount(userId, showAll ? null : month);
-    let paymentMethods = await PaymentMethods.getPaymentMethods(userId);
-    let expenseAmountSchedules = await ExpenseAmountSchedule.getByUserId(userId, month);
+    let expenseAmountSchedules = await ExpenseAmountSchedule.getByUserId(userId, month, year);
     let expensesAmountByCurrency = {};
     let amountPaidByCurrency = {};
     let amountPendingByCurrency = {};
@@ -287,26 +266,12 @@ exports.getExpensesExtended = async (userId, month, payments, creditPayments, cu
             paymentByExpense[payment.expense_amount_id] += paymentAmount;
         }
     });
-    creditPayments.forEach((creditPayment) => {
-        const creditPaymentAmount = parseFloat(creditPayment.amount) || 0;
-        if (amountPaidByCurrency[creditPayment.currency_id]) {
-            amountPaidByCurrency[creditPayment.currency_id] += creditPaymentAmount;
-        } else {
-            amountPaidByCurrency[creditPayment.currency_id] = creditPaymentAmount;
-        }
-        if (!paymentByExpense[creditPayment.expense_amount_id]) {
-            paymentByExpense[creditPayment.expense_amount_id] = creditPaymentAmount;
-        } else {
-            paymentByExpense[creditPayment.expense_amount_id] += creditPaymentAmount;
-        }
-    });
     expenses.map(expense => {
         expense.payments = [];
         expense.paymentTotal = 0;
         expense.formattedDueDate = Utils.expenseFormattedDueDate(expense, String(month));
         expense.formattedGridDueDate = Utils.expenseFormattedGridDueDate(expense, String(month));
         expense.dueDateDay = expense.due_date_day || moment(expense.due_date).format('D');
-        expense.paymentMethods = paymentMethods;
 
         // Apply scheduled amount for the current month if it exists (from join or array)
         if (expense.expense_amount_schedule_amount) {
@@ -350,13 +315,6 @@ exports.getExpensesExtended = async (userId, month, payments, creditPayments, cu
                 totalAmountByCurrency[expense.currency_id]['amount'] = parseFloat(expense.amount);
             }
         }
-        if (expense.payment_method_id && !expense.expense_amount_schedule_amount) {
-            creditPayments.forEach((payment) => {
-                if (payment.payment_method_id === expense.payment_method_id && payment.currency_id === expense.currency_id) {
-                    expense.amount = parseFloat(expense.amount) + parseFloat(payment.amount);
-                }
-            });
-        }
         if (paymentByExpense[expense.id] && paymentByExpense[expense.id] < expense.amount) {
             paid = paymentByExpense[expense.id];
             percentage = Math.round((paid / expense.amount) * 100);
@@ -389,10 +347,10 @@ exports.getExpensesExtended = async (userId, month, payments, creditPayments, cu
     };
 }
 
-exports.getExpenseAmountByExpense = async (userId, expenseId) => {
+exports.getExpenseAmountByExpense = async (userId, expenseId, year = new Date().getFullYear()) => {
     var expenseAmounts = await Expense.getExpenseAmountByExpense(userId, expenseId);
     var result = await Promise.all(expenseAmounts.map(async expenseAmount => {
-        var expenseAmountSchedule = await ExpenseAmountSchedule.getByMonth(expenseAmount.id, moment().month() + 1);
+        var expenseAmountSchedule = await ExpenseAmountSchedule.getByMonth(expenseAmount.id, moment().month() + 1, year);
         if (expenseAmountSchedule.length > 0) {
             expenseAmount.amount = expenseAmountSchedule[0].amount;
         }
