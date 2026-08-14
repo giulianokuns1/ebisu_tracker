@@ -6,7 +6,7 @@ const Loading = ({ small = false }) => {
     const { t } = useTranslation();
     return (
         <div className={`${styles.loadingContainer} ${small ? styles.loadingContainerSmall : ''}`}>
-            <img className={`${styles.logo} ${small ? styles.logoSmall : ''}`} src="/android-chrome-512x512.png" alt="" role="status" aria-label={t('Loading')} />
+            <img className={`${styles.logo} ${small ? styles.logoSmall : ''}`} src="/img/logo3.0-dark-circle.png" alt="" role="status" aria-label={t('Loading')} />
         </div>
     );
 };

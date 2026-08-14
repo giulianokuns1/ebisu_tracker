@@ -107,6 +107,11 @@ const Login = ({ titleClass }) => {
                         {t('Create an account now')}
                     </Link>
                 </div>
+                <div className={styles.forgotPasswordContainer}>
+                    <Link href="/forgot-password" className={styles.forgotPasswordLink}>
+                        {t('Forgot password?')}
+                    </Link>
+                </div>
                 <div>
                     <GoogleAuthButton />
                 </div>

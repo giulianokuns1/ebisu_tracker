@@ -71,6 +71,12 @@ module.exports = class User {
         return bcrypt.compare(inputPassword, hashedPassword);
     }
 
+    static updatePassword(id, password) {
+        return bcrypt.hash(password, 10).then((hashedPassword) => knex('users')
+            .where({ id })
+            .update({ password: hashedPassword, token: null, token_expiration: null }));
+    }
+
     static async getById(id) {
         return knex('users').select().where('id', id).first();
     }

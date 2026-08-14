@@ -4,3 +4,19 @@
 .rotate {
     transform: rotateY(180deg);
 }
+
+.forgotPasswordContainer {
+    margin: 0 0 24px;
+    text-align: center;
+}
+
+.forgotPasswordLink {
+    color: #50d9d0;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.forgotPasswordLink:hover {
+    color: #50d9d0;
+    text-decoration: none;
+}

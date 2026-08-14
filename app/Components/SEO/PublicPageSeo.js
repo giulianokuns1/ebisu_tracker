@@ -7,7 +7,7 @@ export const publicUrl = (path = '/') => `${siteUrl}${path === '/' ? '' : path}`
 
 export default function PublicPageSeo({ title, description, path = '/', noIndex = false }) {
     const url = publicUrl(path);
-    const image = publicUrl('/android-chrome-512x512.png');
+    const image = publicUrl('/img/logo3.0-dark-circle.png');
     const robots = noIndex ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
 
     return (

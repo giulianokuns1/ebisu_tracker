@@ -10,7 +10,7 @@ const HOME_DESCRIPTION =
 function HomePage() {
     const pageUrl = SITE_URL ? `${SITE_URL.replace(/\/$/, '')}` : '';
     const canonicalUrl = pageUrl || undefined;
-    const logoUrl = pageUrl ? `${pageUrl}/android-chrome-512x512.png` : undefined;
+    const logoUrl = pageUrl ? `${pageUrl}/img/logo3.0-dark-circle.png` : undefined;
     const pageTitle = `${WEBSITE_NAME} | Personal Finance & Expense Tracker`;
     const faqJsonLd = {
         '@context': 'https://schema.org',

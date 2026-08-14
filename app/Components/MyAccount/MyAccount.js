@@ -142,13 +142,11 @@ const MyAccount = () => {
                             errorMessage={emailError}
                         />
                     </div>
-                    <div className={styles.actions}><Button customClass={styles.saveButton} label={t('Save Changes')} type="submit" /></div>
+                    <div className={styles.actions}>
+                        <Logout />
+                        <Button customClass={styles.saveButton} label={t('Save Changes')} type="submit" />
+                    </div>
                 </form>
-            </div>
-            <div className={styles.logoutWrapper}>
-                <div className={styles.logout}>
-                    <Logout />
-                </div>
             </div>
         </div>
     );
