@@ -42,7 +42,7 @@ export default function LoginPage() {
         <Layout showParticles={false} isLogin={true}>
             <PublicPageSeo title={`Log In | ${WEBSITE_NAME}`} description="Log in to Ebisu Tracker to manage your expenses, payments, savings goals, and personal finance dashboard." path="/login" noIndex />
             <div className={styles.pageContainer}>
-                {isCheckingSession ? <div className={styles.sessionLoader} role="status" aria-label="Checking session"><img src="/img/logo3.0-dark-circle.png" alt="" /></div> : <Login />}
+                {isCheckingSession ? <div className={styles.sessionLoader} role="status" aria-label="Checking session"><img src="/android-chrome-512x512.png" alt="" /></div> : <Login />}
             </div>
         </Layout>
     );
