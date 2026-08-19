@@ -18,7 +18,7 @@ const toNumber = (value) => {
 };
 const getRemainingAmount = (amountRecord) => Math.max(0, toNumber(amountRecord?.amount) - toNumber(amountRecord?.paymentTotal));
 
-const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fullWidthButton, renderTrigger }) => {
+const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fullWidthButton, renderTrigger, initialAmount, initialPaymentDate }) => {
     const { t } = useTranslation();
     const router = useRouter();
 
@@ -57,6 +57,10 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
         const defaultMethod = expense.paymentMethods.find((method) => method.is_default === 1);
         setPaymentMethod(defaultMethod ? defaultMethod.id : expense.paymentMethods[0].id);
     }, [expense]);
+
+    useEffect(() => {
+        if (initialPaymentDate) setPaymentDate(initialPaymentDate);
+    }, [initialPaymentDate]);
 
     useEffect(() => {
         const defaultExpenseAmount = expense?.expense_amounts?.[0];
@@ -141,7 +145,7 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
         const remaining = amountRecord
             ? getRemainingAmount(amountRecord)
             : getRemainingAmount(expense);
-        setAmount(remaining ? String(remaining) : '');
+        setAmount(initialAmount !== undefined ? String(initialAmount) : (remaining ? String(remaining) : ''));
         setAmounts(Object.fromEntries(expenseAmounts.map((record) => [record.expense_amount_id || record.id, String(getRemainingAmount(record))])));
         setIsFullPaid(false);
         setModalVisible(true);

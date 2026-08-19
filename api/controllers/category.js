@@ -68,3 +68,22 @@ exports.deleteCategory = async (req, res, next) => {
         res.status(500).json({ error: 'An error creating the category.' });
     }
 };
+
+exports.updateOrder = async (req, res) => {
+    try {
+        const userId = req.user && req.user.id;
+        const categoryIds = req.body && req.body.categoryIds;
+        if (!userId || !Array.isArray(categoryIds) || categoryIds.some((id) => !Number(id))) {
+            return res.status(400).json({ error: 'Invalid category order.' });
+        }
+        const categories = await Category.getCategories(userId);
+        if (categories.length !== categoryIds.length || new Set(categoryIds.map(Number)).size !== categories.length || categories.some((category) => !categoryIds.map(Number).includes(category.id))) {
+            return res.status(400).json({ error: 'Invalid category order.' });
+        }
+        await Category.updateOrder(userId, categoryIds.map(Number));
+        return res.status(200).json({ categories: await Category.getCategories(userId) });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'An error occurred while updating category order.' });
+    }
+};

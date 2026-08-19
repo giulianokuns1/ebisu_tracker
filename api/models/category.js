@@ -17,6 +17,9 @@ module.exports = class Category {
         return knex('categories')
             .select()
             .where('user_id', user_id)
+            .orderByRaw('position IS NULL')
+            .orderBy('position')
+            .orderBy('name')
             .then((categories) => {
                 return categories;
             })
@@ -55,6 +58,14 @@ module.exports = class Category {
                 icon: icon,
                 color
             });
+    }
+
+    static async updateOrder(userId, categoryIds) {
+        await knex.transaction(async (trx) => {
+            for (const [position, id] of categoryIds.entries()) {
+                await trx('categories').where({ id, user_id: userId }).update({ position });
+            }
+        });
     }
     /**
      * Deletes a category

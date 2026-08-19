@@ -8,7 +8,7 @@ import { Toast } from "primereact/toast";
 import HeaderMenu from "@/Components/HeaderMenu/HeaderMenu";
 import AppFooter from "@/Components/Layout/AppFooter";
 
-export default function LayoutApp({ children }) {
+export default function LayoutApp({ children, fullWidth = false }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [showMessage, setShowMessage] = useState(false);
@@ -142,7 +142,7 @@ export default function LayoutApp({ children }) {
                     <HeaderMenu isMenuOpen={isMenuOpen} closeMenu={closeMenu} toggleMenu={toggleMenu} />
                     <div className={styles.content}>
                         <Toast ref={notificationToast} position={'top-center'} />
-                        <div className={styles.pageContent}>{children}</div>
+                        <div className={`${styles.pageContent} ${fullWidth ? styles.pageContentFullWidth : ''}`}>{children}</div>
                     </div>
                     <AppFooter />
                 </div>

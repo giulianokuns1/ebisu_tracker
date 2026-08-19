@@ -24,6 +24,9 @@ module.exports = class Expense {
             )
             .where('expenses.user_id', userId)
             .where('expenses.inactive', false)
+            .orderByRaw('categories.position IS NULL')
+            .orderBy('categories.position')
+            .orderBy('expenses.name')
             .where(function () {
                 if (month !== undefined && month !== null) {
                     this.where(function () {
@@ -92,6 +95,7 @@ module.exports = class Expense {
                 'expenses.*',
                 'categories.name as category_name',
                 'categories.icon as category_icon',
+                'categories.color as category_color',
                 'expenses_type.name as expenses_type_name',
             )
             .where('expenses.user_id', userId)
@@ -272,6 +276,7 @@ module.exports = class Expense {
                 'expenses.*',
                 'categories.name as category_name',
                 'categories.icon as category_icon',
+                'categories.color as category_color',
                 'expenses_type.name as expenses_type_name',
                 'expense_amounts.id as expense_amount_id',
                 'expense_amounts.amount as amount',

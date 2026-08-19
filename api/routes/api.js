@@ -15,6 +15,7 @@ const paymentMethodController = require('../controllers/paymentMethod');
 const wizardController = require('../controllers/wizard');
 const currencyController = require('../controllers/currency');
 const reportController = require('../controllers/report');
+const annualPlanController = require('../controllers/annualPlan');
 
 router.get('/testing', userController.testing);
 router.get('/getUser', authenticateToken, userController.getUser);
@@ -34,6 +35,7 @@ router.get('/getCategories', authenticateToken, categoryController.getCategories
 router.get('/getCategory', authenticateToken, categoryController.getCategory);
 router.post('/newCategory', authenticateToken, categoryController.newCategory);
 router.post('/deleteCategory', authenticateToken, categoryController.deleteCategory);
+router.post('/updateCategoryOrder', authenticateToken, categoryController.updateOrder);
 
 router.get('/getBills', authenticateToken, billController.getBills);
 
@@ -67,6 +69,7 @@ router.post('/deleteAccount', authenticateToken, accountController.deleteAccount
 router.get('/dashboard/get', authenticateToken, dashboadController.get);
 router.get('/dashboard/navigation-summary', authenticateToken, dashboadController.getNavigationSummary);
 router.get('/reports', authenticateToken, reportController.get);
+router.get('/annual-plan', authenticateToken, annualPlanController.get);
 
 router.get('/getPaymentMethods', authenticateToken, paymentMethodController.getPaymentMethods);
 router.get('/getPaymentMethod', authenticateToken, paymentMethodController.getPaymentMethod);

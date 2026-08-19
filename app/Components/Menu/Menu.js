@@ -13,6 +13,7 @@ const menuItems = [
     { href: '/payments', icon: 'bi-cash-coin', label: 'Payments' },
     { href: '/pendingExpenses', icon: 'bi-clock-history', label: 'Pending Expenses' },
     { href: '/expenses', icon: 'bi-cash', label: 'Expenses' },
+    { href: '/annual-plan', icon: 'bi-calendar3', label: 'Annual Plan' },
     // { href: '/budgets', icon: 'bi-wallet', label: 'Budget' },
     { href: '/savings', icon: 'bi-piggy-bank', label: 'Savings' },
     // { href: '/bills', icon: 'bi-file-text', label: 'Bills' },

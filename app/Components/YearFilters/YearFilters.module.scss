@@ -10,7 +10,7 @@
     @extend .formInputWrapper;
     margin: 10px;
     display: grid;
-    grid-template-columns: 100px auto;
+    grid-template-columns: 1fr;
     align-items: center;
 }
 
@@ -21,6 +21,8 @@
 
 .inputText {
     @extend .globalInput;
+    min-width: 110px;
+    width: 110px;
 }
 
 .inputText::-webkit-outer-spin-button,
