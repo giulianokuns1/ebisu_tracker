@@ -11,6 +11,7 @@ import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 import FormCheckbox from "@/Components/UI/Form/Checkbox/FormCheckbox";
 import { useRouter } from 'next/router';
+import useModalBackButton from '@/Hooks/useModalBackButton';
 
 const toNumber = (value) => {
     const number = Number(value);
@@ -46,6 +47,7 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
     const notificationToast = useRef(null);
     const [paymentDate, setPaymentDate] = useState(today);
     const [isFullPaid, setIsFullPaid] = useState(false);
+    const closePaymentModal = useModalBackButton(modalVisible, () => setModalVisible(false));
     const expenseAmounts = expense?.currencyAmounts || expense?.expense_amounts || [];
     const isMultiCurrency = expenseAmounts.length > 1;
 
@@ -125,7 +127,7 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
                 detail: t('Payment added successfully'),
                 life: 3000
             }
-            setModalVisible(false);
+            closePaymentModal();
             setAmount('');
             setAmounts({});
             setComment('');
@@ -167,7 +169,7 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
             <Dialog
                 header={null}
                 visible={modalVisible}
-                onHide={() => setModalVisible(false)}
+                onHide={closePaymentModal}
                 className={styles.paymentDialog}
                 style={{ width: '520px' }}
                 breakpoints={{ '641px': 'calc(100vw - 24px)' }}
@@ -244,8 +246,8 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
                         />}
                     </div>
                     <div className={styles.paymentModalActions}>
-                        <button type="button" className={styles.editExpenseButton} onClick={() => { setModalVisible(false); router.push(`/expenses/details/${expense.id}`); }}>{t('Edit expense')}</button>
-                        <button type="button" className={styles.cancelPaymentButton} onClick={() => setModalVisible(false)}>{t('Cancel')}</button>
+                        <button type="button" className={styles.editExpenseButton} onClick={() => { closePaymentModal(); router.push(`/expenses/details/${expense.id}`); }}>{t('Edit expense')}</button>
+                        <button type="button" className={styles.cancelPaymentButton} onClick={closePaymentModal}>{t('Cancel')}</button>
                         <Button label={t(isMultiCurrency ? 'Add Payments' : 'Add Payment')} customClass={styles.addPaymentButton} onClick={createExpensePayment} />
                     </div>
                 </div>

@@ -8,6 +8,8 @@ const HomeFooter = () => {
     return (
         <footer className={styles.footer}>
             <div className={styles.links}>
+                <Link href="/download" className={styles.link}>{t('Download Android App')}</Link>
+                <span className={styles.separator}>|</span>
                 <Link href="/privacy-policy" className={styles.link}>{t('Privacy Policy')}</Link>
                 <span className={styles.separator}>|</span>
                 <Link href="/terms-of-service" className={styles.link}>{t('Terms of Service')}</Link>

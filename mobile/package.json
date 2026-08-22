@@ -7,7 +7,8 @@
     "sync": "npx cap sync android",
     "android": "npx cap open android",
     "build:debug": "npx cap sync android && ./android/gradlew -p android assembleDebug",
-    "build:bundle": "npx cap sync android && ./android/gradlew -p android bundleRelease"
+    "build:bundle": "npx cap sync android && ./android/gradlew -p android bundleRelease",
+    "build:apk": "npx cap sync android && ./android/gradlew -p android assembleRelease"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.1",

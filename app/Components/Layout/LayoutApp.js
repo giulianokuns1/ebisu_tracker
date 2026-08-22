@@ -7,6 +7,7 @@ import Notification from "@/Components/UI/Notification";
 import { Toast } from "primereact/toast";
 import HeaderMenu from "@/Components/HeaderMenu/HeaderMenu";
 import AppFooter from "@/Components/Layout/AppFooter";
+import QuickActions from '@/Components/QuickActions/QuickActions';
 
 export default function LayoutApp({ children, fullWidth = false }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -145,6 +146,7 @@ export default function LayoutApp({ children, fullWidth = false }) {
                         <div className={`${styles.pageContent} ${fullWidth ? styles.pageContentFullWidth : ''}`}>{children}</div>
                     </div>
                     <AppFooter />
+                    <QuickActions />
                 </div>
                 {showMessage && <Notification message={message} onClose={closeMessage} type={notificationType} />}
             </div>
