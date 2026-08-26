@@ -130,7 +130,7 @@ export default function LayoutApp({ children, fullWidth = false }) {
     return (
         <div className={styles.appContainer}>
             <Head>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
             </Head>
             <div className={`${styles.container} ${isMenuOpen ? styles.menuOpen : ''} ${isSidebarCollapsed ? styles.sidebarCollapsed : ''}`}>
                 {isMenuOpen && (
