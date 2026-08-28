@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -22,15 +22,12 @@ export default function ForgotPasswordPage() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [turnstileToken, setTurnstileToken] = useState('');
+    const turnstileRef = useRef(null);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const ensureTurnstile = () => {
-        if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
-            throw new Error('Security verification unavailable. Please try again.');
-        }
-    };
+    const executeTurnstile = () => process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? turnstileRef.current?.execute() : Promise.resolve('');
 
     const requestCode = async (event) => {
         event.preventDefault();
@@ -43,10 +40,10 @@ export default function ForgotPasswordPage() {
 
         setIsSubmitting(true);
         try {
-            ensureTurnstile();
+            const token = await executeTurnstile();
             const response = await axios.post(`${API_AUTH_URL}/password-reset/request`, {
                 email,
-                ...(turnstileToken && { turnstileToken }),
+                ...(token && { turnstileToken: token }),
             }, { withCredentials: true });
             setMessage(response.data.message);
             setStep('confirm');
@@ -76,12 +73,12 @@ export default function ForgotPasswordPage() {
 
         setIsSubmitting(true);
         try {
-            ensureTurnstile();
+            const token = await executeTurnstile();
             const response = await axios.post(`${API_AUTH_URL}/password-reset/confirm`, {
                 email,
                 code,
                 password,
-                ...(turnstileToken && { turnstileToken }),
+                ...(token && { turnstileToken: token }),
             }, { withCredentials: true });
             setMessage(response.data.message);
             window.setTimeout(() => router.replace('/login'), 1800);
@@ -105,7 +102,7 @@ export default function ForgotPasswordPage() {
                     {step === 'request' ? (
                         <form onSubmit={requestCode} className={formStyles.form}>
                             <FormInput label={t('Email')} type="email" name="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-                            <Turnstile onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} onError={() => setTurnstileToken('')} />
+                            <Turnstile ref={turnstileRef} onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} onError={() => setTurnstileToken('')} />
                             {error && <div className={formStyles.error}>{t(error)}</div>}
                             <button type="submit" className={formStyles.button} disabled={isSubmitting}>{t(isSubmitting ? 'Sending...' : 'Send code')}</button>
                         </form>
@@ -114,7 +111,7 @@ export default function ForgotPasswordPage() {
                             <FormInput label={t('Code')} type="text" name="code" value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))} />
                             <FormInput label={t('New password')} type="password" name="password" value={password} onChange={(event) => setPassword(event.target.value)} showPasswordToggle />
                             <FormInput label={t('Confirm password')} type="password" name="confirmPassword" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} showPasswordToggle />
-                            <Turnstile onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} onError={() => setTurnstileToken('')} />
+                            <Turnstile ref={turnstileRef} onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} onError={() => setTurnstileToken('')} />
                             {error && <div className={formStyles.error}>{t(error)}</div>}
                             {message && <div>{t(message)}</div>}
                             <button type="submit" className={formStyles.button} disabled={isSubmitting}>{t(isSubmitting ? 'Resetting...' : 'Reset password')}</button>

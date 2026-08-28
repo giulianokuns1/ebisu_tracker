@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import styles from './Login.module.scss';
@@ -12,6 +12,7 @@ import Turnstile from '@/Components/UI/Turnstile';
 const Login = ({ titleClass }) => {
     const [loginError, setLoginError] = useState(null);
     const [turnstileToken, setTurnstileToken] = useState('');
+    const turnstileRef = useRef(null);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -55,12 +56,10 @@ const Login = ({ titleClass }) => {
             if (!validateForm()) {
                 return;
             }
-            if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
-                throw new Error('Security verification unavailable. Please try again.');
-            }
+            const token = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? await turnstileRef.current?.execute() : '';
             const response = await axios.post(`${API_AUTH_URL}/login`, {
                 ...formData,
-                ...(turnstileToken && { turnstileToken })
+                ...(token && { turnstileToken: token })
             }, { withCredentials: true });
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
@@ -99,7 +98,7 @@ const Login = ({ titleClass }) => {
                 {loginError && (
                     <div className={`${styles.error}`}>{t(loginError)}</div>
                 )}
-                <Turnstile onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} onError={() => setTurnstileToken('')} />
+                <Turnstile ref={turnstileRef} onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} onError={() => setTurnstileToken('')} />
                 <button type="submit" className={styles.button}>{t('Log In')}</button>
                 <div className={styles.notRegisterContainer}>
                     <span>{t('Not registered? ')}</span>

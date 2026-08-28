@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import styles from './Register.module.scss';
@@ -26,6 +26,7 @@ const Register = ({ titleClass }) => {
     });
     const [registerError, setRegisterError] = useState(null);
     const [turnstileToken, setTurnstileToken] = useState('');
+    const turnstileRef = useRef(null);
     const { t } = useTranslation();
 
     const handleChange = (e) => {
@@ -68,12 +69,10 @@ const Register = ({ titleClass }) => {
             return;
         }
         try {
-            if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
-                throw new Error('Security verification unavailable. Please try again.');
-            }
+            const token = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? await turnstileRef.current?.execute() : '';
             const response = await axios.post(`${API_AUTH_URL}/register`, {
                 ...formData,
-                ...(turnstileToken && { turnstileToken })
+                ...(token && { turnstileToken: token })
             });
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
@@ -132,7 +131,7 @@ const Register = ({ titleClass }) => {
                 {registerError && (
                     <div className={styles.registerError}>{t(registerError)}</div>
                 )}
-                <Turnstile onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} onError={() => setTurnstileToken('')} />
+                <Turnstile ref={turnstileRef} onVerify={setTurnstileToken} onExpire={() => setTurnstileToken('')} onError={() => setTurnstileToken('')} />
                 <button type="submit" className={styles.button} id="createAccountButton">{t('Create Account')}</button>
                 <div className={styles.notRegisterContainer}>
                     <span>{t('Already registered? ')}</span>
