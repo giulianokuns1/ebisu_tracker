@@ -4,6 +4,7 @@ const Utils = require("../utils/utils");
 const ExpenseLibrary = require("../libraries/expense");
 const Saving = require("../models/saving");
 const User = require("../models/user");
+const PaymentMethods = require("../models/paymentMethod");
 
 const getMonthDetails = (offset = 0) => {
     const date = new Date();
@@ -69,11 +70,14 @@ exports.get = async (req, res, next) => {
             expensesExtended = await ExpenseLibrary.getExpensesExtended(userId, currentMonth, payments, currencies, year);
             expensesNextMonthExtended = await ExpenseLibrary.getExpensesExtended(userId, nextMonth, paymentsNextMonth, currencies, nextPeriod.year);
             expensesNextMonth = expensesNextMonthExtended.expenses;
-            const [monthlyTrend, savings, user] = await Promise.all([
+            const [monthlyTrend, savings, user, paymentMethods] = await Promise.all([
                 getMonthlyTrend(userId, monthOffset, currencies),
                 Saving.getGoals(userId),
                 User.getById(userId),
+                PaymentMethods.getPaymentMethods(userId),
             ]);
+            expensesExtended.expenses.forEach((expense) => { expense.paymentMethods = paymentMethods; });
+            expensesNextMonth.forEach((expense) => { expense.paymentMethods = paymentMethods; });
             payments = payments.slice(0, 10);
             expensesExtended.monthlyTrend = monthlyTrend;
             expensesExtended.savingsCount = savings.length;
