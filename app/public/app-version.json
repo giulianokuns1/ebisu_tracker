@@ -1,0 +1,10 @@
+{
+  "android": {
+    "versionCode": 4,
+    "versionName": "1.0.3",
+    "apkUrl": "https://ebisutracker.com/downloads/ebisu-tracker-1.0.3.apk",
+    "sha256": "d538ad1ac42e297fb92a3968dbb76af39eed9611ec7f9111b490f67342c6bdfe",
+    "releaseNotes": "Improved expenses, credit card handling, and mobile navigation.",
+    "required": false
+  }
+}

@@ -8,6 +8,7 @@ import { Toast } from "primereact/toast";
 import HeaderMenu from "@/Components/HeaderMenu/HeaderMenu";
 import AppFooter from "@/Components/Layout/AppFooter";
 import QuickActions from '@/Components/QuickActions/QuickActions';
+import AppUpdate from '@/Components/AppUpdate/AppUpdate';
 
 export default function LayoutApp({ children, fullWidth = false }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -132,6 +133,7 @@ export default function LayoutApp({ children, fullWidth = false }) {
             <Head>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
             </Head>
+            <AppUpdate />
             <div className={`${styles.container} ${isMenuOpen ? styles.menuOpen : ''} ${isSidebarCollapsed ? styles.sidebarCollapsed : ''}`}>
                 {isMenuOpen && (
                     <div className={styles.backdrop} onClick={closeMenu} />
