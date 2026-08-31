@@ -3,6 +3,7 @@ const Category = require('../models/category');
 const ExpensesType = require('../models/expenseType');
 const Currency = require('../models/currency');
 const Payment = require('../models/payment');
+const PaymentMethod = require('../models/paymentMethod');
 const PaymentMethods = require('../models/paymentMethod');
 const Utils = require('../utils/utils');
 const ExpenseLibrary = require('../libraries/expense');
@@ -74,6 +75,7 @@ exports.getExpense = async (req, res, next) => {
         let expenseSchedule;
         let expenseAmountSchedule;
         let payments;
+        let creditPaymentMethods;
         let userId = req.user && req.user.id;
         let expenseId = req.query && req.query.expenseId;
         if (userId && expenseId) {
@@ -84,6 +86,7 @@ exports.getExpense = async (req, res, next) => {
             categories = await Category.getCategories(userId);
             expensesTypes = await ExpensesType.getExpensesType();
             currencies = await Currency.getCurrencies(userId);
+            creditPaymentMethods = await PaymentMethod.getCreditPaymentMethods(userId);
             expenseSchedule = await ExpenseSchedule.get(expenseId);
             expenseAmountSchedule = await Promise.all(expenseAmounts.map((amount) => ExpenseAmountSchedule.get(amount.id, scheduleYear)));
             payments = await PaymentLibrary.getPaymentsByExpense(userId, expenseId);
@@ -98,6 +101,7 @@ exports.getExpense = async (req, res, next) => {
             expenseAmountSchedule: expenseAmountSchedule.flat(),
             payments: payments.payments,
             paymentsByMonth: payments.monthPayments,
+            creditPaymentMethods,
             totalPaid: payments.totalPaid
         });
     } catch (error) {
@@ -110,16 +114,19 @@ exports.newExpenseData = async (req, res, next) => {
         let categories;
         let expensesTypes;
         let currencies;
+        let creditPaymentMethods;
         let userId = req.user && req.user.id;
         if (userId) {
             categories = await Category.getCategories(userId);
             expensesTypes = await ExpensesType.getExpensesType();
             currencies = await Currency.getCurrencies(userId);
+            creditPaymentMethods = await PaymentMethod.getCreditPaymentMethods(userId);
         }
         res.json({
             categories,
             expensesTypes,
-            currencies
+            currencies,
+            creditPaymentMethods
         });
     } catch (error) {
         console.error(error);
@@ -130,8 +137,16 @@ exports.createUpdateExpense = async (req, res, next) => {
     try {
         let data;
         let expenseId;
-        const { id, name, category, expenseType, expenseDueDate, expenseAmounts, expenseDueDay, scheduledMonths, amountSchedule } = req.body;
+        const { id, name, category, expenseType, expenseDueDate, expenseAmounts, expenseDueDay, scheduledMonths, amountSchedule, paymentMethodId } = req.body;
         const userId = req.user && req.user.id;
+        if (!userId) {
+            res.status(401).json({ error: 'Unauthorized' });
+            return;
+        }
+        const paymentMethod = paymentMethodId ? (await PaymentMethod.getPaymentMethod(userId, paymentMethodId))[0] : null;
+        if (paymentMethodId && (!paymentMethod || !paymentMethod.is_credit || (Number(paymentMethod.expense_id) === Number(id) && Number(paymentMethod.id) !== Number(paymentMethodId)))) {
+            return res.status(400).json({ error: 'Invalid credit card payment method.' });
+        }
         data = {
             id: id,
             name: name,
@@ -141,11 +156,9 @@ exports.createUpdateExpense = async (req, res, next) => {
             expenseAmounts: expenseAmounts,
             expenseDueDay: expenseDueDay,
             scheduledMonths: scheduledMonths,
-            amountSchedule: amountSchedule
-        }
-        if (!userId) {
-            res.status(401).json({ error: 'Unauthorized' });
-            return;
+            amountSchedule: amountSchedule,
+            paymentMethodId: paymentMethod ? paymentMethod.id : null,
+            paymentMethodExpenseId: paymentMethod?.expense_id || null
         }
         expenseId = await ExpenseLibrary.createUpdateExpense(userId, data);
         res.json({ expenseId });

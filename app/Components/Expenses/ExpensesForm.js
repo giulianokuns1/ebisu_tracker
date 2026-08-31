@@ -36,6 +36,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
     const [expenseCurrency, setExpenseCurrency] = useState(null);
     const [expensesTypes, setExpensesTypes] = useState(null);
     const [expensePaymentMethod, setExpensePaymentMethod] = useState(null);
+    const [creditPaymentMethods, setCreditPaymentMethods] = useState([]);
     const [categories, setCategories] = useState(null);
     const [currencies, setCurrencies] = useState(null);
     const [isScheduled, setIsScheduled] = useState(false);
@@ -102,6 +103,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
             setExpensesTypes(expenseData.expensesTypes);
             setCategories(expenseData.categories);
             setCurrencies(expenseData.currencies);
+            setCreditPaymentMethods(expenseData.creditPaymentMethods || []);
             setIsScheduled(parseInt(expense.type_id, 10) === 2);
             if (expenseData.expenseSchedule) {
                 expenseData.expenseSchedule.forEach((schedule) => {
@@ -121,6 +123,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
             setExpensesTypes(newExpenseData.expensesTypes);
             setCategories(newExpenseData.categories);
             setCurrencies(newExpenseData.currencies);
+            setCreditPaymentMethods(newExpenseData.creditPaymentMethods || []);
             if (newExpenseData.currencies && newExpenseData.currencies.length > 0) {
                 setExpenseAmounts([
                     {
@@ -257,7 +260,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
                         expenseAmounts: normalizedExpenseAmounts,
                         scheduledMonths: scheduledMonths,
                         expenseDueDay: expenseDueDay,
-                        expensePaymentMethod: expensePaymentMethod
+                        paymentMethodId: expensePaymentMethod || null
                     },
                     {
                         headers: {
@@ -625,12 +628,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
                     {!isScheduled && isMonthlyFrequency && <div><FormInput label={t('Due day')} type={'number'} value={expenseDueDay || ''} onChange={handleMonthlyDueDayChange} onBlur={validateDueDay} errorMessage={dueDayError} min={1} max={28} /></div>}
                     {isScheduled && <div className={styles.fullRow}><CheckboxList label={t('Months')} checkboxList={monthCheckboxList} onChange={handleScheduledMonthsChange} onBlur={validateScheduledMonths} errorMessage={scheduledMonthsError} /></div>}
                 </div></FormSection>
-                {expensePaymentMethod &&
-                        <div className={styles.formInputWrapper}>
-                            <div>{t('The total amount for each currency will be calculated based on the payments realized last month using this payment method.')}</div>
-                            <div>{t('If you want to set a fixed amount for the current month, you can do it in the amount section.')}</div>
-                        </div>
-                    }
+                {!creditPaymentMethods.some((method) => Number(method.expense_id) === Number(expenseId)) && creditPaymentMethods.length > 0 && <FormSection icon="bi-credit-card" title={t('Payment')} optional><div className={styles.expenseFieldsGrid}><div><FormSelect label={t('Paid with credit card')} values={creditPaymentMethods} valueLabel="name" value={expensePaymentMethod || ''} onChange={(event) => setExpensePaymentMethod(event.target.value || null)} defaultLabel={t('Not paid with a credit card')} hideDefault={false} errorMessage={paymentMethodError} /><small className={styles.fieldHint}><i className="bi bi-info-circle" aria-hidden="true" /> {t('Credit card purchases appear in categories but are excluded from totals because the card statement is counted separately.')}</small></div></div></FormSection>}
                 <FormSection icon="bi-cash-stack" title={t('Amount & Currency')}><ExpenseAmounts
                         expenseAmounts={expenseAmounts}
                         setExpenseAmountsAmount={setExpenseAmountsAmount}

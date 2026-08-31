@@ -20,7 +20,9 @@ exports.createUpdateExpense = async (userId, data) => {
         category_id: data.category,
         type_id: data.expenseType,
         due_date: data.expenseDueDate,
-        due_date_day: data.expenseDueDay
+        due_date_day: data.expenseDueDay,
+        payment_method_id: data.paymentMethodId,
+        is_credit_card_purchase: Boolean(data.paymentMethodId) && Number(data.paymentMethodExpenseId) !== Number(id)
     }
     expenseData = Utils.addFieldsToObject({}, expenseData);
     if (isScheduled) {
@@ -49,9 +51,10 @@ exports.createUpdateExpense = async (userId, data) => {
     }
     if (expenseId && data.amountSchedule) {
         const allowedMonths = isScheduled ? new Set((data.scheduledMonths || []).map((item) => Number(item.value))) : null;
-        const expenseAmountIds = new Set((await Expense.getExpenseAmount(userId, expenseId)).map((amount) => Number(amount.id)));
+        const persistedExpenseAmounts = await Expense.getExpenseAmount(userId, expenseId);
+        const expenseAmountIds = new Set(persistedExpenseAmounts.map((amount) => Number(amount.id)));
         for (const item of data.amountSchedule) {
-            const expenseAmountId = Number(item.expenseAmountId);
+            const expenseAmountId = Number(item.expenseAmountId) || Number(persistedExpenseAmounts.find((amount) => Number(amount.currency_id) === Number(item.currencyId))?.id);
             const year = Number(item.year);
             const month = Number(item.month);
             const amount = Number(item.amount);
@@ -285,6 +288,7 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
             });
         }
 
+        expense.is_credit_card_purchase = Boolean(expense.is_credit_card_purchase);
         if (!expensesAmountByCurrency[expense.currency_id]) {
             expensesAmountByCurrency[expense.currency_id] = {
                 currency_id: expense.currency_id,
@@ -301,6 +305,9 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
                 expense.isFullPaid = expense.isFullPaid || payment.is_full_paid;
             }
         });
+        if (expense.is_credit_card_purchase) {
+            return expense;
+        }
         if (totalAmountByCurrency[expense.currency_id]) {
             if (expense.expense_amount_schedule_amount) {
                 totalAmountByCurrency[expense.currency_id]['amount'] += parseFloat(expense.expense_amount_schedule_amount);

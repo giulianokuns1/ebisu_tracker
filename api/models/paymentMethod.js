@@ -24,6 +24,13 @@ module.exports = class PaymentMethod {
             });
     }
 
+    static getCreditPaymentMethods(userId) {
+        return knex('payment_methods')
+            .select('id', 'name', 'description', 'expense_id')
+            .where({ user_id: userId, is_credit: 1 })
+            .orderBy('name');
+    }
+
     /**
      * Get expense
      * @param userId
