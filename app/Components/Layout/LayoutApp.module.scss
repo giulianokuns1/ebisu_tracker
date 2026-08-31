@@ -40,7 +40,9 @@
         top: 0;
         left: -250px;
         width: 250px;
-        height: 100%;
+        height: 100dvh;
+        padding-bottom: env(safe-area-inset-bottom);
+        box-sizing: border-box;
         background-color: $generalBackgroundColor;
         transition: left 0.3s ease-in-out;
         z-index: 1000;
