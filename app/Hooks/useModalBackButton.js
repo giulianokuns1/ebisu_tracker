@@ -13,7 +13,16 @@ export default function useModalBackButton(isOpen, onClose) {
             onClose();
         };
         window.addEventListener('popstate', closeFromBack, { once: true });
-        return () => window.removeEventListener('popstate', closeFromBack);
+        const app = window.Capacitor?.Plugins?.App;
+        let backButtonListener;
+        app?.addListener?.('backButton', closeFromBack).then((listener) => {
+            backButtonListener = listener;
+        });
+
+        return () => {
+            window.removeEventListener('popstate', closeFromBack);
+            backButtonListener?.remove();
+        };
     }, [isOpen, onClose]);
 
     const closeModal = () => {

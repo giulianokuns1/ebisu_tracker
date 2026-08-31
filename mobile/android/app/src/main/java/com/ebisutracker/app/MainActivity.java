@@ -16,13 +16,4 @@ public class MainActivity extends BridgeActivity {
         WindowCompat.setDecorFitsSystemWindows(window, false);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (getBridge().getWebView().canGoBack()) {
-            getBridge().getWebView().goBack();
-            return;
-        }
-
-        super.onBackPressed();
-    }
 }
