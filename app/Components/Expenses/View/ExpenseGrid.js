@@ -33,7 +33,7 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
             });
             return {
                 ...group,
-                currencyAmounts: Array.from(amountsByCurrency.values()).map((amount) => ({ ...amount, amount: Math.max(amount.statementAmount, amount.purchaseTotal) })).filter((amount) => Number(amount.amount) !== 0),
+                currencyAmounts: Array.from(amountsByCurrency.values()).map((amount) => ({ ...amount, amount: Math.max(amount.statementAmount, amount.purchaseTotal), paymentTotal: amount.is_credit_card_purchase ? 0 : amount.paymentTotal })).filter((amount) => Number(amount.amount) !== 0),
             };
         });
     };
