@@ -50,7 +50,7 @@ exports.updateUser = async (req, res, next) => {
     var user;
     var emailUsed;
     try {
-        const { firstname, lastname, email, defaultCurrencyId, dashboardShowNextMonth } = req.body;
+        const { firstname, lastname, email, defaultCurrencyId, dashboardShowNextMonth, timezone } = req.body;
         const userId = req.user && req.user.id;
         if (userId) {
             user = await User.getById(userId);
@@ -67,6 +67,14 @@ exports.updateUser = async (req, res, next) => {
             }
             if (dashboardShowNextMonth !== undefined) {
                 await User.updateDashboardPreferences(userId, Boolean(dashboardShowNextMonth));
+            }
+            if (typeof timezone === 'string' && timezone.length <= 64) {
+                try {
+                    Intl.DateTimeFormat(undefined, { timeZone: timezone });
+                    await User.updateTimezone(userId, timezone);
+                } catch {
+                    return res.status(400).json({ error: 'Invalid timezone.' });
+                }
             }
             user = await User.getById(userId);
         }

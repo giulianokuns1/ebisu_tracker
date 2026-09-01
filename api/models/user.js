@@ -133,6 +133,12 @@ module.exports = class User {
             .where({ id })
             .update({ dashboard_show_next_month: dashboardShowNextMonth });
     }
+
+    static updateTimezone(id, timezone) {
+        return knex('users')
+            .where({ id })
+            .update({ timezone });
+    }
     /**
      * Update user
      * @param id

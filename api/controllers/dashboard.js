@@ -6,18 +6,19 @@ const Saving = require("../models/saving");
 const User = require("../models/user");
 const PaymentMethods = require("../models/paymentMethod");
 
-const getMonthDetails = (offset = 0) => {
-    const date = new Date();
-    date.setDate(1);
-    date.setMonth(date.getMonth() - offset);
+const getMonthDetails = (timezone, offset = 0) => {
+    const parts = new Intl.DateTimeFormat('en', { timeZone: timezone, month: 'numeric', year: 'numeric' }).formatToParts(new Date());
+    const month = Number(parts.find((part) => part.type === 'month')?.value);
+    const year = Number(parts.find((part) => part.type === 'year')?.value);
+    const date = new Date(year, month - 1 - offset, 1);
     return { month: date.getMonth() + 1, year: date.getFullYear() };
 };
 
-const getMonthlyTrend = async (userId, endOffset, currencies) => {
+const getMonthlyTrend = async (userId, timezone, endOffset, currencies) => {
     const trend = {};
     const periods = [];
     for (let offset = endOffset + 5; offset >= endOffset; offset -= 1) {
-        periods.push(getMonthDetails(offset));
+        periods.push(getMonthDetails(timezone, offset));
     }
     const results = await Promise.all(periods.map(async ({ month, year }) => {
         const previous = new Date(year, month - 2, 1);
@@ -54,10 +55,12 @@ exports.get = async (req, res, next) => {
         var year;
         const userId = req.user && req.user.id;
         if (userId) {
+            const user = await User.getById(userId);
+            const timezone = user.timezone || 'UTC';
             const monthOffset = Math.max(0, Math.min(Number(req.query.monthOffset) || 0, 11));
-            const currentPeriod = getMonthDetails(monthOffset);
-            const nextPeriod = getMonthDetails(monthOffset - 1);
-            const previousPeriod = getMonthDetails(monthOffset + 1);
+            const currentPeriod = getMonthDetails(timezone, monthOffset);
+            const nextPeriod = getMonthDetails(timezone, monthOffset - 1);
+            const previousPeriod = getMonthDetails(timezone, monthOffset + 1);
             currentMonth = currentPeriod.month;
             lastMonth = previousPeriod.month;
             nextMonth = nextPeriod.month;
@@ -70,10 +73,9 @@ exports.get = async (req, res, next) => {
             expensesExtended = await ExpenseLibrary.getExpensesExtended(userId, currentMonth, payments, currencies, year);
             expensesNextMonthExtended = await ExpenseLibrary.getExpensesExtended(userId, nextMonth, paymentsNextMonth, currencies, nextPeriod.year);
             expensesNextMonth = expensesNextMonthExtended.expenses;
-            const [monthlyTrend, savings, user, paymentMethods] = await Promise.all([
-                getMonthlyTrend(userId, monthOffset, currencies),
+            const [monthlyTrend, savings, paymentMethods] = await Promise.all([
+                getMonthlyTrend(userId, timezone, monthOffset, currencies),
                 Saving.getGoals(userId),
-                User.getById(userId),
                 PaymentMethods.getPaymentMethods(userId),
             ]);
             expensesExtended.expenses.forEach((expense) => { expense.paymentMethods = paymentMethods; });
@@ -100,8 +102,9 @@ exports.getNavigationSummary = async (req, res) => {
     try {
         const userId = req.user && req.user.id;
         if (!userId) return res.json({ pendingCount: 0 });
-        const { month, year } = getMonthDetails();
-        const previous = getMonthDetails(1);
+        const user = await User.getById(userId);
+        const timezone = user.timezone || 'UTC';
+        const { month, year } = getMonthDetails(timezone);
         const currencies = await Currency.getCurrencies(userId);
         const payments = await Payment.getPayments(userId, month, year);
         const data = await ExpenseLibrary.getExpensesExtended(userId, month, payments, currencies, year);
