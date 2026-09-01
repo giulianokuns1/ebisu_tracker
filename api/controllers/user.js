@@ -68,7 +68,10 @@ exports.updateUser = async (req, res, next) => {
             if (dashboardShowNextMonth !== undefined) {
                 await User.updateDashboardPreferences(userId, Boolean(dashboardShowNextMonth));
             }
-            if (typeof timezone === 'string' && timezone.length <= 64) {
+            if (timezone !== undefined) {
+                if (typeof timezone !== 'string' || !timezone.trim() || timezone.length > 64) {
+                    return res.status(400).json({ error: 'Invalid timezone.' });
+                }
                 try {
                     Intl.DateTimeFormat(undefined, { timeZone: timezone });
                     await User.updateTimezone(userId, timezone);

@@ -18,10 +18,24 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
         items.forEach((expense) => {
             const key = expense.payment_method_id ? `credit-${expense.payment_method_id}` : `expense-${expense.id}-${expense.expense_amount_id}`;
             const group = groups.get(key) || { ...expense, currencyAmounts: [] };
+            if (expense.payment_method_id && !expense.is_credit_card_purchase) Object.assign(group, expense);
             group.currencyAmounts.push(expense);
             groups.set(key, group);
         });
-        return Array.from(groups.values());
+        return Array.from(groups.values()).map((group) => {
+            if (!group.payment_method_id || !group.currencyAmounts.some((amount) => Number(amount.amount) !== 0)) return group;
+            const amountsByCurrency = new Map();
+            group.currencyAmounts.forEach((amount) => {
+                const current = amountsByCurrency.get(amount.currency_id) || { ...amount, amount: 0, purchaseTotal: 0, statementAmount: 0 };
+                if (amount.is_credit_card_purchase) current.purchaseTotal += Number(amount.amount || 0);
+                else current.statementAmount += Number(amount.amount || 0);
+                amountsByCurrency.set(amount.currency_id, current);
+            });
+            return {
+                ...group,
+                currencyAmounts: Array.from(amountsByCurrency.values()).map((amount) => ({ ...amount, amount: Math.max(amount.statementAmount, amount.purchaseTotal) })).filter((amount) => Number(amount.amount) !== 0),
+            };
+        });
     };
     const renderTotal = (items) => <div className={styles.expensePanelTotal}><strong>{t('Total')}</strong><span>{Object.values(totalsByCurrency(items)).map((total) => <b key={total.symbol}>{total.symbol} {total.amount.toFixed(2)}</b>)}</span></div>;
 

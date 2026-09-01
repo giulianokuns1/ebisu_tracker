@@ -21,7 +21,7 @@ export const withAuth = (WrappedComponent) => {
                 }
                 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                 if (timezone) {
-                    axios.post(`${API_BASE_URL}/updateUserData`, { timezone }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+                    axios.post(`${API_BASE_URL}/updateUserData`, { timezone }, { headers: token ? { Authorization: `Bearer ${token}` } : {} }).catch(() => {});
                 }
             }).catch((error) => {
                 router.push('/login');
