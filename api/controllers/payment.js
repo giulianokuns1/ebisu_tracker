@@ -3,6 +3,8 @@ const Expense = require("../models/expense");
 const PaymentMethods = require("../models/paymentMethod");
 const PaymentLibrary = require("../libraries/payment");
 const ExpenseAmountSchedule = require("../models/expenseAmountSchedule");
+const User = require("../models/user");
+const UserTime = require('../utils/userTime');
 const moment = require('moment');
 
 exports.getPayments = async (req, res, next) => {
@@ -30,8 +32,8 @@ exports.createExpensePayment = async (req, res, next) => {
         const paymentLines = Array.isArray(amounts) ? amounts : [{ expenseAmountId: expense?.expense_amount_id, amount, originalAmount: expense?.amount, isFullPaid }];
         if (userId && expense && paymentLines.length && paymentMethod && paymentDate) {
             date = moment(paymentDate).format('YYYY-MM-DD HH:mm:ss');
-            const currentMonth = moment().month() + 1;
-            const currentYear = moment().year();
+            const user = await User.getById(userId);
+            const { month: currentMonth, year: currentYear } = UserTime.getCurrentPeriod(user.timezone);
             payment = await Promise.all(paymentLines.filter((line) => Number(line.amount) > 0).map(async (line) => {
                 const originalAmount = line.originalAmount ?? expense.amount;
                 await PaymentLibrary.createPayment(userId, line.expenseAmountId, paymentMethod, line.amount, comment, originalAmount, expense, date, Boolean(line.isFullPaid));
@@ -53,8 +55,9 @@ exports.getPayment = async (req, res, next) => {
         let paymentMethods;
         const userId = req.user && req.user.id;
         const paymentId = req.query && req.query.paymentId;
-        const currentMonth = moment().month() + 1;
         if (userId && paymentId) {
+            const user = await User.getById(userId);
+            const { month: currentMonth, year: currentYear } = UserTime.getCurrentPeriod(user.timezone);
             payment = await Payment.getPayment(userId, paymentId);
             payment = payment && payment[0];
             expenses = await Expense.getExpenses(userId);
@@ -62,7 +65,7 @@ exports.getPayment = async (req, res, next) => {
             expenses = await Promise.all(expenses.map(async (expense) => {
                 if (expense.expense_amounts && expense.expense_amounts.length > 0) {
                     expense.expense_amounts = await Promise.all(expense.expense_amounts.map(async (expenseAmount) => {
-                        const expenseAmountSchedule = await ExpenseAmountSchedule.getByMonth(expenseAmount.id, currentMonth, moment().year());
+                        const expenseAmountSchedule = await ExpenseAmountSchedule.getByMonth(expenseAmount.id, currentMonth, currentYear);
                         if (expenseAmountSchedule.length > 0) {
                             expenseAmount.amount = expenseAmountSchedule[0].amount;
                         }
@@ -84,14 +87,15 @@ exports.newPaymentData = async (req, res, next) => {
         let expenses;
         let paymentMethods;
         const userId = req.user && req.user.id;
-        const currentMonth = moment().month() + 1;
         if (userId) {
+            const user = await User.getById(userId);
+            const { month: currentMonth, year: currentYear } = UserTime.getCurrentPeriod(user.timezone);
             expenses = await Expense.getExpenses(userId);
             // Apply scheduled amounts to expense_amounts for current month
             expenses = await Promise.all(expenses.map(async (expense) => {
                 if (expense.expense_amounts && expense.expense_amounts.length > 0) {
                     expense.expense_amounts = await Promise.all(expense.expense_amounts.map(async (expenseAmount) => {
-                        const expenseAmountSchedule = await ExpenseAmountSchedule.getByMonth(expenseAmount.id, currentMonth, moment().year());
+                        const expenseAmountSchedule = await ExpenseAmountSchedule.getByMonth(expenseAmount.id, currentMonth, currentYear);
                         if (expenseAmountSchedule.length > 0) {
                             expenseAmount.amount = expenseAmountSchedule[0].amount;
                         }

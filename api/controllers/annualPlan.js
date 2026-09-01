@@ -1,4 +1,6 @@
 const knex = require('knex')(require('../knexfile'));
+const User = require('../models/user');
+const UserTime = require('../utils/userTime');
 
 const isScheduledForMonth = (expense, scheduledMonths, year, month) => {
     const type = Number(expense.type_id);
@@ -13,8 +15,11 @@ const isScheduledForMonth = (expense, scheduledMonths, year, month) => {
 exports.get = async (req, res) => {
     try {
         const userId = req.user && req.user.id;
-        const year = Number(req.query.year) || new Date().getFullYear();
-        if (!userId || !Number.isInteger(year)) return res.status(400).json({ error: 'Invalid year.' });
+        if (!userId) return res.status(400).json({ error: 'Invalid year.' });
+        const user = await User.getById(userId);
+        const timezone = user.timezone || 'UTC';
+        const year = Number(req.query.year) || UserTime.getCurrentPeriod(timezone).year;
+        if (!Number.isInteger(year)) return res.status(400).json({ error: 'Invalid year.' });
 
         const [expenseRows, schedules, overrides, payments, income, paymentMethods] = await Promise.all([
             knex('expenses')
@@ -61,13 +66,13 @@ exports.get = async (req, res) => {
         overrides.forEach((item) => overridesByAmount.set(`${item.expense_amount_id}:${item.month}`, Number(item.amount)));
         const paidByAmountMonth = new Map();
         payments.forEach((item) => {
-            const month = new Date(item.created_at).getMonth() + 1;
+            const month = UserTime.getMonthFromDate(item.created_at, timezone);
             const key = `${item.expense_amount_id}:${month}`;
             paidByAmountMonth.set(key, (paidByAmountMonth.get(key) || 0) + Number(item.amount));
         });
         const incomeByCurrencyMonth = new Map();
         income.forEach((item) => {
-            const month = new Date(item.received_at).getMonth() + 1;
+            const month = UserTime.getMonthFromDate(item.received_at, timezone);
             const key = `${item.currency_id}:${month}`;
             incomeByCurrencyMonth.set(key, (incomeByCurrencyMonth.get(key) || 0) + Number(item.amount));
         });

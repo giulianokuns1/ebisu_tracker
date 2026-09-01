@@ -1,5 +1,7 @@
 const Saving = require('../models/saving');
 const Currency = require('../models/currency');
+const User = require('../models/user');
+const UserTime = require('../utils/userTime');
 const dateKey = (date) => date instanceof Date ? date.toISOString().slice(0, 10) : String(date).slice(0, 10);
 
 const summarize = (goals, transactions, rangeTransactions) => {
@@ -27,8 +29,8 @@ exports.getSavings = async (req, res) => {
     try {
         const userId = req.user && req.user.id;
         const { startDate, endDate } = req.query;
-        const [goals, transactions, rangeTransactions, currencies] = await Promise.all([Saving.getGoals(userId), Saving.getTransactions(userId), Saving.getTransactions(userId, startDate, endDate), Currency.getCurrencies(userId)]);
-        const today = new Date().toISOString().slice(0, 10);
+        const [goals, transactions, rangeTransactions, currencies, user] = await Promise.all([Saving.getGoals(userId), Saving.getTransactions(userId), Saving.getTransactions(userId, startDate, endDate), Currency.getCurrencies(userId), User.getById(userId)]);
+        const today = UserTime.getCurrentDate(user.timezone);
         const currentTransactions = transactions.filter((transaction) => dateKey(transaction.transaction_date) <= today);
         const chartTransactions = transactions.filter((transaction) => !endDate || dateKey(transaction.transaction_date) <= endDate);
         const summary = summarize(goals, currentTransactions, rangeTransactions);

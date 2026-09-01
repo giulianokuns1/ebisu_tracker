@@ -1,11 +1,15 @@
 const knex = require('knex')(require('../knexfile'));
+const User = require('../models/user');
+const UserTime = require('../utils/userTime');
 
 exports.get = async (req, res) => {
     try {
         const userId = req.user && req.user.id;
         const currencyId = req.query.currencyId;
-        const year = Number(req.query.year) || new Date().getFullYear();
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+        const user = await User.getById(userId);
+        const timezone = user.timezone || 'UTC';
+        const year = Number(req.query.year) || UserTime.getCurrentPeriod(timezone).year;
 
         const paymentQuery = knex('payments')
             .select('payments.amount', 'payments.created_at', 'categories.name as category_name', 'currencies.symbol as currency_symbol', 'currencies.id as currency_id')
@@ -30,11 +34,11 @@ exports.get = async (req, res) => {
         const categories = {};
         payments.forEach((payment) => {
             const amount = Number(payment.amount) || 0;
-            monthly[new Date(payment.created_at).getMonth()].expenses += amount;
+            monthly[UserTime.getMonthFromDate(payment.created_at, timezone) - 1].expenses += amount;
             const name = payment.category_name || 'Other';
             categories[name] = (categories[name] || 0) + amount;
         });
-        income.forEach((transaction) => { monthly[new Date(transaction.received_at).getMonth()].income += Number(transaction.amount) || 0; });
+        income.forEach((transaction) => { monthly[UserTime.getMonthFromDate(transaction.received_at, timezone) - 1].income += Number(transaction.amount) || 0; });
         const topExpenses = Object.entries(categories).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, amount]) => ({ name, amount }));
         return res.json({ currencySymbol: symbol, monthly, categories: Object.entries(categories).map(([name, amount]) => ({ name, amount })), topExpenses });
     } catch (error) {

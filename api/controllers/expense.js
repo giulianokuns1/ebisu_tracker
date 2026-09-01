@@ -10,6 +10,8 @@ const ExpenseLibrary = require('../libraries/expense');
 const ExpenseSchedule = require('../models/expenseSchedule');
 const ExpenseAmountSchedule = require('../models/expenseAmountSchedule');
 const PaymentLibrary = require('../libraries/payment');
+const User = require('../models/user');
+const UserTime = require('../utils/userTime');
 const moment = require("moment");
 
 exports.getExpenses = async (req, res, next) => {
@@ -18,12 +20,12 @@ exports.getExpenses = async (req, res, next) => {
         let monthText;
         let payments;
         let currencies;
-        let currentMonth = new Date().getMonth() + 1;
-        let currentYear = new Date().getFullYear();
         let userId = req.user && req.user.id;
-        let month = parseInt((req.query && req.query.m), 10) || currentMonth;
         let expensesExtended;
         let showAll = req.query && req.query.showAll;
+        const user = await User.getById(userId);
+        const { month: currentMonth, year: currentYear } = UserTime.getCurrentPeriod(user.timezone);
+        let month = parseInt((req.query && req.query.m), 10) || currentMonth;
         monthText = Utils.getMonthText(month);
         if (userId) {
             lastMonth = month - 1;
@@ -81,7 +83,8 @@ exports.getExpense = async (req, res, next) => {
         if (userId && expenseId) {
             expense = await Expense.getExpense(userId, expenseId);
             expense = expense && expense[0];
-            const scheduleYear = Number(req.query && req.query.scheduleYear) || new Date().getFullYear();
+            const user = await User.getById(userId);
+            const scheduleYear = Number(req.query && req.query.scheduleYear) || UserTime.getCurrentPeriod(user.timezone).year;
             expenseAmounts = await ExpenseLibrary.getExpenseAmountByExpense(userId, expenseId, scheduleYear);
             categories = await Category.getCategories(userId);
             expensesTypes = await ExpensesType.getExpensesType();
@@ -240,16 +243,13 @@ exports.getPendingExpenses = async (req, res, next) => {
         let expensesIds = [];
         let paymentMethods = [];
         const userId = req.user && req.user.id;
-        const currentDate = new Date();
-        const month = currentDate.getMonth() + 1;
-        const year = currentDate.getFullYear();
         if (userId) {
+            const user = await User.getById(userId);
+            const { month, year } = UserTime.getCurrentPeriod(user.timezone);
             expenses = await Expense.getExpenses(userId, month, year);
             expensesIds = expenses.map((expense) => expense.id);
             paymentMethods = await PaymentMethods.getPaymentMethods(userId);
-            const currentDate = new Date();
-            const currentMonth = currentDate.getMonth() + 1;
-            const currentMonthRange = Utils.getMonthMonthRange(currentMonth + 1);
+            const currentMonthRange = Utils.getMonthMonthRange(month + 1);
             payments = await Payment.getExpensesPayments(userId, expensesIds, year, currentMonthRange);
             expenses = await Promise.all(expenses.map(async (expense) => {
                 expense.formattedDueDate = Utils.expenseFormattedDueDate(expense);
