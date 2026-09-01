@@ -16,7 +16,7 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
     const groupCreditExpenses = (items) => {
         const groups = new Map();
         items.forEach((expense) => {
-            const key = expense.payment_method_id ? `credit-${expense.payment_method_id}` : `expense-${expense.id}-${expense.expense_amount_id}`;
+            const key = expense.is_credit_card_purchase ? `expense-${expense.id}-${expense.expense_amount_id}` : expense.payment_method_id ? `credit-${expense.payment_method_id}` : `expense-${expense.id}-${expense.expense_amount_id}`;
             const group = groups.get(key) || { ...expense, currencyAmounts: [] };
             if (expense.payment_method_id && !expense.is_credit_card_purchase) Object.assign(group, expense);
             group.currencyAmounts.push(expense);
@@ -33,7 +33,7 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
             });
             return {
                 ...group,
-                currencyAmounts: Array.from(amountsByCurrency.values()).map((amount) => ({ ...amount, amount: Math.max(amount.statementAmount, amount.purchaseTotal), paymentTotal: amount.is_credit_card_purchase ? 0 : amount.paymentTotal })).filter((amount) => Number(amount.amount) !== 0),
+                currencyAmounts: Array.from(amountsByCurrency.values()).map((amount) => ({ ...amount, amount: Math.max(amount.statementAmount, amount.purchaseTotal) })).filter((amount) => Number(amount.amount) !== 0),
             };
         });
     };

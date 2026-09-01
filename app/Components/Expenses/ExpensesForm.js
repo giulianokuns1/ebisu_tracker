@@ -96,7 +96,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
             setExpenseDueDate(new Date(expense.due_date));
             setExpenseDueDay(expense.due_date_day);
             setExpenseCurrency(expense.currency_id);
-            setExpensePaymentMethod(expense.payment_method_id);
+            setExpensePaymentMethod(expense.payment_method_id ? String(expense.payment_method_id) : '');
             if (expenseAmounts && expenseAmounts.length > 0) {
                 setExpenseAmounts(expenseAmounts);
             }
@@ -628,7 +628,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
                     {!isScheduled && isMonthlyFrequency && <div><FormInput label={t('Due day')} type={'number'} value={expenseDueDay || ''} onChange={handleMonthlyDueDayChange} onBlur={validateDueDay} errorMessage={dueDayError} min={1} max={28} /></div>}
                     {isScheduled && <div className={styles.fullRow}><CheckboxList label={t('Months')} checkboxList={monthCheckboxList} onChange={handleScheduledMonthsChange} onBlur={validateScheduledMonths} errorMessage={scheduledMonthsError} /></div>}
                 </div></FormSection>
-                {!creditPaymentMethods.some((method) => Number(method.expense_id) === Number(expenseId)) && creditPaymentMethods.length > 0 && <FormSection icon="bi-credit-card" title={t('Payment')} optional><div className={styles.expenseFieldsGrid}><div><FormSelect label={t('Paid with credit card')} values={creditPaymentMethods} valueLabel="name" value={expensePaymentMethod || ''} onChange={(event) => setExpensePaymentMethod(event.target.value || null)} defaultLabel={t('Not paid with a credit card')} hideDefault={false} errorMessage={paymentMethodError} /><small className={styles.fieldHint}><i className="bi bi-info-circle" aria-hidden="true" /> {t('Credit card purchases appear in categories but are excluded from totals because the card statement is counted separately.')}</small></div></div></FormSection>}
+                {!creditPaymentMethods.some((method) => Number(method.expense_id) === Number(expenseId)) && creditPaymentMethods.length > 0 && <FormSection icon="bi-credit-card" title={t('Payment')} optional><div className={styles.expenseFieldsGrid}><div><FormSelect label={t('Paid with credit card')} values={creditPaymentMethods} valueLabel="name" value={expensePaymentMethod || ''} onChange={(event) => setExpensePaymentMethod(event.target.value || '')} defaultLabel={t('Not paid with a credit card')} hideDefault={false} errorMessage={paymentMethodError} /><small className={styles.fieldHint}><i className="bi bi-info-circle" aria-hidden="true" /> {t('Credit card purchases appear in categories but are excluded from totals because the card statement is counted separately.')}</small></div></div></FormSection>}
                 <FormSection icon="bi-cash-stack" title={t('Amount & Currency')}><ExpenseAmounts
                         expenseAmounts={expenseAmounts}
                         setExpenseAmountsAmount={setExpenseAmountsAmount}

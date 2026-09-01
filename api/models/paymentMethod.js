@@ -31,6 +31,23 @@ module.exports = class PaymentMethod {
             .orderBy('name');
     }
 
+    static getCreditStatementPayments(userId, paymentMethodIds) {
+        if (!paymentMethodIds.length) return Promise.resolve([]);
+        return knex('payment_methods')
+            .select(
+                'payment_methods.id as payment_method_id',
+                'expense_amounts.id as expense_amount_id',
+                'expense_amounts.currency_id',
+                'expense_amounts.amount',
+                'payments.amount as payment_amount',
+                'payments.is_full_paid'
+            )
+            .where('payment_methods.user_id', userId)
+            .whereIn('payment_methods.id', paymentMethodIds)
+            .leftJoin('expense_amounts', 'expense_amounts.expense_id', 'payment_methods.expense_id')
+            .leftJoin('payments', 'payments.expense_amount_id', 'expense_amounts.id');
+    }
+
     /**
      * Get expense
      * @param userId

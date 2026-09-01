@@ -98,8 +98,8 @@ function AnnualPlanPage() {
         const status = cell.remaining === 0 && cell.planned > 0 ? styles.paid : cell.paid > 0 ? styles.partial : isFutureMonth ? styles.future : styles.unpaid;
         const key = `${expense.expense_amount_id}:${cell.month}`;
         return <div className={`${styles.cell} ${status}`}>
-            {cell.hasPlan ? <input aria-label={`${expense.name} ${monthNames[cell.month - 1]} planned amount`} defaultValue={cell.planned} inputMode="decimal" onBlur={(event) => updatePlan(expense, cell, event.target.value)} disabled={saving === key} /> : null}
-            <ExpensesPayment
+            {cell.hasPlan ? <input aria-label={`${expense.name} ${monthNames[cell.month - 1]} planned amount`} defaultValue={cell.planned} inputMode="decimal" onBlur={(event) => updatePlan(expense, cell, event.target.value)} disabled={saving === key || expense.is_credit_card_purchase} /> : null}
+            {!expense.is_credit_card_purchase && <ExpensesPayment
                 expense={{
                     id: expense.expense_id,
                     name: expense.name,
@@ -114,7 +114,7 @@ function AnnualPlanPage() {
                 initialPaymentDate={new Date(year, cell.month - 1, 1)}
                 onAddExpensePayment={load}
                 renderTrigger={(openPayment) => <button type="button" className={styles.paidButton} onClick={openPayment}>{t('Paid')}: {money(cell.paid, expense.currency_symbol)}</button>}
-            />
+            />}
         </div>;
     };
 

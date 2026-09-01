@@ -9,6 +9,7 @@ import { API_BASE_URL } from '@/constants';
 const ExpensesGridItem = ({ expense, onAddExpensePayment, isNextMonth, showAll, monthEdits, setMonthEdits }) => {
     const { t } = useTranslation();
     const currencyAmounts = expense.currencyAmounts || [expense];
+    const isCreditCardPurchase = Boolean(expense.is_credit_card_purchase);
     const isMultiCurrencyCredit = currencyAmounts.length > 1;
     const currencyProgress = currencyAmounts.map((amount) => {
         const total = Number(amount.amount || 0);
@@ -50,8 +51,8 @@ const ExpensesGridItem = ({ expense, onAddExpensePayment, isNextMonth, showAll, 
                 onAddExpensePayment={onAddExpensePayment}
                 isNextMonth={isNextMonth}
                 renderTrigger={(openPayment) => (
-                    <button type="button" className={styles.expenseGridCard} onClick={(event) => { if (event.target.closest(`.${styles.amountGrid}`)) return; if (ignoreNextRowClick.current) { ignoreNextRowClick.current = false; return; } if (isEditing) { finishEditing(); return; } openPayment(); }}>
-                        <span className={styles.expenseCategoryIcon}><i className={expense.category_icon || 'bi bi-receipt'} aria-hidden="true" /></span>
+                    <button type="button" className={styles.expenseGridCard} onClick={(event) => { if (isCreditCardPurchase || event.target.closest(`.${styles.amountGrid}`)) return; if (ignoreNextRowClick.current) { ignoreNextRowClick.current = false; return; } if (isEditing) { finishEditing(); return; } openPayment(); }}>
+                        <span className={styles.expenseCategoryIcon} style={{ color: expense.category_color || '#809297', backgroundColor: `${expense.category_color || '#809297'}22` }}><i className={expense.category_icon || 'bi bi-receipt'} aria-hidden="true" /></span>
                         <span className={styles.expenseRowDetails}><strong><i className={styles.categoryDot} style={{ backgroundColor: expense.category_color || '#809297' }} />{t(expense.name)}</strong><small>{showAll ? t(expense.dueDateDay) : t(expense.formattedGridDueDate)}</small></span>
                         <span className={`${styles.amountGrid} ${isMultiCurrencyCredit ? styles.multiCurrencyAmount : ''} ${!isPaid ? styles.pendingAmountGrid : ''}`}>{currencyAmounts.map((amount) => <span key={amount.expense_amount_id} onClick={(event) => { if (!canEdit) return; event.stopPropagation(); setDraftAmount(String(amount.amount)); setIsEditing(true); }}>{amount.currency_symbol} {isEditing && Number(amount.expense_amount_id) === Number(expense.expense_amount_id) ? <input className={styles.dashboardInlineAmount} autoFocus type="number" min="0" step="0.01" value={draftAmount} onFocus={(event) => event.target.select()} onClick={(event) => event.stopPropagation()} onChange={(event) => { setDraftAmount(event.target.value); updateAmount(event.target.value); }} onBlur={finishEditing} onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur(); if (event.key === 'Escape') { ignoreNextRowClick.current = false; setIsEditing(false); } }} /> : Number(amount.amount || displayAmount).toFixed(2)}</span>)}</span>
                         <span className={`${styles.paymentStatus} ${isPaid ? styles.statusPaid : styles.statusPending}`}>{isPaid ? t('Paid') : t('Pending')}</span>

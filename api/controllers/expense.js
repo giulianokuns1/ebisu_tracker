@@ -263,7 +263,7 @@ exports.getPendingExpenses = async (req, res, next) => {
                                 expenseAmount.paymentTotal += Number(payment.amount) || 0;
                             }
                         });
-                        expenseAmount.isPaid = expenseAmount.paymentTotal >= expenseAmount.amount;
+                        expenseAmount.isPaid = Boolean(expense.is_credit_card_purchase) || expenseAmount.paymentTotal >= expenseAmount.amount;
                         if (!expenseAmount.isPaid) {
                             expense.isTotalPaid = false;
                         }

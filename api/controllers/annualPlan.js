@@ -23,7 +23,7 @@ exports.get = async (req, res) => {
 
         const [expenseRows, schedules, overrides, payments, income, paymentMethods] = await Promise.all([
             knex('expenses')
-                .select('expenses.id as expense_id', 'expenses.name', 'expenses.type_id', 'expenses.due_date', 'expenses.category_id', 'categories.name as category_name', 'categories.color as category_color', 'expense_amounts.id as expense_amount_id', 'expense_amounts.amount as base_amount', 'currencies.id as currency_id', 'currencies.name as currency_name', 'currencies.symbol as currency_symbol')
+                .select('expenses.id as expense_id', 'expenses.name', 'expenses.type_id', 'expenses.due_date', 'expenses.category_id', 'expenses.payment_method_id', 'expenses.is_credit_card_purchase', 'categories.name as category_name', 'categories.color as category_color', 'expense_amounts.id as expense_amount_id', 'expense_amounts.amount as base_amount', 'currencies.id as currency_id', 'currencies.name as currency_name', 'currencies.symbol as currency_symbol')
                 .where('expenses.user_id', userId)
                 .where('expenses.inactive', false)
                 .join('expense_amounts', 'expenses.id', 'expense_amounts.expense_id')
@@ -82,7 +82,7 @@ exports.get = async (req, res) => {
                 const month = index + 1;
                 const hasPlan = isScheduledForMonth(expense, monthsByExpense.get(expense.expense_id) || new Set(), year, month);
                 const planned = hasPlan ? (overridesByAmount.get(`${expense.expense_amount_id}:${month}`) ?? Number(expense.base_amount)) : 0;
-                const paid = paidByAmountMonth.get(`${expense.expense_amount_id}:${month}`) || 0;
+                const paid = expense.is_credit_card_purchase ? planned : paidByAmountMonth.get(`${expense.expense_amount_id}:${month}`) || 0;
                 return { month, hasPlan, planned, paid, remaining: Math.max(planned - paid, 0) };
             });
             let carryOver = 0;
@@ -98,7 +98,7 @@ exports.get = async (req, res) => {
         const totals = currencies.map((currency) => {
             const monthly = Array.from({ length: 12 }, (_, index) => {
                 const month = index + 1;
-                const rows = expenses.filter((item) => item.currency_id === currency.id).map((item) => item.cells[index]);
+                const rows = expenses.filter((item) => item.currency_id === currency.id && !item.is_credit_card_purchase).map((item) => item.cells[index]);
                 const planned = rows.reduce((sum, item) => sum + item.planned, 0);
                 const paid = rows.reduce((sum, item) => sum + item.paid, 0);
                 const remaining = rows.reduce((sum, item) => sum + item.remaining, 0);

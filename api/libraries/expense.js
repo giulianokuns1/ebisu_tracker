@@ -5,6 +5,7 @@ const ExpenseType = require("../models/expenseType");
 const ExpenseSchedule = require("../models/expenseSchedule");
 const ExpenseAmountSchedule = require("../models/expenseAmountSchedule");
 const Currency = require("../models/currency");
+const PaymentMethod = require("../models/paymentMethod");
 const moment = require("moment");
 
 exports.createUpdateExpense = async (userId, data) => {
@@ -256,6 +257,15 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
     let paymentByExpense = {}
     let paid;
     let percentage;
+    const creditPurchasePaymentMethodIds = [...new Set(expenses.filter((expense) => Boolean(expense.is_credit_card_purchase) && expense.payment_method_id).map((expense) => expense.payment_method_id))];
+    const creditStatementPayments = await PaymentMethod.getCreditStatementPayments(userId, creditPurchasePaymentMethodIds);
+    const creditStatementByMethodAndCurrency = creditStatementPayments.reduce((statements, row) => {
+        const key = `${row.payment_method_id}:${row.currency_id}`;
+        if (!statements[key]) statements[key] = { amount: Number(row.amount || 0), paymentTotal: 0, isFullPaid: false };
+        statements[key].paymentTotal += Number(row.payment_amount || 0);
+        statements[key].isFullPaid = statements[key].isFullPaid || Boolean(row.is_full_paid);
+        return statements;
+    }, {});
     payments.forEach((payment) => {
         const paymentAmount = parseFloat(payment.amount) || 0;
         if (amountPaidByCurrency[payment.currency_id]) {
@@ -305,11 +315,7 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
                 expense.isFullPaid = expense.isFullPaid || payment.is_full_paid;
             }
         });
-        if (expense.is_credit_card_purchase) {
-            expense.paymentTotal = Number(expense.amount || 0);
-            expense.isFullPaid = true;
-            return expense;
-        }
+        if (expense.is_credit_card_purchase) return expense;
         if (totalAmountByCurrency[expense.currency_id]) {
             if (expense.expense_amount_schedule_amount) {
                 totalAmountByCurrency[expense.currency_id]['amount'] += parseFloat(expense.expense_amount_schedule_amount);
@@ -335,6 +341,14 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
             amountPaidByCurrency[expense.currency_id] = 0;
         }
         return expense;
+    });
+    expenses.filter((expense) => expense.is_credit_card_purchase).forEach((expense) => {
+        const statement = creditStatementByMethodAndCurrency[`${expense.payment_method_id}:${expense.currency_id}`];
+        const isStatementPaid = statement && (Boolean(statement.isFullPaid) || Number(statement.paymentTotal || 0) >= Number(statement.amount || 0));
+        if (isStatementPaid) {
+            expense.paymentTotal = Number(expense.amount || 0);
+            expense.isFullPaid = true;
+        }
     });
     currencies.map((currency) => {
         if (totalAmountByCurrency[currency.id]) {
