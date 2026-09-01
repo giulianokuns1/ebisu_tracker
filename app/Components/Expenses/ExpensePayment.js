@@ -152,8 +152,8 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
         setIsFullPaid(false);
         setModalVisible(true);
     }
-    const handleFullPaid = (e) => {
-        setIsFullPaid(e.target.checked);
+    const handleFullPaid = (event) => {
+        setIsFullPaid(event.value);
     }
     const validatePaymentDate = () => {
         if (!paymentDate || isNaN(paymentDate.getTime())) {

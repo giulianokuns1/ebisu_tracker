@@ -30,9 +30,14 @@ exports.createExpensePayment = async (req, res, next) => {
         const paymentLines = Array.isArray(amounts) ? amounts : [{ expenseAmountId: expense?.expense_amount_id, amount, originalAmount: expense?.amount, isFullPaid }];
         if (userId && expense && paymentLines.length && paymentMethod && paymentDate) {
             date = moment(paymentDate).format('YYYY-MM-DD HH:mm:ss');
-            payment = await Promise.all(paymentLines.filter((line) => Number(line.amount) > 0).map((line) => {
+            const currentMonth = moment().month() + 1;
+            const currentYear = moment().year();
+            payment = await Promise.all(paymentLines.filter((line) => Number(line.amount) > 0).map(async (line) => {
                 const originalAmount = line.originalAmount ?? expense.amount;
-                return PaymentLibrary.createPayment(userId, line.expenseAmountId, paymentMethod, line.amount, comment, originalAmount, expense, date, Boolean(line.isFullPaid));
+                await PaymentLibrary.createPayment(userId, line.expenseAmountId, paymentMethod, line.amount, comment, originalAmount, expense, date, Boolean(line.isFullPaid));
+                if (line.isFullPaid) {
+                    await ExpenseAmountSchedule.upsert(userId, line.expenseAmountId, currentYear, currentMonth, line.amount);
+                }
             }));
         }
         res.json({ payment });

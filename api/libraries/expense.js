@@ -355,13 +355,5 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
 }
 
 exports.getExpenseAmountByExpense = async (userId, expenseId, year = new Date().getFullYear()) => {
-    var expenseAmounts = await Expense.getExpenseAmountByExpense(userId, expenseId);
-    var result = await Promise.all(expenseAmounts.map(async expenseAmount => {
-        var expenseAmountSchedule = await ExpenseAmountSchedule.getByMonth(expenseAmount.id, moment().month() + 1, year);
-        if (expenseAmountSchedule.length > 0) {
-            expenseAmount.amount = expenseAmountSchedule[0].amount;
-        }
-        return expenseAmount;
-    }));
-    return await Promise.all(result);
+    return Expense.getExpenseAmountByExpense(userId, expenseId);
 }
