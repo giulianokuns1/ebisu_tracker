@@ -16,7 +16,7 @@ const FormSelect = ({ label, values, valueLabel, multipleValueLabel, value, onCh
                     onBlur={onBlur}
                     multiple={!!multiple}
                 >
-                    {!hideDefault && <option value="" disabled> {defaultLabel}</option>}
+                    {!hideDefault && <option value=""> {defaultLabel}</option>}
                     {values &&
                         values.map((v) => (
                             <option key={v.id} value={v.id}>

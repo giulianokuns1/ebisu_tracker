@@ -246,7 +246,7 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
                         />}
                     </div>
                     <div className={styles.paymentModalActions}>
-                        <button type="button" className={styles.editExpenseButton} onClick={() => { closePaymentModal(); router.push(`/expenses/details/${expense.id}`); }}>{t('Edit expense')}</button>
+                        <button type="button" className={styles.editExpenseButton} onClick={() => { setModalVisible(false); router.push(`/expenses/details/${expense.id}`); }}>{t('Edit expense')}</button>
                         <button type="button" className={styles.cancelPaymentButton} onClick={closePaymentModal}>{t('Cancel')}</button>
                         <Button label={t(isMultiCurrency ? 'Add Payments' : 'Add Payment')} customClass={styles.addPaymentButton} onClick={createExpensePayment} />
                     </div>
