@@ -270,7 +270,7 @@ module.exports = class Expense {
      * @param month
      * @returns {Promise<Array>}
      */
-    static getExpensesByAmount(userId, month) {
+    static getExpensesByAmount(userId, month, year) {
         return knex('expenses')
             .select(
                 'expenses.*',
@@ -309,6 +309,9 @@ module.exports = class Expense {
                 this.on('expense_amounts.id', '=', 'expense_amount_schedule.expense_amount_id');
                 if (month !== undefined && month !== null) {
                     this.on('expense_amount_schedule.month', '=', knex.raw('?', [month]));
+                    if (year !== undefined && year !== null) {
+                        this.on('expense_amount_schedule.year', '=', knex.raw('?', [year]));
+                    }
                 }
             })
             .catch((error) => {

@@ -246,7 +246,7 @@ exports.getExpenses = async (userId, month, year ) => {
  * @return {Object}
  */
 exports.getExpensesExtended = async (userId, month, payments, currencies, year = new Date().getFullYear(), showAll) => {
-    let expenses = await Expense.getExpensesByAmount(userId, showAll ? null : month);
+    let expenses = await Expense.getExpensesByAmount(userId, showAll ? null : month, showAll ? null : year);
     let expenseAmountSchedules = await ExpenseAmountSchedule.getByUserId(userId, month, year);
     let expensesAmountByCurrency = {};
     let amountPaidByCurrency = {};
@@ -306,6 +306,8 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
             }
         });
         if (expense.is_credit_card_purchase) {
+            expense.paymentTotal = Number(expense.amount || 0);
+            expense.isFullPaid = true;
             return expense;
         }
         if (totalAmountByCurrency[expense.currency_id]) {
