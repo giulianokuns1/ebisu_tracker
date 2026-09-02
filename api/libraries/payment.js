@@ -1,6 +1,7 @@
 const Expense = require('../models/expense');
 const Payment = require('../models/payment');
 const PaymentMethod = require('../models/paymentMethod');
+const CreditPaymentAllocation = require('../models/creditPaymentAllocation');
 const moment = require("moment");
 
 /**
@@ -51,11 +52,18 @@ exports.getCreditPaymentsByExpenses = async (userId, expensesIds) => {
  */
 exports.getPaymentsByExpense = async (userId, expenseId) => {
     let payments = await Payment.getExpensesPayments(userId, [expenseId]);
+    const allocationPayments = await CreditPaymentAllocation.getPaymentHistory(userId, expenseId);
+    const historyPayments = [...payments, ...allocationPayments.map((allocation) => ({
+        ...allocation,
+        id: `credit-allocation-${allocation.id}`,
+        comment: 'Paid by credit',
+        is_credit_allocation: true,
+    }))].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     let monthPayments = [];
     let month;
     let index;
     let totalPaid = 0;
-    payments.map((payment) => {
+    historyPayments.map((payment) => {
         month = moment(payment.created_at).format('YYYY-MM');
         index = monthPayments.findIndex((monthPayment) => monthPayment.month === month);
         if (index === -1) {
@@ -73,7 +81,7 @@ exports.getPaymentsByExpense = async (userId, expenseId) => {
         totalPaid = parseFloat(parseFloat(totalPaid) + parseFloat(payment.amount)).toFixed(2);
     });
     return {
-        payments,
+        payments: historyPayments,
         monthPayments,
         totalPaid
     };

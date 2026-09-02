@@ -47,9 +47,35 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
     const notificationToast = useRef(null);
     const [paymentDate, setPaymentDate] = useState(today);
     const [isFullPaid, setIsFullPaid] = useState(false);
+    const [creditPurchases, setCreditPurchases] = useState({});
+    const [allocations, setAllocations] = useState({});
     const closePaymentModal = useModalBackButton(modalVisible, () => setModalVisible(false));
     const expenseAmounts = expense?.currencyAmounts || expense?.expense_amounts || [];
     const isMultiCurrency = expenseAmounts.length > 1;
+    const isCardStatement = Boolean(expense?.payment_method_id) && !expense?.is_credit_card_purchase;
+
+    const loadCreditPurchases = async () => {
+        if (!isCardStatement) return;
+        const token = localStorage.getItem('token');
+        const entries = await Promise.all(expenseAmounts.map(async (record) => {
+            const statementExpenseAmountId = record.expense_amount_id || record.id;
+            const response = await axios.get(`${API_BASE_URL}/creditPurchaseAllocations`, {
+                params: { paymentMethodId: expense.payment_method_id, currencyId: record.currency_id },
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            return [statementExpenseAmountId, response.data.purchases || []];
+        }));
+        setCreditPurchases(Object.fromEntries(entries));
+        setAllocations(Object.fromEntries(entries.flatMap(([statementExpenseAmountId, purchases]) => {
+            const statementAmount = expenseAmounts.find((record) => Number(record.expense_amount_id || record.id) === Number(statementExpenseAmountId));
+            let available = getRemainingAmount(statementAmount);
+            return purchases.map((purchase) => {
+                const allocation = Math.min(available, Number(purchase.remaining || 0));
+                available -= allocation;
+                return [`${statementExpenseAmountId}:${purchase.expense_amount_id}`, allocation ? String(allocation) : ''];
+            });
+        })));
+    };
 
     useEffect(() => {
         if (!expense || !expense.paymentMethods || !expense.paymentMethods.length) {
@@ -113,7 +139,11 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
                     comment: comment,
                     paymentMethod: paymentMethod,
                     paymentDate: paymentDate,
-                    isFullPaid: isFullPaid
+                    isFullPaid: isFullPaid,
+                    allocations: Object.entries(allocations).map(([key, allocationAmount]) => {
+                        const [statementExpenseAmountId, expenseAmountId] = key.split(':');
+                        return { statementExpenseAmountId, expenseAmountId, amount: allocationAmount };
+                    }).filter((allocation) => Number(allocation.amount) > 0),
                 },
                 {
                     headers: {
@@ -149,6 +179,8 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
             : getRemainingAmount(expense);
         setAmount(initialAmount !== undefined ? String(initialAmount) : (remaining ? String(remaining) : ''));
         setAmounts(Object.fromEntries(expenseAmounts.map((record) => [record.expense_amount_id || record.id, String(getRemainingAmount(record))])));
+        setAllocations({});
+        loadCreditPurchases().catch(() => setCreditPurchases({}));
         setIsFullPaid(false);
         setModalVisible(true);
     }
@@ -221,6 +253,13 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
                                 <input className={styles.amountInput} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} onBlur={validateAmount} />
                             </div>
                             <div className={styles.inputError}>{amountError}</div>
+                        </div>}
+                        {isCardStatement && Object.keys(creditPurchases).length > 0 && <div className={styles.creditAllocationSection}>
+                            <label className={styles.formInputLabel}>{t('Allocate to credit purchases')}</label>
+                            {Object.entries(creditPurchases).map(([statementExpenseAmountId, purchases]) => purchases.map((purchase) => {
+                                const key = `${statementExpenseAmountId}:${purchase.expense_amount_id}`;
+                                return <div className={styles.creditAllocationRow} key={key}><span>{purchase.name}<small>{purchase.currency_symbol} {Number(purchase.remaining).toFixed(2)} {t('remaining')}</small></span><input className={styles.amountInput} type="number" min="0" max={purchase.remaining} step="0.01" value={allocations[key] ?? ''} onChange={(event) => setAllocations((current) => ({ ...current, [key]: event.target.value }))} /></div>;
+                            }))}
                         </div>}
                         <div className={styles.formInputWrapper}>
                             <label className={styles.formInputLabel}>{t('Comment')}</label>

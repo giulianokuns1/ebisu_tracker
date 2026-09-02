@@ -292,6 +292,20 @@ module.exports = class Expense {
                     this.whereRaw('MONTH(expenses.due_date) = ?', [month]);
                     this.orWhere('expenses.type_id', MONTHLY_ID);
                     this.orWhere(function () {
+                        this.where('expenses.is_credit_card_purchase', true)
+                            .whereExists(function () {
+                                this.select(1)
+                                    .from('payment_methods')
+                                    .whereRaw('payment_methods.id = expenses.payment_method_id')
+                                    .whereExists(function () {
+                                        this.select(1)
+                                            .from('expenses as statement_expenses')
+                                            .whereRaw('statement_expenses.id = payment_methods.expense_id')
+                                            .whereRaw('MONTH(statement_expenses.due_date) = ?', [month]);
+                                    });
+                            });
+                    });
+                    this.orWhere(function () {
                         this.whereExists(function () {
                             this.select(1)
                                 .from('expense_schedule')

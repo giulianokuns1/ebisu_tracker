@@ -6,6 +6,8 @@ const ExpenseAmountSchedule = require("../models/expenseAmountSchedule");
 const User = require("../models/user");
 const UserTime = require('../utils/userTime');
 const moment = require('moment');
+const knex = require('knex')(require('../knexfile'));
+const CreditPaymentAllocation = require('../models/creditPaymentAllocation');
 
 exports.getPayments = async (req, res, next) => {
     try {
@@ -28,24 +30,71 @@ exports.createExpensePayment = async (req, res, next) => {
         let originalAmount;
         let date;
         const userId = req.user && req.user.id;
-        const { expense, amount, amounts, comment, paymentMethod, paymentDate, isFullPaid } = req.body;
+        const { expense, amount, amounts, comment, paymentMethod, paymentDate, isFullPaid, allocations = [] } = req.body;
         const paymentLines = Array.isArray(amounts) ? amounts : [{ expenseAmountId: expense?.expense_amount_id, amount, originalAmount: expense?.amount, isFullPaid }];
         if (userId && expense && paymentLines.length && paymentMethod && paymentDate) {
             date = moment(paymentDate).format('YYYY-MM-DD HH:mm:ss');
             const user = await User.getById(userId);
             const { month: currentMonth, year: currentYear } = UserTime.getCurrentPeriod(user.timezone);
-            payment = await Promise.all(paymentLines.filter((line) => Number(line.amount) > 0).map(async (line) => {
+            payment = [];
+            for (const line of paymentLines.filter((line) => Number(line.amount) > 0)) {
                 const originalAmount = line.originalAmount ?? expense.amount;
-                await PaymentLibrary.createPayment(userId, line.expenseAmountId, paymentMethod, line.amount, comment, originalAmount, expense, date, Boolean(line.isFullPaid));
+                const paymentId = await knex.transaction(async (trx) => {
+                    const createdPayment = await Payment.createPayment(userId, line.expenseAmountId, paymentMethod, line.amount, comment, originalAmount, Boolean(expense.payment_method_id), date, Boolean(line.isFullPaid), trx);
+                    const paymentId = Array.isArray(createdPayment) ? createdPayment[0] : createdPayment;
+                    const lineAllocations = allocations.filter((allocation) => Number(allocation.statementExpenseAmountId) === Number(line.expenseAmountId) && Number(allocation.amount) > 0);
+                    const allocationTotal = lineAllocations.reduce((total, allocation) => total + Number(allocation.amount), 0);
+                    if (allocationTotal > Number(line.amount) + 0.001) throw new Error('Credit allocations exceed the statement payment amount.');
+                    if (lineAllocations.length && (!expense.payment_method_id || expense.is_credit_card_purchase)) throw new Error('Credit allocations can only be added to card statement payments.');
+                    if (lineAllocations.length) {
+                        const allocatedAmounts = await trx('expense_amounts as expense_amounts')
+                            .select('expense_amounts.id', 'expense_amounts.amount')
+                            .whereIn('expense_amounts.id', lineAllocations.map((allocation) => allocation.expenseAmountId))
+                            .leftJoin('expenses', 'expenses.id', 'expense_amounts.expense_id')
+                            .where({ 'expenses.user_id': userId, 'expenses.payment_method_id': expense.payment_method_id, 'expenses.is_credit_card_purchase': 1 });
+                        if (allocatedAmounts.length !== lineAllocations.length) throw new Error('Invalid credit purchase allocation.');
+                        const allocationIds = [...new Set(lineAllocations.map((allocation) => Number(allocation.expenseAmountId)))].sort((a, b) => a - b);
+                        const existingAllocations = await trx('credit_payment_allocations').select('expense_amount_id').sum({ amount: 'amount' }).where('user_id', userId).whereIn('expense_amount_id', allocationIds).orderBy('expense_amount_id').groupBy('expense_amount_id');
+                        const allocatedByAmount = Object.fromEntries(existingAllocations.map((allocation) => [allocation.expense_amount_id, Number(allocation.amount)]));
+                        for (const allocation of lineAllocations) {
+                            const purchase = allocatedAmounts.find((item) => Number(item.id) === Number(allocation.expenseAmountId));
+                            if (Number(allocation.amount) > Number(purchase.amount) - Number(allocatedByAmount[purchase.id] || 0) + 0.001) throw new Error('Credit allocation exceeds the purchase remaining amount.');
+                        }
+                    }
+                    await CreditPaymentAllocation.replacePaymentAllocations(userId, paymentId, lineAllocations.map((allocation) => ({ expense_amount_id: allocation.expenseAmountId, amount: allocation.amount })), trx);
+                    return paymentId;
+                });
                 if (line.isFullPaid) {
                     await ExpenseAmountSchedule.upsert(userId, line.expenseAmountId, currentYear, currentMonth, line.amount);
                 }
-            }));
+                payment.push(paymentId);
+            }
         }
         res.json({ payment });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'An error occurred while creating payments.' });
+    }
+};
+exports.getCreditPurchaseAllocations = async (req, res) => {
+    try {
+        const userId = req.user && req.user.id;
+        const paymentMethodId = Number(req.query.paymentMethodId);
+        const currencyId = Number(req.query.currencyId);
+        if (!userId || !paymentMethodId || !currencyId) return res.json({ purchases: [] });
+        const purchases = await knex('expenses as expenses')
+            .select('expenses.id as expense_id', 'expenses.name', 'expense_amounts.id as expense_amount_id', 'expense_amounts.amount', 'currencies.symbol as currency_symbol')
+            .where({ 'expenses.user_id': userId, 'expenses.payment_method_id': paymentMethodId, 'expenses.is_credit_card_purchase': 1, 'expenses.inactive': 0, 'expense_amounts.currency_id': currencyId })
+            .leftJoin('expense_amounts', 'expense_amounts.expense_id', 'expenses.id')
+            .leftJoin('currencies', 'currencies.id', 'expense_amounts.currency_id')
+            .orderBy('expenses.due_date')
+            .orderBy('expenses.id');
+        const allocationRows = await CreditPaymentAllocation.getPurchaseAllocations(userId, purchases.map((purchase) => purchase.expense_amount_id));
+        const allocatedByAmount = allocationRows.reduce((totals, allocation) => ({ ...totals, [allocation.expense_amount_id]: (totals[allocation.expense_amount_id] || 0) + Number(allocation.amount) }), {});
+        return res.json({ purchases: purchases.map((purchase) => ({ ...purchase, allocated: allocatedByAmount[purchase.expense_amount_id] || 0, remaining: Math.max(0, Number(purchase.amount) - (allocatedByAmount[purchase.expense_amount_id] || 0)) })) });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'An error occurred while fetching credit purchases.' });
     }
 };
 exports.getPayment = async (req, res, next) => {

@@ -239,39 +239,30 @@ exports.getPendingExpenses = async (req, res, next) => {
         let expenses;
         let pendingExpenses = [];
         let paidExpenses = [];
-        let payments;
         let expensesIds = [];
         let paymentMethods = [];
         const userId = req.user && req.user.id;
         if (userId) {
             const user = await User.getById(userId);
             const { month, year } = UserTime.getCurrentPeriod(user.timezone);
-            expenses = await Expense.getExpenses(userId, month, year);
-            expensesIds = expenses.map((expense) => expense.id);
+            const currencies = await Currency.getCurrencies(userId);
+            const monthlyPayments = await Payment.getPayments(userId, month, year);
+            const monthlyExpenses = await ExpenseLibrary.getExpensesExtended(userId, month, monthlyPayments, currencies, year);
+            expenses = monthlyExpenses.expenses.reduce((grouped, expense) => {
+                if (!grouped[expense.id]) grouped[expense.id] = { ...expense, expense_amounts: [] };
+                grouped[expense.id].expense_amounts.push(expense);
+                return grouped;
+            }, {});
+            expenses = Object.values(expenses);
             paymentMethods = await PaymentMethods.getPaymentMethods(userId);
-            const currentMonthRange = Utils.getMonthMonthRange(month + 1);
-            payments = await Payment.getExpensesPayments(userId, expensesIds, year, currentMonthRange);
             expenses = await Promise.all(expenses.map(async (expense) => {
                 expense.formattedDueDate = Utils.expenseFormattedDueDate(expense);
-                expense.isTotalPaid = true;
-                expense.expense_amounts.map((expenseAmount) => {
-                        expenseAmount.payments = [];
-                        expenseAmount.paymentTotal = 0;
-                        payments.map((payment) => {
-                            if (payment.expense_amount_id === expenseAmount.id) {
-                                expenseAmount.payments.push(payment);
-                                expenseAmount.paymentTotal += Number(payment.amount) || 0;
-                            }
-                        });
-                        expenseAmount.isPaid = Boolean(expense.is_credit_card_purchase) || expenseAmount.paymentTotal >= expenseAmount.amount;
-                        if (!expenseAmount.isPaid) {
-                            expense.isTotalPaid = false;
-                        }
-                });
+                expense.isTotalPaid = expense.expense_amounts.every((expenseAmount) => Boolean(expenseAmount.isFullPaid) || Number(expenseAmount.paymentTotal || 0) >= Number(expenseAmount.amount || 0));
 
+                if (expense.is_credit_card_purchase) return expense;
                 if (expense.isTotalPaid) {
                     paidExpenses.push(expense);
-                } else {
+                } else if (!expense.isTotalPaid) {
                     pendingExpenses.push(expense);
                 }
                 expense.paymentMethods = paymentMethods;

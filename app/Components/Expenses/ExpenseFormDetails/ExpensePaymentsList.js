@@ -28,15 +28,15 @@ export default function ExpensePaymentsList({ payments = [] }) {
             <label className={styles.pageSize}>{t('Rows per page')}<select value={pageSize} onChange={updatePageSize}>{pageSizeOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select></label>
         </header>
         {payments.length ? <>
-            <div className={tableStyles.table} role="table" aria-label={t('Expense payments')}>
-                <div className={`${tableStyles.tableRow} ${tableStyles.tableHead}`} role="row"><span>{t('Date')}</span><span>{t('Description')}</span><span>{t('Category')}</span><span>{t('Amount')}</span><span>{t('Status')}</span><span>{t('Actions')}</span></div>
-                {visiblePayments.map((payment) => <button key={payment.id} type="button" className={tableStyles.tableRow} onClick={() => router.push(`/payments/details/${payment.id}`)}>
+            <div className={`${tableStyles.table} ${styles.paymentTable}`} role="table" aria-label={t('Expense payments')}>
+                <div className={`${tableStyles.tableRow} ${tableStyles.tableHead}`} role="row"><span>{t('Date')}</span><span>{t('Description')}</span><span>{t('Category')}</span><span>{t('Amount')}</span><span>{t('Status')}</span><span className={styles.actionsHeader}>{t('Actions')}</span></div>
+                {visiblePayments.map((payment) => <button key={payment.id} type="button" className={tableStyles.tableRow} onClick={() => { if (!payment.is_credit_allocation) router.push(`/payments/details/${payment.id}`); }}>
                     <span>{formatDate(payment.created_at)}</span>
-                    <span className={`${tableStyles.description} ${styles.paymentDescription}`}><i className={payment.category_icon || 'bi bi-credit-card'} aria-hidden="true" /><span><strong>{payment.expense_name || t('Payment')}</strong><small>{[payment.payment_method_name, payment.comment].filter(Boolean).join(' · ') || '—'}</small></span></span>
+                    <span className={`${tableStyles.description} ${styles.paymentDescription}`}><i className={payment.category_icon || 'bi bi-credit-card'} aria-hidden="true" /><span><strong>{payment.expense_name || t('Payment')}</strong><small>{payment.is_credit_allocation ? `${t('Paid by credit')} · ${payment.statement_expense_name || payment.payment_method_name}` : ([payment.payment_method_name, payment.comment].filter(Boolean).join(' · ') || '—')}</small></span></span>
                     <span className={tableStyles.categoryChip}>{payment.category_name || t('Other')}</span>
                     <span className={tableStyles.paidAmount}>{payment.currency_symbol} {Number(payment.amount || 0).toFixed(2)}</span>
                     <span className={tableStyles.paidStatus}>{t('Paid')}</span>
-                    <span className={tableStyles.edit}><i className="bi bi-pencil" aria-hidden="true" /><span className="visually-hidden">{t('Edit')}</span></span>
+                    <span className={`${tableStyles.edit} ${payment.is_credit_allocation ? styles.creditPaymentAction : ''}`}>{payment.is_credit_allocation ? <span className={styles.creditPaymentBadge}><i className="bi bi-credit-card" aria-hidden="true" />{payment.statement_expense_name || payment.payment_method_name}</span> : <><i className="bi bi-pencil" aria-hidden="true" /><span className="visually-hidden">{t('Edit')}</span></>}</span>
                 </button>)}
             </div>
             {pageCount > 1 && <nav className={styles.pagination} aria-label={t('Payment history pages')}><button type="button" onClick={() => setCurrentPage(page - 1)} disabled={page === 1}><i className="bi bi-chevron-left" aria-hidden="true" /> {t('Previous')}</button><span>{t('Page')} {page} {t('of')} {pageCount}</span><button type="button" onClick={() => setCurrentPage(page + 1)} disabled={page === pageCount}>{t('Next')} <i className="bi bi-chevron-right" aria-hidden="true" /></button></nav>}

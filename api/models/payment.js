@@ -110,8 +110,9 @@ module.exports = class Payment {
      * @param isFullPaid
      * @returns {Object}
      */
-    static createPayment(userId, expenseAmountId, paymentMethod, amount, comment, originalAmount, isCreditPayment = false, paymentDate, isFullPaid = false) {
-        return knex('payments')
+    static createPayment(userId, expenseAmountId, paymentMethod, amount, comment, originalAmount, isCreditPayment = false, paymentDate, isFullPaid = false, trx = null) {
+        const query = trx || knex;
+        return query('payments')
             .insert({
                 user_id: userId,
                 amount: amount,

@@ -36,6 +36,7 @@ module.exports = class PaymentMethod {
         return knex('payment_methods')
             .select(
                 'payment_methods.id as payment_method_id',
+                'expenses.name as statement_name',
                 'expense_amounts.id as expense_amount_id',
                 'expense_amounts.currency_id',
                 'expense_amounts.amount',
@@ -44,6 +45,7 @@ module.exports = class PaymentMethod {
             )
             .where('payment_methods.user_id', userId)
             .whereIn('payment_methods.id', paymentMethodIds)
+            .leftJoin('expenses', 'expenses.id', 'payment_methods.expense_id')
             .leftJoin('expense_amounts', 'expense_amounts.expense_id', 'payment_methods.expense_id')
             .leftJoin('payments', 'payments.expense_amount_id', 'expense_amounts.id');
     }

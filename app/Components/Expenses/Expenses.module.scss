@@ -570,8 +570,11 @@
 .expenseCategoryIcon i { font-size: 15px; }
 .categoryDot { border-radius: 50%; display: inline-block; height: 7px; margin-right: 6px; vertical-align: 1px; width: 7px; }
 .expenseRowDetails { display: grid; min-width: 0; }
-.expenseRowDetails strong { color: #e7f0ef; font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.expenseRowDetails strong { align-items: center; color: #e7f0ef; display: flex; flex-wrap: wrap; font-size: 13px; font-weight: 600; gap: 5px; min-width: 0; }
+.expenseName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .expenseRowDetails small { color: #829397; font-size: 10px; }
+.creditCardBadge { align-items: center; background: rgba(79, 214, 190, .12); border-radius: 4px; color: #67dcca !important; display: inline-flex; font-size: 9px !important; font-weight: 700; gap: 4px; margin-left: 7px; padding: 2px 5px; vertical-align: 1px; }
+.creditCardBadge i { font-size: 10px; }
 .dashboardExpensePanel .amountGrid { color: $primaryColor; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .dashboardExpensePanel .pendingAmountGrid { color: #f2a54f; }
 .paymentStatus { border-radius: 6px; font-size: 10px; font-weight: 700; padding: 5px 9px; white-space: nowrap; }
@@ -606,9 +609,16 @@
 .editExpenseButton { background: transparent; border: 0; color: $primaryColor; cursor: pointer; font: inherit; font-size: 12px; font-weight: 750; margin-right: auto; padding: 10px 4px; }
 .editExpenseButton:hover { color: #8af0e4; }
 .addPaymentButton { margin-top: 0; }
+.creditAllocationSection { border-top: 1px solid rgba(150, 184, 181, .13); display: grid; gap: 8px; margin-top: 4px; padding-top: 14px; }
+.creditAllocationRow { align-items: center; display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) 112px; }
+.creditAllocationRow > span { color: #dce8e6; font-size: 12px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.creditAllocationRow small { color: #829397; display: block; font-size: 10px; margin-top: 2px; }
+.creditAllocationRow .amountInput { border-left: 1px solid rgba(126, 169, 167, .24); min-width: 0; padding: 8px; }
 
 @media (max-width: 767px) {
     .dashboardExpensePanel .expenseGridCard { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; }
+    .expenseRowDetails strong { align-items: center; }
+    .creditCardBadge { margin: 0 0 3px; }
     .dashboardExpensePanel .amountGrid { grid-column: 2; }
     .dashboardExpensePanel .paymentStatus { grid-column: 3; grid-row: 1 / span 2; }
     .paymentProgress { grid-column: 2 / -1; }

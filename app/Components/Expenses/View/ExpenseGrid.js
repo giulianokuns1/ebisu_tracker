@@ -15,6 +15,11 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
     }, {});
     const groupCreditExpenses = (items) => {
         const groups = new Map();
+        const purchasesByCard = items.filter((expense) => expense.is_credit_card_purchase && expense.payment_method_id).reduce((purchases, expense) => {
+            const key = `${expense.payment_method_id}:${expense.currency_id}`;
+            purchases[key] = (purchases[key] || 0) + Number(expense.amount || 0);
+            return purchases;
+        }, {});
         items.forEach((expense) => {
             const key = expense.is_credit_card_purchase ? `expense-${expense.id}-${expense.expense_amount_id}` : expense.payment_method_id ? `credit-${expense.payment_method_id}` : `expense-${expense.id}-${expense.expense_amount_id}`;
             const group = groups.get(key) || { ...expense, currencyAmounts: [] };
@@ -23,7 +28,7 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
             groups.set(key, group);
         });
         return Array.from(groups.values()).map((group) => {
-            if (!group.payment_method_id || !group.currencyAmounts.some((amount) => Number(amount.amount) !== 0)) return group;
+            if (!group.payment_method_id || group.is_credit_card_purchase || !group.currencyAmounts.some((amount) => Number(amount.amount) !== 0 || purchasesByCard[`${group.payment_method_id}:${amount.currency_id}`])) return group;
             const amountsByCurrency = new Map();
             group.currencyAmounts.forEach((amount) => {
                 const current = amountsByCurrency.get(amount.currency_id) || { ...amount, amount: 0, purchaseTotal: 0, statementAmount: 0 };
@@ -33,7 +38,7 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
             });
             return {
                 ...group,
-                currencyAmounts: Array.from(amountsByCurrency.values()).map((amount) => ({ ...amount, amount: Math.max(amount.statementAmount, amount.purchaseTotal) })).filter((amount) => Number(amount.amount) !== 0),
+                currencyAmounts: Array.from(amountsByCurrency.values()).map((amount) => ({ ...amount, amount: Math.max(amount.statementAmount, amount.purchaseTotal, purchasesByCard[`${group.payment_method_id}:${amount.currency_id}`] || 0) })).filter((amount) => Number(amount.amount) !== 0),
             };
         });
     };

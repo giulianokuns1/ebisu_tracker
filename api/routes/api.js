@@ -48,6 +48,7 @@ router.post('/deleteBudget', authenticateToken, budgetController.deleteBudget);
 router.get('/getPayment', authenticateToken, paymentController.getPayment);
 router.get('/getPayments', authenticateToken, paymentController.getPayments);
 router.post('/createExpensePayment', authenticateToken, paymentController.createExpensePayment);
+router.get('/creditPurchaseAllocations', authenticateToken, paymentController.getCreditPurchaseAllocations);
 router.get('/newPaymentData', authenticateToken, paymentController.newPaymentData);
 router.post('/newPayment', authenticateToken, paymentController.newPayment);
 router.post('/deletePayment', authenticateToken, paymentController.deletePayment);
