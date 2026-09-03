@@ -46,6 +46,22 @@
     @extend .globalInput;
 }
 
+.filtersContainer { align-items: end; display: grid; gap: 14px; grid-template-columns: auto minmax(220px, .7fr) minmax(260px, 1fr); }
+.filtersContainer :global(.MonthFilters_monthFilterAll__*) { align-items: center; display: flex; gap: 10px; min-height: 42px; padding: 0 2px; }
+.filtersContainer :global(.MonthFilters_monthSelectContainer__*) { align-items: center; display: grid; gap: 8px; grid-template-columns: auto minmax(0, 1fr); }
+.filtersContainer :global(.MonthFilters_inputText__*) { min-height: 42px; width: 100%; }
+.filtersContainer :global(.MonthFilters_inputText__*):disabled { cursor: not-allowed; opacity: .48; }
+.searchContainer { align-items: center; display: grid; gap: 8px; grid-template-columns: auto minmax(0, 1fr); margin: 0; }
+.searchField { align-items: center; background: #0e1d22; border: 1px solid rgba(126, 169, 167, .24); border-radius: 8px; display: flex; min-height: 42px; padding: 0 11px; }
+.searchField:focus-within { border-color: $primaryColor; box-shadow: 0 0 0 3px rgba(81, 224, 207, .14); }
+.searchField > i { color: #829397; font-size: 13px; margin-right: 8px; }
+.searchField button { background: transparent; border: 0; color: #91a2a3; cursor: pointer; padding: 5px; }
+.searchInput { background: transparent; border: 0; box-shadow: none; min-width: 0; padding: 0; width: 100%; }
+.searchInput:focus { box-shadow: none; }
+
+@media (max-width: 900px) { .filtersContainer { grid-template-columns: auto minmax(200px, 1fr); }.searchContainer { grid-column: 1 / -1; } }
+@media (max-width: 560px) { .filtersContainer { align-items: stretch; grid-template-columns: 1fr; }.filtersContainer :global(.MonthFilters_monthFilterAll__*) { justify-content: space-between; }.filtersContainer :global(.MonthFilters_monthSelectContainer__*) { grid-template-columns: 76px minmax(0, 1fr); }.searchContainer { grid-column: auto; grid-template-columns: 76px minmax(0, 1fr); } }
+
 .filterButton {
     align-items: center;
     background: rgba(11, 27, 32, .72);

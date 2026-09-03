@@ -48,3 +48,7 @@
 .checkboxLabel {
     @extend .formInputLabel;
 }
+
+.toolbar { align-items: center; display: contents; }
+.toolbar .monthFilterAll { margin: 0; }
+.toolbar .monthSelectContainer { margin: 0; }

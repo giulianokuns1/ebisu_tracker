@@ -18,7 +18,7 @@ const Expenses = ({ expenses, monthText, data }) => {
     const activeCurrencyId = currencies.some(([id]) => id === currencyId) ? currencyId : currencies[0]?.[0] || '';
     const currency = data.totalAmountByCurrency?.[activeCurrencyId]?.currency || {};
     const total = Number(data.totalAmountByCurrency?.[activeCurrencyId]?.amount || 0);
-    const categorySummary = expenses.reduce((summary, expense) => {
+    const categorySummary = expenses.filter((expense) => !expense.is_credit_card_purchase).reduce((summary, expense) => {
         const key = expense.category_id || 'other';
         if (!summary[key]) summary[key] = { id: key, name: expense.category_name || 'Other', icon: expense.category_icon || 'bi bi-three-dots', color: expense.category_color || '#4FD6BE', amounts: {}, count: 0 };
         const amount = Number(expense.amount) || 0;

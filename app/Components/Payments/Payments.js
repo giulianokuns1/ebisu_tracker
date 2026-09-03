@@ -23,7 +23,7 @@ const Payments = ({ payments, embeddedInForm }) => {
             <div className={listStyles.surface}>
                 {payments.length ? payments.map((payment) => (
                     <button key={payment.id} type="button" className={listStyles.row} onClick={() => handleEditPayment(payment.id)}>
-                        <span className={listStyles.icon}><i className={payment.category_icon || 'bi bi-credit-card'} aria-hidden="true" /></span>
+                        <span className={listStyles.icon} style={{ color: payment.category_color || '#809297', backgroundColor: `${payment.category_color || '#809297'}22` }}><i className={payment.category_icon || 'bi bi-credit-card'} aria-hidden="true" /></span>
                         <span><span className={listStyles.primary}>{payment.expense_name}</span><span className={listStyles.meta}>{formatDate(payment.created_at)} · {payment.payment_method_name || '—'} · {payment.comment || '—'}</span></span>
                         <span className={listStyles.amount}>{payment.currency_symbol} {payment.amount}</span><i className={`bi bi-pencil ${listStyles.edit}`} aria-hidden="true" />
                     </button>

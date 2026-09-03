@@ -308,15 +308,17 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
         }
 
         expense.is_credit_card_purchase = Boolean(expense.is_credit_card_purchase);
-        if (!expensesAmountByCurrency[expense.currency_id]) {
-            expensesAmountByCurrency[expense.currency_id] = {
-                currency_id: expense.currency_id,
-                amount: 0,
-                currency_name: expense.currency_name,
-                currency_symbol: expense.currency_symbol
-            };
+        if (!expense.is_credit_card_purchase) {
+            if (!expensesAmountByCurrency[expense.currency_id]) {
+                expensesAmountByCurrency[expense.currency_id] = {
+                    currency_id: expense.currency_id,
+                    amount: 0,
+                    currency_name: expense.currency_name,
+                    currency_symbol: expense.currency_symbol
+                };
+            }
+            expensesAmountByCurrency[expense.currency_id].amount += parseFloat(expense.amount);
         }
-        expensesAmountByCurrency[expense.currency_id].amount += parseFloat(expense.amount);
         payments.map(payment => {
             if (payment.expense_amount_id === expense.expense_amount_id) {
                 expense.payments.push(payment);

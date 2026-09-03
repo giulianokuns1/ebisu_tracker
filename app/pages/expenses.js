@@ -85,17 +85,10 @@ function ExpensesPage() {
             </Head>
             <AppPageHeader eyebrow={t('Spending ledger')} title={t('Expenses')} description={t('Manage and track all your expenses.')} actionHref="/expenses/create" actionLabel={t('Add Expense')} secondaryAction={<button type="button" className={styles.filterButton} onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}><i className="bi bi-funnel" aria-hidden="true" /> {t('Filter')} <i className={`bi ${filtersOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden="true" /></button>} />
             {filtersOpen && <div className={styles.filtersContainer}>
-                <MonthFilter onMonthChange={handleMonthChange} defaultMonth={selectedMonth} displayShowAll={true} onShowAllChange={handleShowAllChange} showAllChecked={showAllChecked} />
+                <MonthFilter onMonthChange={handleMonthChange} defaultMonth={selectedMonth} displayShowAll={true} onShowAllChange={handleShowAllChange} showAllChecked={showAllChecked} toolbar />
                 <div className={styles.searchContainer}>
                     <label htmlFor="expensesSearchInput" className={styles.searchLabel}>{t('Search')}</label>
-                    <input
-                        id="expensesSearchInput"
-                        className={styles.searchInput}
-                        type="text"
-                        placeholder={t('Search expense')}
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                    />
+                    <div className={styles.searchField}><i className="bi bi-search" aria-hidden="true" /><input id="expensesSearchInput" className={styles.searchInput} type="text" placeholder={t('Search expense')} value={searchTerm} onChange={handleSearchChange} />{searchTerm && <button type="button" onClick={() => setSearchTerm('')} aria-label={t('Clear search')}><i className="bi bi-x-lg" aria-hidden="true" /></button>}</div>
                 </div>
             </div>}
             {loading ? (

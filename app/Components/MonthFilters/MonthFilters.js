@@ -3,7 +3,7 @@ import { useTranslation } from '@/Hooks/useTranslation';
 import styles from '@/Components/MonthFilters/MonthFilters.module.scss';
 import {InputSwitch} from "primereact/inputswitch";
 
-const MonthFilter = ({ onMonthChange, defaultMonth = '', displayShowAll = false, onShowAllChange, showAllChecked }) => {
+const MonthFilter = ({ onMonthChange, defaultMonth = '', displayShowAll = false, onShowAllChange, showAllChecked, toolbar = false }) => {
     const { t } = useTranslation();
     const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
 
@@ -18,7 +18,7 @@ const MonthFilter = ({ onMonthChange, defaultMonth = '', displayShowAll = false,
     };
 
     return (
-        <div className={styles.monthFilterContainer}>
+        <div className={`${styles.monthFilterContainer} ${toolbar ? styles.toolbar : ''}`}>
             {displayShowAll && (
                 <div className={styles.monthFilterAll}>
                     <label className={styles.checkboxLabel}>{t('Show All')}</label>
@@ -36,6 +36,7 @@ const MonthFilter = ({ onMonthChange, defaultMonth = '', displayShowAll = false,
                         className={styles.inputText}
                         value={selectedMonth}
                         onChange={handleMonthChange}
+                        disabled={showAllChecked}
                     >
                         <option value="" disabled> {t('Select a Month')}</option>
                         <option value="01">{t('January')}</option>
