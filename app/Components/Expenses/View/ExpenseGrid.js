@@ -21,9 +21,9 @@ const ExpensesGrid = ({ expenses, upcomingExpenses = [], monthText, nextMonthTex
             return purchases;
         }, {});
         items.forEach((expense) => {
-            const key = expense.is_credit_card_purchase ? `expense-${expense.id}-${expense.expense_amount_id}` : expense.payment_method_id ? `credit-${expense.payment_method_id}` : `expense-${expense.id}-${expense.expense_amount_id}`;
+            const key = expense.is_credit_card_purchase ? `expense-${expense.id}-${expense.expense_amount_id}` : `expense-${expense.id}`;
             const group = groups.get(key) || { ...expense, currencyAmounts: [] };
-            if (expense.payment_method_id && !expense.is_credit_card_purchase) Object.assign(group, expense);
+            if (!expense.is_credit_card_purchase) Object.assign(group, expense);
             group.currencyAmounts.push(expense);
             groups.set(key, group);
         });
