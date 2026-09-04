@@ -170,7 +170,7 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
                         aside={<div className={styles.planningAside}>
                             <PlanningPanel title={t('Credit Card Outlook')} icon="bi-credit-card" empty={t('No credit card balances to review.')} items={data.creditCardOutlook?.map((card) => ({ title: card.name, detail: `${t('Due')} ${card.dueDateDay}`, values: Object.values(card.amounts).map((amount) => `${amount.symbol} ${formatAmount(amount.amount - amount.paid)}`), badge: card.pendingPurchases ? `${card.pendingPurchases} ${t('pending purchases')}` : null }))} />
                             <PlanningPanel title={t('Upcoming One-Time Expenses')} icon="bi-calendar-event" empty={t('No one-time expenses coming up.')} items={data.upcomingOneTimeExpenses?.map((expense) => ({ title: expense.name, detail: expense.periodLabel, values: [`${expense.currency_symbol} ${formatAmount(expense.amount)}`] }))} />
-                            <PlanningPanel title={t('Scheduled Expenses Ahead')} icon="bi-calendar-week" empty={t('No scheduled expenses ahead.')} items={data.scheduledExpensesAhead?.map((expense) => ({ title: expense.name, detail: expense.periodLabel, values: [`${expense.currency_symbol} ${formatAmount(expense.amount)}`] }))} />
+                            <PlanningPanel title={t('Scheduled Expenses Ahead')} icon="bi-calendar-week" empty={t('No scheduled expenses ahead.')} items={data.scheduledExpensesAhead?.map((expense) => ({ title: expense.name, detail: expense.periodLabel, values: expense.amounts.map((amount) => `${amount.currency_symbol} ${formatAmount(amount.amount)}`) }))} />
                         </div>}
                     />
                 </section>

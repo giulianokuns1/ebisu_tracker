@@ -75,7 +75,12 @@ exports.get = async (req, res, next) => {
                 return { ...period, label: Utils.getMonthText(period.month), expenses: data.expenses, totals: data.totalAmountByCurrency };
             }));
             const upcomingOneTimeExpenses = planningPeriods.flatMap((period) => period.expenses.filter((expense) => [1, 4].includes(Number(expense.type_id))).map((expense) => ({ ...expense, periodLabel: period.label }))).filter((expense, index, items) => items.findIndex((item) => item.id === expense.id && item.expense_amount_id === expense.expense_amount_id) === index);
-            const scheduledExpensesAhead = planningPeriods.flatMap((period) => period.expenses.filter((expense) => Number(expense.type_id) === 2).map((expense) => ({ ...expense, periodLabel: period.label }))).filter((expense, index, items) => items.findIndex((item) => item.id === expense.id && item.expense_amount_id === expense.expense_amount_id) === index);
+            const scheduledExpensesAhead = Object.values(planningPeriods.flatMap((period) => period.expenses.filter((expense) => Number(expense.type_id) === 2).map((expense) => ({ ...expense, periodLabel: period.label }))).reduce((grouped, expense) => {
+                const key = `${expense.id}:${expense.periodLabel}`;
+                if (!grouped[key]) grouped[key] = { ...expense, amounts: [] };
+                grouped[key].amounts.push({ currency_symbol: expense.currency_symbol, amount: Number(expense.amount || 0) });
+                return grouped;
+            }, {}));
             const creditCardOutlook = Object.values(expensesExtended.expenses.reduce((cards, expense) => {
                 if (!expense.payment_method_id) return cards;
                 const key = expense.payment_method_id;
