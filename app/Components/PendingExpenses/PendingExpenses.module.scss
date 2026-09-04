@@ -19,7 +19,12 @@
 .emptyState i { align-items: center; background: rgba(79, 214, 190, .1); border-radius: 50%; color: #4fd6be; display: flex; font-size: 22px; height: 46px; justify-content: center; width: 46px; }
 .emptyState strong { color: #edf7f5; font-size: 14px; }.emptyState span { font-size: 12px; }
 .categoryDot { border-radius: 50%; box-shadow: 0 0 0 1px rgba(255, 255, 255, .18); display: inline-block; height: 8px; margin-right: 6px; vertical-align: 1px; width: 8px; }
-.currencyAmount { display: block; margin-top: 4px; }
+.currencyAmount { display: block; font-size: 10px; margin-top: 1px; }
+.pendingRow { align-items: start; gap: 3px 12px; grid-template-columns: 34px minmax(0, 1fr) auto; }
+.pendingContent { grid-column: 2; }
+.pendingRow > .pendingActions { align-items: center; align-self: center; display: flex; gap: 10px; grid-column: 3; grid-row: 1; justify-content: flex-end; margin: 0; }
+.pendingActions .pay { justify-self: auto; }
+.progressContent { background: transparent; border: 0; color: inherit; cursor: pointer; grid-column: 2 / -1; margin-top: 0; padding: 0; text-align: left; width: 100%; }
 
 .inputText::-webkit-outer-spin-button,
 .inputText::-webkit-inner-spin-button {
