@@ -19,6 +19,7 @@
 .emptyState i { align-items: center; background: rgba(79, 214, 190, .1); border-radius: 50%; color: #4fd6be; display: flex; font-size: 22px; height: 46px; justify-content: center; width: 46px; }
 .emptyState strong { color: #edf7f5; font-size: 14px; }.emptyState span { font-size: 12px; }
 .categoryDot { border-radius: 50%; box-shadow: 0 0 0 1px rgba(255, 255, 255, .18); display: inline-block; height: 8px; margin-right: 6px; vertical-align: 1px; width: 8px; }
+.currencyAmount { display: block; margin-top: 4px; }
 
 .inputText::-webkit-outer-spin-button,
 .inputText::-webkit-inner-spin-button {
