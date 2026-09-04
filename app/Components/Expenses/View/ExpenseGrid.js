@@ -4,7 +4,7 @@ import { useTranslation } from '@/Hooks/useTranslation';
 import ExpensesGridItem from "@/Components/Expenses/View/ExpenseGridItem";
 import Link from 'next/link';
 
-const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, onAddExpensePayment, showNextMonth = true, monthEdits, setMonthEdits, onSaveMonthEdits }) => {
+const ExpensesGrid = ({ expenses, upcomingExpenses = [], monthText, nextMonthText, onAddExpensePayment, monthEdits, setMonthEdits, onSaveMonthEdits, aside }) => {
     const { t } = useTranslation();
 
     const totalsByCurrency = (items) => items.reduce((totals, expense) => {
@@ -47,7 +47,7 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
     return (
         <div>
             <div className={styles.expenseGridContainer}>
-                <div className={styles.dashboardExpensePanel}>
+                <div className={`${styles.dashboardExpensePanel} ${styles.currentExpensePanel}`}>
                     <div className={styles.expenseGridContainerMonthText}>
                         <span>{t(monthText)}</span><span>{Object.keys(monthEdits || {}).length > 0 && <button type="button" className={styles.updateMonthButton} onClick={onSaveMonthEdits}>{t('Update Month')}</button>}<Link href="/expenses">{t('View All')}</Link></span>
                     </div>
@@ -56,20 +56,15 @@ const ExpensesGrid = ({ expenses, expensesNextMonth, monthText, nextMonthText, o
                     ))}
                     {renderTotal(expenses)}
                 </div>
-                {showNextMonth && <div className={styles.dashboardExpensePanel}>
-                    <div className={styles.expenseGridContainerMonthText}>
-                        <span>{t(nextMonthText)}</span><Link href="/expenses">{t('View All')}</Link>
+                <div className={styles.expenseSidebar}>
+                    <div className={`${styles.dashboardExpensePanel} ${styles.upcomingExpensePanel}`}>
+                        <div className={styles.expenseGridContainerMonthText}>
+                            <span><i className="bi bi-calendar-plus" aria-hidden="true" /><span>{t('Coming in')} {t(nextMonthText)}<small>{t('New expenses not in')} {t(monthText)}</small></span></span><Link href="/expenses">{t('View All')}</Link>
+                        </div>
+                        {upcomingExpenses.length ? upcomingExpenses.map((expense) => <div className={styles.upcomingExpenseRow} key={`upcoming_${expense.id}_${expense.expense_amount_id}`}><span className={styles.expenseCategoryIcon} style={{ color: expense.category_color || '#809297', backgroundColor: `${expense.category_color || '#809297'}22` }}><i className={expense.category_icon || 'bi bi-receipt'} aria-hidden="true" /></span><span><strong>{t(expense.name)}</strong><small>{t(expense.formattedGridDueDate)}</small></span><b>{expense.currency_symbol} {Number(expense.amount || 0).toFixed(2)}</b></div>) : <div className={styles.upcomingEmpty}><i className="bi bi-calendar-check" aria-hidden="true" />{t('No new expenses next month.')}</div>}
                     </div>
-                    {groupCreditExpenses(expensesNextMonth).map((expense) => (
-                        <ExpensesGridItem
-                            key={'grid_item_nm_' + expense.id + '_' + expense.expense_amount_id}
-                            expense={expense}
-                            onAddExpensePayment={onAddExpensePayment}
-                            isNextMonth={true}
-                        />
-                    ))}
-                    {renderTotal(expensesNextMonth)}
-                </div>}
+                    {aside}
+                </div>
             </div>
         </div>
     );

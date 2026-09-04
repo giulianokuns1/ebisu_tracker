@@ -66,6 +66,32 @@ exports.get = async (req, res, next) => {
             expensesExtended = await ExpenseLibrary.getExpensesExtended(userId, currentMonth, payments, currencies, year);
             expensesNextMonthExtended = await ExpenseLibrary.getExpensesExtended(userId, nextMonth, paymentsNextMonth, currencies, nextPeriod.year);
             expensesNextMonth = expensesNextMonthExtended.expenses;
+            const currentExpenseIds = new Set(expensesExtended.expenses.map((expense) => expense.id));
+            const upcomingExpenses = expensesNextMonth.filter((expense) => !currentExpenseIds.has(expense.id));
+            const planningPeriods = await Promise.all([1, 2, 3].map(async (offset) => {
+                const period = UserTime.getPeriod(timezone, -offset);
+                const periodPayments = await Payment.getPayments(userId, period.month, period.year);
+                const data = await ExpenseLibrary.getExpensesExtended(userId, period.month, periodPayments, currencies, period.year);
+                return { ...period, label: Utils.getMonthText(period.month), expenses: data.expenses, totals: data.totalAmountByCurrency };
+            }));
+            const upcomingOneTimeExpenses = planningPeriods.flatMap((period) => period.expenses.filter((expense) => [1, 4].includes(Number(expense.type_id))).map((expense) => ({ ...expense, periodLabel: period.label }))).filter((expense, index, items) => items.findIndex((item) => item.id === expense.id && item.expense_amount_id === expense.expense_amount_id) === index);
+            const scheduledExpensesAhead = planningPeriods.flatMap((period) => period.expenses.filter((expense) => Number(expense.type_id) === 2).map((expense) => ({ ...expense, periodLabel: period.label }))).filter((expense, index, items) => items.findIndex((item) => item.id === expense.id && item.expense_amount_id === expense.expense_amount_id) === index);
+            const creditCardOutlook = Object.values(expensesExtended.expenses.reduce((cards, expense) => {
+                if (!expense.payment_method_id) return cards;
+                const key = expense.payment_method_id;
+                if (!cards[key]) cards[key] = { id: key, name: expense.creditCardStatementName || expense.name, dueDateDay: expense.dueDateDay, amounts: {}, pendingPurchases: 0 };
+                if (expense.is_credit_card_purchase && !expense.isFullPaid) cards[key].pendingPurchases += 1;
+                if (!expense.is_credit_card_purchase) cards[key].amounts[expense.currency_id] = { symbol: expense.currency_symbol, amount: Number(expense.amount || 0), paid: Number(expense.paymentTotal || 0) };
+                return cards;
+            }, {}));
+            const recurringExpenses = expensesExtended.expenses.filter((expense) => Number(expense.type_id) === 3 && !expense.is_credit_card_purchase);
+            const recurringReview = Object.values(recurringExpenses.reduce((review, expense) => {
+                const key = expense.currency_id;
+                if (!review[key]) review[key] = { currencyId: key, symbol: expense.currency_symbol, amount: 0, count: 0 };
+                review[key].amount += Number(expense.amount || 0);
+                review[key].count += 1;
+                return review;
+            }, {}));
             const [monthlyTrend, savings, paymentMethods] = await Promise.all([
                 getMonthlyTrend(userId, timezone, monthOffset, currencies),
                 Saving.getGoals(userId),
@@ -77,11 +103,23 @@ exports.get = async (req, res, next) => {
             expensesExtended.monthlyTrend = monthlyTrend;
             expensesExtended.savingsCount = savings.length;
             expensesExtended.dashboardShowNextMonth = user.dashboard_show_next_month !== false;
+            expensesExtended.upcomingExpenses = upcomingExpenses;
+            expensesExtended.upcomingOneTimeExpenses = upcomingOneTimeExpenses;
+            expensesExtended.scheduledExpensesAhead = scheduledExpensesAhead;
+            expensesExtended.creditCardOutlook = creditCardOutlook;
+            expensesExtended.cashFlowForecast = planningPeriods.map((period) => ({ label: period.label, totals: Object.values(period.totals).map((total) => ({ symbol: total.currency?.symbol, amount: total.amount })) }));
+            expensesExtended.recurringReview = recurringReview;
         }
         res.json({
             ...expensesExtended,
             payments,
             expensesNextMonth,
+            upcomingExpenses: expensesExtended.upcomingExpenses,
+            upcomingOneTimeExpenses: expensesExtended.upcomingOneTimeExpenses,
+            scheduledExpensesAhead: expensesExtended.scheduledExpensesAhead,
+            creditCardOutlook: expensesExtended.creditCardOutlook,
+            cashFlowForecast: expensesExtended.cashFlowForecast,
+            recurringReview: expensesExtended.recurringReview,
             monthText,
             nextMonthText
         });

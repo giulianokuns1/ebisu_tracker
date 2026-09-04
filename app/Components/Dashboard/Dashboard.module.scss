@@ -107,6 +107,8 @@
 .savingsMetric a { color: #a78bfa; display: block; font-size: 12px; font-weight: 600; margin-top: 7px; text-decoration: none; }
 
 .visualGrid { display: grid; gap: 16px; grid-template-columns: minmax(0, .95fr) minmax(0, 1.35fr); }
+.forecastStrip { align-items: center; background: rgba(20, 39, 45, .72); border: 1px solid rgba(146, 182, 180, .12); border-radius: 12px; display: grid; gap: 14px; grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(100px, .7fr)); padding: 15px 18px; }.forecastStrip h2 { color: #edf7f5; font-size: 15px; margin: 3px 0 0; }.forecastMonth { border-left: 1px solid rgba(146, 182, 180, .12); display: grid; gap: 3px; padding-left: 14px; }.forecastMonth strong { color: #dce8e6; font-size: 12px; }.forecastMonth span { color: $primaryColor; font-size: 11px; font-weight: 700; }
+.planningAside { display: grid; gap: 12px; }.planningPanel { background: rgba(20, 39, 45, .72); border: 1px solid rgba(146, 182, 180, .12); border-radius: 12px; padding: 13px; }.planningPanel header { align-items: center; display: flex; gap: 9px; margin-bottom: 9px; }.planningPanel header > span { align-items: center; background: rgba(79, 214, 190, .1); border-radius: 7px; color: $primaryColor; display: flex; height: 26px; justify-content: center; width: 26px; }.planningPanel h2 { color: #edf7f5; font-size: 13px; margin: 0; }.planningRow { align-items: center; border-top: 1px solid rgba(150, 184, 181, .1); display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) auto; padding: 8px 0; }.planningRow strong { color: #dce8e6; display: block; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.planningRow small { color: #829397; display: block; font-size: 10px; margin-top: 2px; }.planningRow em { display: grid; font-size: 10px; font-style: normal; justify-items: end; }.planningRow b { color: $primaryColor; white-space: nowrap; }.planningRow mark { background: rgba(242, 155, 75, .14); border-radius: 4px; color: #f2a54f; font-size: 9px; grid-column: 1 / -1; justify-self: start; padding: 3px 5px; }.planningEmpty { color: #829397; font-size: 11px; margin: 18px 0 8px; text-align: center; }
 .visualGrid + .visualGrid { margin-top: 16px; }
 .panel, .activityPanel { padding: 19px; }
 .panelHeader { margin-bottom: 14px; }
@@ -147,6 +149,7 @@
 @media (max-width: 1200px) {
     .metricGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .visualGrid { grid-template-columns: 1fr; }
+    .forecastStrip { grid-template-columns: repeat(3, minmax(0, 1fr)); }.forecastStrip > div:first-child { grid-column: 1 / -1; }
 }
 
 @media (max-width: 767px) {
@@ -157,6 +160,7 @@
     .metricCard { min-height: 124px; padding: 15px; }
     .metricIcon { float: right; margin: 0; }
     .visualGrid { gap: 10px; }
+    .forecastStrip { gap: 10px; grid-template-columns: 1fr; padding: 15px; }.forecastMonth { border-left: 0; border-top: 1px solid rgba(146, 182, 180, .12); padding: 9px 0 0; }.planningPanel { padding: 14px; }
     .panel, .activityPanel { padding: 15px; }
     .doughnutContent { grid-template-columns: 145px 1fr; min-height: 175px; }
     .doughnutWrap { height: 145px; width: 145px; }

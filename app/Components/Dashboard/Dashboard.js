@@ -125,6 +125,10 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
                         <Link href="/savings">{t('View savings')} <i className="bi bi-arrow-up-right" aria-hidden="true" /></Link>
                     </div>
                 </section>
+                <section className={styles.forecastStrip} aria-label={t('Cash-flow forecast')}>
+                    <div><p className={styles.panelKicker}>{t('Cash-flow forecast')}</p><h2>{t('Next 3 months')}</h2></div>
+                    {data.cashFlowForecast?.map((period) => <div className={styles.forecastMonth} key={period.label}><strong>{t(period.label)}</strong>{period.totals.map((total) => <span key={total.symbol}>{total.symbol} {formatAmount(total.amount)}</span>)}</div>)}
+                </section>
 
                 <section className={styles.visualGrid}>
                     <div className={`${styles.panel} ${styles.overviewPanel}`}>
@@ -155,14 +159,19 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
                 <section className={styles.expensesSection}>
                     <ExpensesGrid
                         expenses={data.expenses}
-                        expensesNextMonth={data.expensesNextMonth}
+                        upcomingExpenses={data.upcomingExpenses}
                         monthText={data.monthText}
                         nextMonthText={data.nextMonthText}
                          onAddExpensePayment={onAddExpensePayment}
                          showNextMonth={data.dashboardShowNextMonth !== false}
-                         monthEdits={monthEdits}
-                         setMonthEdits={setMonthEdits}
-                         onSaveMonthEdits={onSaveMonthEdits}
+                        monthEdits={monthEdits}
+                        setMonthEdits={setMonthEdits}
+                        onSaveMonthEdits={onSaveMonthEdits}
+                        aside={<div className={styles.planningAside}>
+                            <PlanningPanel title={t('Credit Card Outlook')} icon="bi-credit-card" empty={t('No credit card balances to review.')} items={data.creditCardOutlook?.map((card) => ({ title: card.name, detail: `${t('Due')} ${card.dueDateDay}`, values: Object.values(card.amounts).map((amount) => `${amount.symbol} ${formatAmount(amount.amount - amount.paid)}`), badge: card.pendingPurchases ? `${card.pendingPurchases} ${t('pending purchases')}` : null }))} />
+                            <PlanningPanel title={t('Upcoming One-Time Expenses')} icon="bi-calendar-event" empty={t('No one-time expenses coming up.')} items={data.upcomingOneTimeExpenses?.map((expense) => ({ title: expense.name, detail: expense.periodLabel, values: [`${expense.currency_symbol} ${formatAmount(expense.amount)}`] }))} />
+                            <PlanningPanel title={t('Scheduled Expenses Ahead')} icon="bi-calendar-week" empty={t('No scheduled expenses ahead.')} items={data.scheduledExpensesAhead?.map((expense) => ({ title: expense.name, detail: expense.periodLabel, values: [`${expense.currency_symbol} ${formatAmount(expense.amount)}`] }))} />
+                        </div>}
                     />
                 </section>
                 <section className={styles.activityPanel}>
@@ -244,5 +253,10 @@ const LegendRow = ({ tone, label, value, total, symbol, formatAmount }) => (
         <div><strong>{label}</strong><span>{symbol} {formatAmount(value)} ({total ? Math.round((value / total) * 100) : 0}%)</span></div>
     </div>
 );
+
+const PlanningPanel = ({ title, icon, items = [], empty }) => {
+    const { t } = useTranslation();
+    return <article className={styles.planningPanel}><header><span><i className={`bi ${icon}`} aria-hidden="true" /></span><h2>{title}</h2></header>{items.length ? <div>{items.slice(0, 5).map((item, index) => <div className={styles.planningRow} key={`${item.title}-${index}`}><span><strong>{t(item.title)}</strong><small>{t(item.detail)}</small></span><em>{item.values.map((value) => <b key={value}>{value}</b>)}</em>{item.badge && <mark>{item.badge}</mark>}</div>)}</div> : <p className={styles.planningEmpty}>{empty}</p>}</article>;
+};
 
 export default Dashboard;
