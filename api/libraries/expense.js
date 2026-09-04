@@ -23,9 +23,9 @@ exports.createUpdateExpense = async (userId, data) => {
         type_id: data.expenseType,
         due_date: data.expenseDueDate,
         due_date_day: data.expenseDueDay,
-        payment_method_id: data.paymentMethodId,
         is_credit_card_purchase: Boolean(data.paymentMethodId) && Number(data.paymentMethodExpenseId) !== Number(id)
     }
+    if (data.paymentMethodId !== undefined) expenseData.payment_method_id = data.paymentMethodId;
     expenseData = Utils.addFieldsToObject({}, expenseData);
     if (isScheduled) {
         expenseData.due_date = null;

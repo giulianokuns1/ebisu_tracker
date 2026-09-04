@@ -160,7 +160,7 @@ exports.createUpdateExpense = async (req, res, next) => {
             expenseDueDay: expenseDueDay,
             scheduledMonths: scheduledMonths,
             amountSchedule: amountSchedule,
-            paymentMethodId: paymentMethod ? paymentMethod.id : null,
+            paymentMethodId: paymentMethodId === undefined ? undefined : paymentMethod ? paymentMethod.id : null,
             paymentMethodExpenseId: paymentMethod?.expense_id || null
         }
         expenseId = await ExpenseLibrary.createUpdateExpense(userId, data);
