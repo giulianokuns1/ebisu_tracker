@@ -22,6 +22,7 @@ const LanguageSwitcher = ({ mode = 'buttons' }) => {
                 >
                     <option value="en">{t('English')}</option>
                     <option value="es">{t('Spanish')}</option>
+                    <option value="br">{t('Portuguese (Brazil)')}</option>
                 </select>
             </div>
         );
@@ -31,6 +32,7 @@ const LanguageSwitcher = ({ mode = 'buttons' }) => {
         <div className={styles.container}>
             <Button onClick={() => handleLanguageChange('en')} label={ t('English') }/>
             <Button onClick={() => handleLanguageChange('es')} label={ t('Spanish') }/>
+            <Button onClick={() => handleLanguageChange('br')} label={ t('Portuguese (Brazil)') }/>
         </div>
     );
 };
