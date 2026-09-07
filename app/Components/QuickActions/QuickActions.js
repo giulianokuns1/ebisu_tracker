@@ -8,12 +8,14 @@ import FormSelect from '@/Components/UI/Form/FormSelect';
 import { API_BASE_URL } from '@/constants';
 import { useTranslation } from '@/Hooks/useTranslation';
 import useModalBackButton from '@/Hooks/useModalBackButton';
+import { useRouter } from 'next/router';
 import styles from './QuickActions.module.scss';
 
 const defaultPaymentMethod = (methods) => methods?.find((method) => method.is_default === 1)?.id || methods?.[0]?.id || '';
 
 export default function QuickActions() {
     const { t } = useTranslation();
+    const router = useRouter();
     const [open, setOpen] = useState(false);
     const [paymentOpen, setPaymentOpen] = useState(false);
     const [data, setData] = useState(null);
@@ -35,6 +37,10 @@ export default function QuickActions() {
 
     const openPayment = async () => {
         setOpen(false);
+        if (typeof window !== 'undefined' && window.innerWidth <= 700) {
+            router.push(`/payments/create?from=${encodeURIComponent(router.asPath)}`);
+            return;
+        }
         setError('');
         setPaymentOpen(true);
         if (data) return;

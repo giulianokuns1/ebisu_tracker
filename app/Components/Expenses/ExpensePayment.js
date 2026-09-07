@@ -19,7 +19,7 @@ const toNumber = (value) => {
 };
 const getRemainingAmount = (amountRecord) => Math.max(0, toNumber(amountRecord?.amount) - toNumber(amountRecord?.paymentTotal));
 
-const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fullWidthButton, renderTrigger, initialAmount, initialPaymentDate }) => {
+const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fullWidthButton, renderTrigger, initialAmount, initialPaymentDate, fullPage = false, returnTo = '/payments' }) => {
     const { t } = useTranslation();
     const router = useRouter();
 
@@ -162,17 +162,22 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
             setAmounts({});
             setComment('');
             onAddExpensePayment();
+            if (fullPage) router.replace(returnTo);
         } catch (error) {
             notificationData = {
                 severity: 'error',
                 summary: t('Error'),
-                detail: t('Error adding the Payment'),
+                detail: error.response?.data?.error || t('Error adding the Payment'),
                 life: 3000
             }
         }
-        notificationToast.current.show(notificationData);
+        notificationToast.current?.show(notificationData);
     }
     const handlePaymenet = () => {
+        if (typeof window !== 'undefined' && window.innerWidth <= 700 && ['/dashboard', '/pendingExpenses'].includes(router.pathname)) {
+            router.push(`/payments/mobile?expenseId=${expense.id}&from=${encodeURIComponent(router.pathname)}`);
+            return;
+        }
         const amountRecord = selectedExpenseAmount || expense?.expense_amounts?.[0];
         const remaining = amountRecord
             ? getRemainingAmount(amountRecord)
@@ -195,6 +200,26 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
         setDateError('');
         return true;
     }
+    const paymentContent = <div className={styles.paymentModalContainer}>
+        <div className={styles.paymentModalIntro}>
+            <span>{t('Record payment')}</span>
+            <h2>{t(expense.name)}</h2>
+            <p className={isMultiCurrency ? styles.multiCurrencyRemaining : undefined}>{isMultiCurrency ? expenseAmounts.map((record) => <span key={record.expense_amount_id || record.id}>{record.currency_symbol || ''} {getRemainingAmount(record).toFixed(2)} {t('remaining')}</span>) : <>{displayCurrencySymbol || ''} {getRemainingAmount(selectedExpenseAmount || expense).toFixed(2)} {t('remaining')}</>}</p>
+        </div>
+        <div className={styles.formWrapper}>
+            <FormSelect label={t('Payment Method')} values={expense.paymentMethods} valueLabel={'name'} value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} hideDefault={true} />
+            {!isMultiCurrency && expense.expense_amounts && expense.expense_amounts.length > 1 && <FormSelect label={t('Expense Amount')} values={expense.expense_amounts} valueLabel={'id'} multipleValueLabel={['currency_symbol', 'currency_name', 'amount']} value={expenseAmount} onChange={(e) => { const id = e.target.value; setExpenseAmount(id); const ea = expense.expense_amounts.find((a) => parseInt(a.id, 10) === parseInt(id, 10)); if (ea) setAmount(String(getRemainingAmount(ea))); }} hideDefault={true} />}
+            {isMultiCurrency ? <div className={styles.formInputWrapper}><label className={styles.formInputLabel}>{t('Paid Amounts')}</label><div className={styles.multiCurrencyPaymentRows}>{expenseAmounts.map((record) => { const id = record.expense_amount_id || record.id; return <div className={styles.paidAmountWrapper} key={id}><div className={styles.currencySymbol}>{record.currency_symbol || '—'}</div><input className={styles.amountInput} type="number" min="0" step="0.01" value={amounts[id] ?? ''} onChange={(event) => setAmounts((current) => ({ ...current, [id]: event.target.value }))} /><small>{(record.currency_symbol || '')} {getRemainingAmount(record).toFixed(2)} {t('remaining')}</small></div>; })}</div><div className={styles.inputError}>{amountError}</div></div> : <div className={styles.formInputWrapper}><label className={styles.formInputLabel}>{t('Paid Amount')}</label><div className={styles.paidAmountWrapper}><div className={styles.currencySymbol}>{displayCurrencySymbol || '—'}</div><input className={styles.amountInput} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} onBlur={validateAmount} /></div><div className={styles.inputError}>{amountError}</div></div>}
+            {isCardStatement && Object.keys(creditPurchases).length > 0 && <div className={styles.creditAllocationSection}><label className={styles.formInputLabel}>{t('Allocate to credit purchases')}</label>{Object.entries(creditPurchases).map(([statementExpenseAmountId, purchases]) => purchases.map((purchase) => { const key = `${statementExpenseAmountId}:${purchase.expense_amount_id}`; return <div className={styles.creditAllocationRow} key={key}><span>{purchase.name}<small>{purchase.currency_symbol} {Number(purchase.remaining).toFixed(2)} {t('remaining')}</small></span><input className={styles.amountInput} type="number" min="0" max={purchase.remaining} step="0.01" value={allocations[key] ?? ''} onChange={(event) => setAllocations((current) => ({ ...current, [key]: event.target.value }))} /></div>; }))}</div>}
+            <div className={styles.formInputWrapper}><label className={styles.formInputLabel}>{t('Comment')}</label><input className={styles.inputText} type="text" value={comment} onChange={(e) => setComment(e.target.value)} /></div>
+            <label className={styles.formInputLabelDate}>{t('Payment Date')}</label><DatePicker selected={paymentDate} onChange={(date) => setPaymentDate(date)} onBlur={validatePaymentDate} dateFormat="dd/MM/yyyy" /><div className={styles.inputError}>{dateError}</div>
+            {!isMultiCurrency && <FormCheckbox label={t('Full paid')} checked={isFullPaid} onChange={handleFullPaid} />}
+        </div>
+        <div className={styles.paymentModalActions}><button type="button" className={styles.editExpenseButton} onClick={() => router.push(`/expenses/details/${expense.id}`)}>{t('Edit expense')}</button><button type="button" className={styles.cancelPaymentButton} onClick={() => fullPage ? router.replace(returnTo) : closePaymentModal()}>{t('Cancel')}</button><Button label={t(isMultiCurrency ? 'Add Payments' : 'Add Payment')} customClass={styles.addPaymentButton} onClick={createExpensePayment} /></div>
+    </div>;
+
+    if (fullPage) return <div className={`${styles.paymentContainer} ${styles.fullPagePayment}`}>{paymentContent}</div>;
+
     return (
         <div className={styles.paymentContainer}>
             <Toast ref={notificationToast} position={'top-center'} />
@@ -208,88 +233,7 @@ const ExpensesPayment = ({ expense, onAddExpensePayment, isGrid, isNextMonth, fu
                 closeOnEscape={true}
                 dismissableMask={true}
             >
-                <div className={styles.paymentModalContainer}>
-                    <div className={styles.paymentModalIntro}>
-                        <span>{t('Record payment')}</span>
-                        <h2>{t(expense.name)}</h2>
-                        <p className={isMultiCurrency ? styles.multiCurrencyRemaining : undefined}>{isMultiCurrency ? expenseAmounts.map((record) => <span key={record.expense_amount_id || record.id}>{record.currency_symbol || ''} {getRemainingAmount(record).toFixed(2)} {t('remaining')}</span>) : <>{displayCurrencySymbol || ''} {getRemainingAmount(selectedExpenseAmount || expense).toFixed(2)} {t('remaining')}</>}</p>
-                    </div>
-                    <div className={styles.formWrapper}>
-                        <FormSelect
-                            label={t('Payment Method')}
-                            values={expense.paymentMethods}
-                            valueLabel={'name'}
-                            value={paymentMethod}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
-                            hideDefault={true}
-                        />
-                        {!isMultiCurrency && expense.expense_amounts && expense.expense_amounts.length > 1 && (
-                            <FormSelect
-                                label={t('Expense Amount')}
-                                values={expense.expense_amounts}
-                                valueLabel={'id'}
-                                multipleValueLabel={['currency_symbol', 'currency_name', 'amount']}
-                                value={expenseAmount}
-                                onChange={(e) => {
-                                    const id = e.target.value;
-                                    setExpenseAmount(id);
-                                    const ea = expense.expense_amounts.find((a) => parseInt(a.id, 10) === parseInt(id, 10));
-                                    if (ea) setAmount(String(getRemainingAmount(ea)));
-                                }}
-                                hideDefault={true}
-                            />
-                        )}
-                        {isMultiCurrency ? <div className={styles.formInputWrapper}>
-                            <label className={styles.formInputLabel}>{t('Paid Amounts')}</label>
-                            <div className={styles.multiCurrencyPaymentRows}>{expenseAmounts.map((record) => {
-                                const id = record.expense_amount_id || record.id;
-                                return <div className={styles.paidAmountWrapper} key={id}><div className={styles.currencySymbol}>{record.currency_symbol || '—'}</div><input className={styles.amountInput} type="number" min="0" step="0.01" value={amounts[id] ?? ''} onChange={(event) => setAmounts((current) => ({ ...current, [id]: event.target.value }))} /><small>{(record.currency_symbol || '')} {getRemainingAmount(record).toFixed(2)} {t('remaining')}</small></div>;
-                            })}</div>
-                            <div className={styles.inputError}>{amountError}</div>
-                        </div> : <div className={styles.formInputWrapper}>
-                            <label className={styles.formInputLabel}>{t('Paid Amount')}</label>
-                            <div className={styles.paidAmountWrapper}>
-                                <div className={styles.currencySymbol}>{displayCurrencySymbol || '—'}</div>
-                                <input className={styles.amountInput} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} onBlur={validateAmount} />
-                            </div>
-                            <div className={styles.inputError}>{amountError}</div>
-                        </div>}
-                        {isCardStatement && Object.keys(creditPurchases).length > 0 && <div className={styles.creditAllocationSection}>
-                            <label className={styles.formInputLabel}>{t('Allocate to credit purchases')}</label>
-                            {Object.entries(creditPurchases).map(([statementExpenseAmountId, purchases]) => purchases.map((purchase) => {
-                                const key = `${statementExpenseAmountId}:${purchase.expense_amount_id}`;
-                                return <div className={styles.creditAllocationRow} key={key}><span>{purchase.name}<small>{purchase.currency_symbol} {Number(purchase.remaining).toFixed(2)} {t('remaining')}</small></span><input className={styles.amountInput} type="number" min="0" max={purchase.remaining} step="0.01" value={allocations[key] ?? ''} onChange={(event) => setAllocations((current) => ({ ...current, [key]: event.target.value }))} /></div>;
-                            }))}
-                        </div>}
-                        <div className={styles.formInputWrapper}>
-                            <label className={styles.formInputLabel}>{t('Comment')}</label>
-                            <input
-                                className={styles.inputText}
-                                type="text"
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                            />
-                        </div>
-                        <label className={styles.formInputLabelDate}>{t('Payment Date')}</label>
-                        <DatePicker
-                            selected={paymentDate}
-                            onChange={(date) => setPaymentDate(date)}
-                            onBlur={validatePaymentDate}
-                            dateFormat="dd/MM/yyyy"
-                        />
-                        <div className={styles.inputError}>{dateError}</div>
-                        {!isMultiCurrency && <FormCheckbox
-                            label={t('Full paid')}
-                            checked={isFullPaid}
-                            onChange={handleFullPaid}
-                        />}
-                    </div>
-                    <div className={styles.paymentModalActions}>
-                        <button type="button" className={styles.editExpenseButton} onClick={() => { setModalVisible(false); router.push(`/expenses/details/${expense.id}`); }}>{t('Edit expense')}</button>
-                        <button type="button" className={styles.cancelPaymentButton} onClick={closePaymentModal}>{t('Cancel')}</button>
-                        <Button label={t(isMultiCurrency ? 'Add Payments' : 'Add Payment')} customClass={styles.addPaymentButton} onClick={createExpensePayment} />
-                    </div>
-                </div>
+                {paymentContent}
             </Dialog>
 
             {renderTrigger && renderTrigger(handlePaymenet)}

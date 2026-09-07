@@ -48,7 +48,7 @@ exports.createExpensePayment = async (req, res, next) => {
                     if (lineAllocations.length && (!expense.payment_method_id || expense.is_credit_card_purchase)) throw new Error('Credit allocations can only be added to card statement payments.');
                     if (lineAllocations.length) {
                         const allocatedAmounts = await trx('expense_amounts as expense_amounts')
-                            .select('expense_amounts.id', 'expense_amounts.amount')
+                            .select('expense_amounts.id', 'expense_amounts.amount', 'expense_amounts.currency_id')
                             .whereIn('expense_amounts.id', lineAllocations.map((allocation) => allocation.expenseAmountId))
                             .leftJoin('expenses', 'expenses.id', 'expense_amounts.expense_id')
                             .where({ 'expenses.user_id': userId, 'expenses.payment_method_id': expense.payment_method_id, 'expenses.is_credit_card_purchase': 1 });
@@ -58,7 +58,16 @@ exports.createExpensePayment = async (req, res, next) => {
                         const allocatedByAmount = Object.fromEntries(existingAllocations.map((allocation) => [allocation.expense_amount_id, Number(allocation.amount)]));
                         for (const allocation of lineAllocations) {
                             const purchase = allocatedAmounts.find((item) => Number(item.id) === Number(allocation.expenseAmountId));
-                            if (Number(allocation.amount) > Number(purchase.amount) - Number(allocatedByAmount[purchase.id] || 0) + 0.001) throw new Error('Credit allocation exceeds the purchase remaining amount.');
+                            const currentAllocation = Number(allocatedByAmount[purchase.id] || 0);
+                            const requestedAmount = Number(allocation.amount);
+                            const plannedAmount = currentAllocation + requestedAmount;
+                            if (requestedAmount > Number(line.amount) + 0.001) throw new Error('Credit allocation exceeds the statement payment amount.');
+                            if (plannedAmount > Number(purchase.amount)) {
+                                await trx('expense_amount_schedule')
+                                    .insert({ expense_amount_id: purchase.id, user_id: userId, year: currentYear, month: currentMonth, amount: plannedAmount })
+                                    .onConflict(['expense_amount_id', 'year', 'month'])
+                                    .merge({ amount: plannedAmount, user_id: userId });
+                            }
                         }
                     }
                     await CreditPaymentAllocation.replacePaymentAllocations(userId, paymentId, lineAllocations.map((allocation) => ({ expense_amount_id: allocation.expenseAmountId, amount: allocation.amount })), trx);

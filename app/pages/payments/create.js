@@ -13,6 +13,7 @@ function PaymentsCreatePage() {
     const { t } = useTranslation();
     const router = useRouter();
     const expenseId = router.query.expenseId || null;
+    const returnTo = typeof router.query.from === 'string' ? router.query.from : '/payments';
 
     return (
         <LayoutApp>
@@ -21,7 +22,7 @@ function PaymentsCreatePage() {
             </Head>
             <AppPageHeader eyebrow={t('New payment')} title={t('Create Payment')} description={t('Record a payment against an expense.')} />
             <div className={styles.paymentForm}>
-                <PaymentsForm defaultExpenseId={expenseId} />
+                <PaymentsForm defaultExpenseId={expenseId} returnTo={returnTo} />
             </div>
         </LayoutApp>
     );

@@ -11,7 +11,7 @@ import FormSelect from "@/Components/UI/Form/FormSelect";
 import DatePicker from "react-datepicker";
 import { FormActionBar, FormShell } from '@/Components/UI/Form/FormLayout';
 
-const PaymentsForm = ({ paymentId, defaultExpenseId }) => {
+const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) => {
     const { t } = useTranslation();
 
     const getDefaultPaymentMethodId = (methods) => {
@@ -154,7 +154,7 @@ const PaymentsForm = ({ paymentId, defaultExpenseId }) => {
                         life: 3000
                     })
                 );
-                router.push('/payments');
+                router.replace(returnTo);
             } catch (error) {
                 if (paymentId) {
                     notificationMessage = t('Error updating the Payment');
@@ -170,7 +170,7 @@ const PaymentsForm = ({ paymentId, defaultExpenseId }) => {
                         life: 3000
                     })
                 );
-                router.push('/payments');
+                router.replace(returnTo);
             }
         }
     };

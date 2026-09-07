@@ -85,6 +85,7 @@ exports.newPaymentMethod = async (req, res, next) => {
                             });
                         });
                         await ExpenseLibrary.updateExpenseAmounts(userId, expenseId, expenseAmountsToUpdate, expenseAmountsToDelete);
+                        await Expense.update(expenseId, userId, { due_date: Utils.getNextDay(dueDateDay), due_date_day: dueDateDay });
                     }
 
                     if (paymentMethodData.is_default) {

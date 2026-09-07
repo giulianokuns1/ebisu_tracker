@@ -25,7 +25,8 @@ exports.createPaymentMethodExpense = async (userId, name, dueDateDay, currencies
         name,
         category_id: categoryId,
         type_id: MONTHLY_ID,
-        due_date: formattedDate
+        due_date: formattedDate,
+        due_date_day: dueDateDay
     }
     expense = await Expense.create(userId, expenseData);
     expense = expense.length && expense[0];

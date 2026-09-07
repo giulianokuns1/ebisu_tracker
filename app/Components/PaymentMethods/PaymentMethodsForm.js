@@ -248,7 +248,7 @@ const PaymentMethodsForm = ({ paymentMethodId }) => {
                     {/*    />*/}
                     {/*</div>*/}
                     <div className={isCredit ? styles.formInputWrapper : styles.inputDisabled}>
-                        <label className={styles.formInputLabel}>{t('Due Date Day')}</label>
+                        <label className={styles.formInputLabel}>{t('Payment Due Date')}</label>
                         <div className={styles.selectWrapper}>
                             <select
                                 className={styles.inputText}
@@ -257,7 +257,7 @@ const PaymentMethodsForm = ({ paymentMethodId }) => {
                                 disabled={!isCredit}
                             >
                                 <option value="" disabled>
-                                    {t('Select the Due Date Day')}
+                                    {t('Select the payment due date')}
                                 </option>
                                 {
                                     Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
