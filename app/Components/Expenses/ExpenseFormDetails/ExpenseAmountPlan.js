@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '@/constants';
 import styles from './ExpenseAmountPlan.module.scss';
@@ -6,17 +6,26 @@ import { useTranslation } from '@/Hooks/useTranslation';
 
 const months = Array.from({ length: 12 }, (_, index) => index + 1);
 
-export default function ExpenseAmountPlan({ expense, expenseAmounts, expenseSchedule, amountSchedule, onSaved }) {
+export default function ExpenseAmountPlan({ expense, expenseAmounts, expenseSchedule, amountSchedule, onSaved, onChange }) {
     const { locale, t } = useTranslation();
     const [year, setYear] = useState(new Date().getFullYear());
     const [values, setValues] = useState(() => Object.fromEntries((amountSchedule || []).map((item) => [`${item.expense_amount_id}-${item.month}`, String(item.amount)])));
     const [isSaving, setIsSaving] = useState(false);
+    const onChangeRef = useRef(onChange);
     const isScheduled = Number(expense.type_id) === 2;
     const activeMonths = isScheduled ? new Set((expenseSchedule || []).map((item) => Number(item.month))) : new Set(Array.from({ length: 12 }, (_, index) => index + 1));
 
     const updateValue = (expenseAmountId, month, value) => {
         setValues((previous) => ({ ...previous, [`${expenseAmountId}-${month}`]: value }));
     };
+
+    useEffect(() => {
+        onChangeRef.current = onChange;
+    }, [onChange]);
+
+    useEffect(() => {
+        onChangeRef.current?.(values, year);
+    }, [values, year]);
 
     useEffect(() => {
         if (year === new Date().getFullYear()) {
@@ -69,7 +78,7 @@ export default function ExpenseAmountPlan({ expense, expenseAmounts, expenseSche
                 const key = `${amount.id}-${month}`;
                 const schedule = (amountSchedule || []).find((item) => Number(item.expense_amount_id) === Number(amount.id) && Number(item.month) === month);
                 const value = values[key] ?? (schedule ? String(schedule.amount) : String(amount.amount || 0));
-                return <label key={amount.id}><span>{amount.currency_symbol}</span><input type="number" min="0" step="0.01" value={value} onFocus={(event) => event.target.select()} onChange={(event) => updateValue(amount.id, month, event.target.value)} onBlur={(event) => { if (event.target.value !== '' && Number.isFinite(Number(event.target.value))) updateValue(amount.id, month, Number(event.target.value).toFixed(2)); }} /></label>;
+                return <label key={amount.id}><span>{amount.currency_symbol}</span><input type="number" min="0" step="0.01" value={value} onFocus={(event) => event.target.select()} onWheel={(event) => event.currentTarget.blur()} onChange={(event) => updateValue(amount.id, month, event.target.value)} onBlur={(event) => { if (event.target.value !== '' && Number.isFinite(Number(event.target.value))) updateValue(amount.id, month, Number(event.target.value).toFixed(2)); }} /></label>;
             })}</article>;
         })}</div>
         <footer><span>{t('Amounts without a custom value use the base expense amount.')}</span><button type="button" onClick={save} disabled={isSaving}>{isSaving ? t('Updating...') : t('Update Plan')}</button></footer>

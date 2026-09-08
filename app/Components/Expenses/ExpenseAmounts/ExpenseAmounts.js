@@ -21,11 +21,6 @@ const ExpenseAmounts = ({ expenseAmounts, setExpenseAmountsAmount, setExpenseAmo
         }
     };
 
-    const handleAmountFocus = (index) => {
-        const currentAmount = String(expenseAmounts[index]?.amount ?? '');
-        if (Number(currentAmount) === 0) setExpenseAmountsAmount('', index);
-    };
-
     return (
         <div>
             {expenseAmounts &&
@@ -41,9 +36,9 @@ const ExpenseAmounts = ({ expenseAmounts, setExpenseAmountsAmount, setExpenseAmo
                         <div className={styles.formInputWrapper}>
                             <input
                                 className={styles.inputText}
-                                type="number"
-                                value={expenseAmount.amount}
-                                onFocus={() => handleAmountFocus(index)}
+                                 type="number"
+                                 value={expenseAmount.amount}
+                                onWheel={(event) => event.currentTarget.blur()}
                                 onChange={(e) => handleAmountChange(e, index)}
                                 onBlur={validateAmount}
                             />

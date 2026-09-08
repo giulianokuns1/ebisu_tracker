@@ -69,6 +69,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
         : false;
     const selectedCategory = categories?.find((category) => String(category.id) === String(expenseCategory));
     const selectedCurrencyName = (currencyId) => currencies?.find((currency) => String(currency.id) === String(currencyId));
+    const isPlanExpense = [2, 3].includes(Number(expenseType));
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -143,15 +144,10 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
         return true;
     };
     const validateAmount = () => {
-        // Skip 0 validation if expense has a payment method (credit expenses)
-        if (expensePaymentMethod) {
-            setAmountError('');
-            return true;
-        }
         if (expenseAmounts && expenseAmounts.length > 0) {
             for (let i = 0; i < expenseAmounts.length; i++) {
-                if (!expenseAmounts[i].amount || isNaN(expenseAmounts[i].amount) || parseFloat(expenseAmounts[i].amount) <= 0) {
-                    setAmountError(t('Amount must be a number greater than 0'));
+                if (expenseAmounts[i].amount === '' || !Number.isFinite(Number(expenseAmounts[i].amount)) || Number(expenseAmounts[i].amount) < 0) {
+                    setAmountError(t('Amount must be a number greater than or equal to 0'));
                     return false;
                 }
             }
@@ -641,6 +637,7 @@ const ExpensesForm = ({ expenseId, expenseData, newExpenseData }) => {
                         handleDeleteExpenseAmount={handleDeleteExpenseAmount}
                         handleAddExpenseAmount={handleAddExpenseAmount}
                     /></FormSection>
+                {isPlanExpense && !expenseId && <FormSection icon="bi-calendar2-week" title={t('Payment Plan by Month')}><p className={styles.fieldHint}><i className="bi bi-info-circle" aria-hidden="true" /> {t('Create this expense first to define its monthly payment plan.')}</p></FormSection>}
                 <FormActionBar editing={Boolean(expenseId)} onCancel={() => router.push('/expenses')} onDelete={handleDelete} createLabel={t('Create Expense')} updateLabel={t('Update Expense')} />
             </form></FormShell><aside className={styles.expenseSummary}><div className={styles.summaryHeader}><span><i className="bi bi-receipt" aria-hidden="true" /></span><h2>{t('Expense Summary')}</h2></div><SummaryRow icon="bi-type" label={t('Name')} value={expenseName || t('Not set')} /><SummaryRow icon="bi-tags" label={t('Category')} value={selectedCategory?.name || t('Not set')} /><SummaryRow icon="bi-calendar3" label={t('Frequency')} value={selectedExpenseTypeData?.name || t('Not set')} /><SummaryRow icon="bi-calendar-event" label={t('Due date')} value={expenseDueDate ? expenseDueDate.toLocaleDateString() : t('Not set')} /><div className={styles.summaryAmounts}><span><i className="bi bi-currency-dollar" aria-hidden="true" /> {t('Amount')}</span>{expenseAmounts?.length ? expenseAmounts.map((item, index) => { const currency = selectedCurrencyName(item.currency_id); return <strong key={`${item.currency_id}-${index}`}>{currency?.symbol || ''} {Number(item.amount || 0).toFixed(2)} <small>{currency?.name || ''}</small></strong>; }) : <strong>{t('Not set')}</strong>}</div></aside></div>
         </div>
