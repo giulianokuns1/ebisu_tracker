@@ -13,7 +13,7 @@ import styles from './QuickActions.module.scss';
 
 const defaultPaymentMethod = (methods) => methods?.find((method) => method.is_default === 1)?.id || methods?.[0]?.id || '';
 
-export default function QuickActions() {
+export default function QuickActions({ openSignal = 0 }) {
     const { t } = useTranslation();
     const router = useRouter();
     const [open, setOpen] = useState(false);
@@ -28,6 +28,10 @@ export default function QuickActions() {
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
     const closePayment = useModalBackButton(paymentOpen, () => setPaymentOpen(false));
+
+    useEffect(() => {
+        if (openSignal) setOpen((value) => !value);
+    }, [openSignal]);
 
     useEffect(() => {
         const closeOnEscape = (event) => { if (event.key === 'Escape') setOpen(false); };

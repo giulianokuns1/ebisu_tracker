@@ -106,7 +106,7 @@
 .savingsMetric { color: #a78bfa; }
 .savingsMetric a { color: #a78bfa; display: block; font-size: 12px; font-weight: 600; margin-top: 7px; text-decoration: none; }
 
-.visualGrid { display: grid; gap: 16px; grid-template-columns: minmax(0, .95fr) minmax(0, 1.35fr); }
+.insightsWrapper { display: grid; gap: 16px; }.visualGrid { display: grid; gap: 16px; grid-template-columns: minmax(0, .95fr) minmax(0, 1.35fr); }
 .forecastStrip { align-items: center; background: rgba(20, 39, 45, .72); border: 1px solid rgba(146, 182, 180, .12); border-radius: 12px; display: grid; gap: 14px; grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(100px, .7fr)); padding: 15px 18px; }.forecastStrip h2 { color: #edf7f5; font-size: 15px; margin: 3px 0 0; }.forecastMonth { border-left: 1px solid rgba(146, 182, 180, .12); display: grid; gap: 3px; padding-left: 14px; }.forecastMonth strong { color: #dce8e6; font-size: 12px; }.forecastMonth span { color: $primaryColor; font-size: 11px; font-weight: 700; }
 .planningAside { display: grid; gap: 12px; }.planningPanel { background: rgba(20, 39, 45, .72); border: 1px solid rgba(146, 182, 180, .12); border-radius: 12px; padding: 13px; }.planningPanel header { align-items: center; display: flex; gap: 9px; margin-bottom: 9px; }.planningPanel header > span { align-items: center; background: rgba(79, 214, 190, .1); border-radius: 7px; color: $primaryColor; display: flex; height: 26px; justify-content: center; width: 26px; }.planningPanel h2 { color: #edf7f5; font-size: 13px; margin: 0; }.planningRow { align-items: center; border-top: 1px solid rgba(150, 184, 181, .1); display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) auto; padding: 8px 0; }.planningRow strong { color: #dce8e6; display: block; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.planningRow small { color: #829397; display: block; font-size: 10px; margin-top: 2px; }.planningRow em { display: grid; font-size: 10px; font-style: normal; justify-items: end; }.planningRow b { color: $primaryColor; white-space: nowrap; }.planningRow mark { background: rgba(242, 155, 75, .14); border-radius: 4px; color: #f2a54f; font-size: 9px; grid-column: 1 / -1; justify-self: start; padding: 3px 5px; }.planningEmpty { color: #829397; font-size: 11px; margin: 18px 0 8px; text-align: center; }
 .visualGrid + .visualGrid { margin-top: 16px; }
@@ -131,6 +131,7 @@
 .lineChart { height: 223px; }
 
 .expensesSection :global(.expenseGridContainer) { margin: 0; }
+.insightsSection { display: none; }
 .activityPanel { min-height: 190px; }
 .viewAll { color: $primaryColor; font-size: 12px; font-weight: 700; text-decoration: none; }
 .tableContainer { margin-top: 4px; }
@@ -156,7 +157,7 @@
     .dashboardHeader { align-items: stretch; flex-direction: column; gap: 14px; margin: 4px 0 18px; }
     .dashboardHeader h1 { font-size: 31px; }
     .periodControl { align-self: flex-start; }
-    .metricGrid { gap: 10px; grid-template-columns: 1fr; }
+    .container { gap: 12px; }.metricGrid { gap: 10px; grid-template-columns: 1fr; order: 1; }.primaryMetric { order: -1; }.expensesSection { order: 2; }.activityPanel { order: 3; }.insightsSection { display: block; order: 4; }.insightsWrapper { display: none; order: 5; }.insightsWrapper.insightsOpen { display: grid; }.insightsSection > button { align-items: center; background: rgba(20, 39, 45, .72); border: 1px solid rgba(146, 182, 180, .12); border-radius: 11px; color: #dce8e6; cursor: pointer; display: flex; font: inherit; font-size: 13px; font-weight: 700; justify-content: space-between; padding: 15px; width: 100%; }.insightsSection > button span { align-items: center; display: flex; gap: 9px; }.insightsSection > button span i { color: $primaryColor; font-size: 16px; }
     .metricCard { min-height: 124px; padding: 15px; }
     .metricIcon { float: right; margin: 0; }
     .visualGrid { gap: 10px; }

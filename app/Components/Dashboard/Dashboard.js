@@ -13,6 +13,7 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
     const { t } = useTranslation();
     const currencies = Object.entries(data.totalAmountByCurrency || {});
     const [selectedCurrencyId, setSelectedCurrencyId] = useState(currencies[0]?.[0] || '');
+    const [insightsOpen, setInsightsOpen] = useState(false);
 
     const activeCurrencyId = currencies.some(([currencyId]) => currencyId === selectedCurrencyId) ? selectedCurrencyId : currencies[0]?.[0] || '';
 
@@ -115,8 +116,8 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
             )}
             {!showWizardCta && <div className={styles.container}>
                 <section className={styles.metricGrid} aria-label={t('Financial summary')}>
+                    <MetricCard icon="bi-clock-history" tone="pending" title={t('Total Pending')} rows={currencyRows(data.amountPendingByCurrency || {})} formatAmount={formatAmount} primary />
                     <MetricCard icon="bi-check2-circle" tone="paid" title={t('Total Paid')} rows={currencyRows(data.amountPaidByCurrency || {})} formatAmount={formatAmount} />
-                    <MetricCard icon="bi-clock-history" tone="pending" title={t('Total Pending')} rows={currencyRows(data.amountPendingByCurrency || {})} formatAmount={formatAmount} />
                     <MetricCard icon="bi-receipt" tone="expense" title={t('Total Expenses')} rows={currencyRows(Object.fromEntries(currencies.map(([id, value]) => [id, value.amount])))} formatAmount={formatAmount} />
                     <div className={`${styles.metricCard} ${styles.savingsMetric}`}>
                         <div className={styles.metricIcon}><i className="bi bi-piggy-bank" aria-hidden="true" /></div>
@@ -125,34 +126,35 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
                         <Link href="/savings">{t('View savings')} <i className="bi bi-arrow-up-right" aria-hidden="true" /></Link>
                     </div>
                 </section>
-                <section className={styles.forecastStrip} aria-label={t('Cash-flow forecast')}>
-                    <div><p className={styles.panelKicker}>{t('Cash-flow forecast')}</p><h2>{t('Next 3 months')}</h2></div>
-                    {data.cashFlowForecast?.map((period) => <div className={styles.forecastMonth} key={period.label}><strong>{t(period.label)}</strong>{period.totals.map((total) => <span key={total.symbol}>{total.symbol} {formatAmount(total.amount)}</span>)}</div>)}
-                </section>
-
-                <section className={styles.visualGrid}>
-                    <div className={`${styles.panel} ${styles.overviewPanel}`}>
-                        <div className={styles.panelHeader}>
-                            <div><p className={styles.panelKicker}>{t('Payments Overview')}</p><h2>{t('This month')}</h2></div>
-                            <CurrencySelect currencies={currencies} value={activeCurrencyId} onChange={setSelectedCurrencyId} />
-                        </div>
-                        <div className={styles.doughnutContent}>
-                            <div className={styles.doughnutWrap}>
-                                <Doughnut data={chartData} options={{ cutout: '72%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => `${context.label}: ${selectedCurrency?.symbol || ''} ${formatAmount(context.raw)}` } } } }} />
-                                <div className={styles.doughnutCenter}><span>{selectedCurrency?.symbol}</span><strong>{formatAmount(paid)}</strong><small>{t('Paid')}</small></div>
-                            </div>
-                            <div className={styles.legend}>
-                                <LegendRow tone="paid" label={t('Paid')} value={paid} total={total} symbol={selectedCurrency?.symbol} formatAmount={formatAmount} />
-                                <LegendRow tone="pending" label={t('Pending')} value={pending} total={total} symbol={selectedCurrency?.symbol} formatAmount={formatAmount} />
-                            </div>
-                        </div>
+                <section className={`${styles.insightsWrapper} ${insightsOpen ? styles.insightsOpen : ''}`}>
+                    <div className={styles.forecastStrip} aria-label={t('Cash-flow forecast')}>
+                        <div><p className={styles.panelKicker}>{t('Cash-flow forecast')}</p><h2>{t('Next 3 months')}</h2></div>
+                        {data.cashFlowForecast?.map((period) => <div className={styles.forecastMonth} key={period.label}><strong>{t(period.label)}</strong>{period.totals.map((total) => <span key={total.symbol}>{total.symbol} {formatAmount(total.amount)}</span>)}</div>)}
                     </div>
-                    <div className={`${styles.panel} ${styles.trendPanel}`}>
-                        <div className={styles.panelHeader}>
-                            <div><p className={styles.panelKicker}>{t('Monthly Payments')}</p><h2>{t('Paid over time')}</h2></div>
-                            <CurrencySelect currencies={currencies} value={activeCurrencyId} onChange={setSelectedCurrencyId} />
+                    <div className={styles.visualGrid}>
+                        <div className={`${styles.panel} ${styles.overviewPanel}`}>
+                            <div className={styles.panelHeader}>
+                                <div><p className={styles.panelKicker}>{t('Payments Overview')}</p><h2>{t('This month')}</h2></div>
+                                <CurrencySelect currencies={currencies} value={activeCurrencyId} onChange={setSelectedCurrencyId} />
+                            </div>
+                            <div className={styles.doughnutContent}>
+                                <div className={styles.doughnutWrap}>
+                                    <Doughnut data={chartData} options={{ cutout: '72%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => `${context.label}: ${selectedCurrency?.symbol || ''} ${formatAmount(context.raw)}` } } } }} />
+                                    <div className={styles.doughnutCenter}><span>{selectedCurrency?.symbol}</span><strong>{formatAmount(paid)}</strong><small>{t('Paid')}</small></div>
+                                </div>
+                                <div className={styles.legend}>
+                                    <LegendRow tone="paid" label={t('Paid')} value={paid} total={total} symbol={selectedCurrency?.symbol} formatAmount={formatAmount} />
+                                    <LegendRow tone="pending" label={t('Pending')} value={pending} total={total} symbol={selectedCurrency?.symbol} formatAmount={formatAmount} />
+                                </div>
+                            </div>
                         </div>
-                        <div className={styles.lineChart}><Line data={lineData} options={lineOptions} /></div>
+                        <div className={`${styles.panel} ${styles.trendPanel}`}>
+                            <div className={styles.panelHeader}>
+                                <div><p className={styles.panelKicker}>{t('Monthly Payments')}</p><h2>{t('Paid over time')}</h2></div>
+                                <CurrencySelect currencies={currencies} value={activeCurrencyId} onChange={setSelectedCurrencyId} />
+                            </div>
+                            <div className={styles.lineChart}><Line data={lineData} options={lineOptions} /></div>
+                        </div>
                     </div>
                 </section>
 
@@ -173,6 +175,9 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
                             <PlanningPanel title={t('Scheduled Expenses Ahead')} icon="bi-calendar-week" empty={t('No scheduled expenses ahead.')} items={data.scheduledExpensesAhead?.map((expense) => ({ title: expense.name, detail: expense.periodLabel, values: expense.amounts.map((amount) => `${amount.currency_symbol} ${formatAmount(amount.amount)}`) }))} />
                         </div>}
                     />
+                </section>
+                <section className={styles.insightsSection}>
+                    <button type="button" onClick={() => setInsightsOpen((value) => !value)} aria-expanded={insightsOpen}><span><i className="bi bi-bar-chart-line" aria-hidden="true" />{t('Insights')}</span><i className={`bi ${insightsOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden="true" /></button>
                 </section>
                 <section className={styles.activityPanel}>
                     <div className={styles.panelHeader}>
@@ -224,8 +229,8 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
     );
 };
 
-const MetricCard = ({ icon, title, rows, tone, formatAmount }) => (
-    <div className={`${styles.metricCard} ${styles[tone]}`}>
+const MetricCard = ({ icon, title, rows, tone, formatAmount, primary }) => (
+    <div className={`${styles.metricCard} ${styles[tone]} ${primary ? styles.primaryMetric : ''}`}>
         <div className={styles.metricIcon}><i className={`bi ${icon}`} aria-hidden="true" /></div>
         <p>{title}</p>
         <div className={styles.currencyValues}>

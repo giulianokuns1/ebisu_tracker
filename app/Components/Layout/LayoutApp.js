@@ -9,6 +9,7 @@ import HeaderMenu from "@/Components/HeaderMenu/HeaderMenu";
 import AppFooter from "@/Components/Layout/AppFooter";
 import QuickActions from '@/Components/QuickActions/QuickActions';
 import AppUpdate from '@/Components/AppUpdate/AppUpdate';
+import MobileBottomNavigation from '@/Components/Layout/MobileBottomNavigation';
 
 export default function LayoutApp({ children, fullWidth = false }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,6 +17,7 @@ export default function LayoutApp({ children, fullWidth = false }) {
     const [showMessage, setShowMessage] = useState(false);
     const [notificationType, setNotificationType] = useState(false);
     const [message, setMessage] = useState('');
+    const [quickActionsSignal, setQuickActionsSignal] = useState(0);
     const touchStartX = useRef(null);
     const touchStartY = useRef(null);
     const isSwiping = useRef(false);
@@ -148,9 +150,10 @@ export default function LayoutApp({ children, fullWidth = false }) {
                         <div className={`${styles.pageContent} ${fullWidth ? styles.pageContentFullWidth : ''}`}>{children}</div>
                     </div>
                     <AppFooter />
-                    <QuickActions />
+                    <QuickActions openSignal={quickActionsSignal} />
                 </div>
                 {showMessage && <Notification message={message} onClose={closeMessage} type={notificationType} />}
+                <MobileBottomNavigation onQuickActions={() => setQuickActionsSignal((value) => value + 1)} />
             </div>
         </div>
     );
