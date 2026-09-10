@@ -171,9 +171,10 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
                         onSaveMonthEdits={onSaveMonthEdits}
                         aside={<div className={styles.planningAside}>
                             <PlanningPanel title={t('Credit Card Outlook')} icon="bi-credit-card" empty={t('No credit card balances to review.')} items={data.creditCardOutlook?.map((card) => ({ title: card.name, detail: `${t('Due')} ${card.dueDateDay}`, values: Object.values(card.amounts).map((amount) => `${amount.symbol} ${formatAmount(amount.amount - amount.paid)}`), badge: card.pendingPurchases ? `${card.pendingPurchases} ${t('pending purchases')}` : null }))} />
-                            <PlanningPanel title={t('Upcoming One-Time Expenses')} icon="bi-calendar-event" empty={t('No one-time expenses coming up.')} items={data.upcomingOneTimeExpenses?.map((expense) => ({ title: expense.name, detail: expense.periodLabel, values: [`${expense.currency_symbol} ${formatAmount(expense.amount)}`] }))} />
-                            <PlanningPanel title={t('Scheduled Expenses Ahead')} icon="bi-calendar-week" empty={t('No scheduled expenses ahead.')} items={data.scheduledExpensesAhead?.map((expense) => ({ title: expense.name, detail: expense.periodLabel, values: expense.amounts.map((amount) => `${amount.currency_symbol} ${formatAmount(amount.amount)}`) }))} />
-                        </div>}
+                             <PlanningPanel title={t('Upcoming One-Time Expenses')} icon="bi-calendar-event" empty={t('No one-time expenses coming up.')} items={data.upcomingOneTimeExpenses?.map((expense) => ({ title: expense.name, detail: expense.periodLabel, values: [`${expense.currency_symbol} ${formatAmount(expense.amount)}`] }))} />
+                             <PlanningPanel title={t('Scheduled Expenses Ahead')} icon="bi-calendar-week" empty={t('No scheduled expenses ahead.')} items={data.scheduledExpensesAhead?.map((expense) => ({ title: expense.name, detail: expense.periodLabel, values: expense.amounts.map((amount) => `${amount.currency_symbol} ${formatAmount(amount.amount)}`) }))} />
+                            <PaymentCategoryPanel categories={data.paymentCategorySummaryByCurrency?.[activeCurrencyId] || []} currencies={currencies} currencyId={activeCurrencyId} onCurrencyChange={setSelectedCurrencyId} formatAmount={formatAmount} />
+                         </div>}
                     />
                 </section>
                 <section className={styles.insightsSection}>
@@ -262,6 +263,12 @@ const LegendRow = ({ tone, label, value, total, symbol, formatAmount }) => (
 const PlanningPanel = ({ title, icon, items = [], empty }) => {
     const { t } = useTranslation();
     return <article className={styles.planningPanel}><header><span><i className={`bi ${icon}`} aria-hidden="true" /></span><h2>{title}</h2></header>{items.length ? <div>{items.slice(0, 5).map((item, index) => <div className={styles.planningRow} key={`${item.title}-${index}`}><span><strong>{t(item.title)}</strong><small>{t(item.detail)}</small></span><em>{item.values.map((value) => <b key={value}>{value}</b>)}</em>{item.badge && <mark>{item.badge}</mark>}</div>)}</div> : <p className={styles.planningEmpty}>{empty}</p>}</article>;
+};
+
+const PaymentCategoryPanel = ({ categories, currencies, currencyId, onCurrencyChange, formatAmount }) => {
+    const { t } = useTranslation();
+    const total = categories.reduce((sum, category) => sum + Number(category.amount || 0), 0);
+    return <article className={`${styles.planningPanel} ${styles.paymentCategoryPanel}`}><header><span><i className="bi bi-tags" aria-hidden="true" /></span><div><h2>{t('Payments by Category')}</h2><small>{t('Paid this month')}</small></div><CurrencySelect currencies={currencies} value={currencyId} onChange={onCurrencyChange} /></header>{categories.length ? <div className={styles.categoryPayments}>{categories.slice(0, 10).map((category) => <div className={styles.categoryPaymentRow} key={category.id}><span className={styles.categoryPaymentIcon} style={{ color: category.color, backgroundColor: `${category.color}22` }}><i className={category.icon} aria-hidden="true" /></span><div><strong>{t(category.name)}</strong><span><i style={{ width: `${total ? (Number(category.amount) / total) * 100 : 0}%`, backgroundColor: category.color }} /></span></div><b>{category.currency_symbol} {formatAmount(category.amount)}</b></div>)}</div> : <p className={styles.planningEmpty}>{t('No payments by category this month.')}</p>}</article>;
 };
 
 export default Dashboard;

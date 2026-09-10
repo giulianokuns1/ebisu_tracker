@@ -104,6 +104,18 @@ exports.get = async (req, res, next) => {
             ]);
             expensesExtended.expenses.forEach((expense) => { expense.paymentMethods = paymentMethods; });
             expensesNextMonth.forEach((expense) => { expense.paymentMethods = paymentMethods; });
+            const paymentCategorySummaryByCurrency = {};
+            expensesExtended.expenses.filter((expense) => !expense.is_credit_card_purchase && Number(expense.paymentTotal || 0) > 0).forEach((expense) => {
+                const currencyId = expense.currency_id;
+                if (!paymentCategorySummaryByCurrency[currencyId]) paymentCategorySummaryByCurrency[currencyId] = [];
+                let category = paymentCategorySummaryByCurrency[currencyId].find((item) => Number(item.id) === Number(expense.category_id));
+                if (!category) {
+                    category = { id: expense.category_id || 'other', name: expense.category_name || 'Other', icon: expense.category_icon || 'bi bi-three-dots', color: expense.category_color || '#809297', amount: 0, currency_symbol: expense.currency_symbol };
+                    paymentCategorySummaryByCurrency[currencyId].push(category);
+                }
+                category.amount += Number(expense.paymentTotal || 0);
+            });
+            Object.values(paymentCategorySummaryByCurrency).forEach((categories) => categories.sort((a, b) => b.amount - a.amount));
             payments = payments.slice(0, 10);
             expensesExtended.monthlyTrend = monthlyTrend;
             expensesExtended.savingsCount = savings.length;
@@ -114,6 +126,7 @@ exports.get = async (req, res, next) => {
             expensesExtended.creditCardOutlook = creditCardOutlook;
             expensesExtended.cashFlowForecast = planningPeriods.map((period) => ({ label: period.label, totals: Object.values(period.totals).map((total) => ({ symbol: total.currency?.symbol, amount: total.amount })) }));
             expensesExtended.recurringReview = recurringReview;
+            expensesExtended.paymentCategorySummaryByCurrency = paymentCategorySummaryByCurrency;
         }
         res.json({
             ...expensesExtended,
@@ -125,6 +138,7 @@ exports.get = async (req, res, next) => {
             creditCardOutlook: expensesExtended.creditCardOutlook,
             cashFlowForecast: expensesExtended.cashFlowForecast,
             recurringReview: expensesExtended.recurringReview,
+            paymentCategorySummaryByCurrency: expensesExtended.paymentCategorySummaryByCurrency,
             monthText,
             nextMonthText
         });
