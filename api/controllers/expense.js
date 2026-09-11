@@ -56,6 +56,7 @@ exports.getExpenses = async (req, res, next) => {
             expensesExtended.categorySummaryByCurrency = categorySummaryByCurrency;
             expensesExtended.totalEntries = expensesExtended.expenses.length;
             expensesExtended.daysInMonth = new Date(currentYear, month, 0).getDate();
+            expensesExtended.defaultCurrencyId = user.default_currency_id ? String(user.default_currency_id) : null;
         }
         res.json({
             ...expensesExtended,

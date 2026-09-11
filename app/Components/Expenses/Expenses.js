@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
@@ -13,9 +13,14 @@ const Expenses = ({ expenses, monthText, data }) => {
     const { t } = useTranslation();
     const router = useRouter();
     const currencies = Object.entries(data.totalAmountByCurrency || {});
-    const [currencyId, setCurrencyId] = useState('all');
+    const defaultCurrencyId = String(data.defaultCurrencyId || '');
+    const [currencyId, setCurrencyId] = useState(defaultCurrencyId || currencies[0]?.[0] || '');
     const [status, setStatus] = useState('all');
     const activeCurrencyId = currencies.some(([id]) => id === currencyId) ? currencyId : currencies[0]?.[0] || '';
+
+    useEffect(() => {
+        if (defaultCurrencyId && currencies.some(([id]) => id === defaultCurrencyId) && currencyId !== defaultCurrencyId) setCurrencyId(defaultCurrencyId);
+    }, [currencies, currencyId, defaultCurrencyId]);
     const currency = data.totalAmountByCurrency?.[activeCurrencyId]?.currency || {};
     const total = Number(data.totalAmountByCurrency?.[activeCurrencyId]?.amount || 0);
     const categorySummary = expenses.filter((expense) => !expense.is_credit_card_purchase).reduce((summary, expense) => {

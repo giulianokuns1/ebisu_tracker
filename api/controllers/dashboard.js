@@ -127,6 +127,7 @@ exports.get = async (req, res, next) => {
             expensesExtended.cashFlowForecast = planningPeriods.map((period) => ({ label: period.label, totals: Object.values(period.totals).map((total) => ({ symbol: total.currency?.symbol, amount: total.amount })) }));
             expensesExtended.recurringReview = recurringReview;
             expensesExtended.paymentCategorySummaryByCurrency = paymentCategorySummaryByCurrency;
+            expensesExtended.defaultCurrencyId = user.default_currency_id ? String(user.default_currency_id) : null;
         }
         res.json({
             ...expensesExtended,
@@ -139,6 +140,7 @@ exports.get = async (req, res, next) => {
             cashFlowForecast: expensesExtended.cashFlowForecast,
             recurringReview: expensesExtended.recurringReview,
             paymentCategorySummaryByCurrency: expensesExtended.paymentCategorySummaryByCurrency,
+            defaultCurrencyId: expensesExtended.defaultCurrencyId,
             monthText,
             nextMonthText
         });

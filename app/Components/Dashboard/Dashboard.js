@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './Dashboard.module.scss';
 import { useTranslation } from '@/Hooks/useTranslation';
 import { Chart as ChartJS, ArcElement, CategoryScale, Filler, Legend, LineElement, LinearScale, PointElement, Tooltip } from "chart.js";
@@ -12,8 +12,14 @@ ChartJS.register(ArcElement, CategoryScale, Filler, Legend, LineElement, LinearS
 const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, monthEdits, setMonthEdits, onSaveMonthEdits }) => {
     const { t } = useTranslation();
     const currencies = Object.entries(data.totalAmountByCurrency || {});
-    const [selectedCurrencyId, setSelectedCurrencyId] = useState(currencies[0]?.[0] || '');
+    const defaultCurrencyId = String(data.defaultCurrencyId || '');
+    const [selectedCurrencyId, setSelectedCurrencyId] = useState(defaultCurrencyId || currencies[0]?.[0] || '');
     const [insightsOpen, setInsightsOpen] = useState(false);
+
+    useEffect(() => {
+        if (defaultCurrencyId && currencies.some(([currencyId]) => currencyId === defaultCurrencyId) && selectedCurrencyId !== defaultCurrencyId) setSelectedCurrencyId(defaultCurrencyId);
+        else if (!currencies.some(([currencyId]) => currencyId === selectedCurrencyId)) setSelectedCurrencyId(currencies[0]?.[0] || '');
+    }, [currencies, defaultCurrencyId, selectedCurrencyId]);
 
     const activeCurrencyId = currencies.some(([currencyId]) => currencyId === selectedCurrencyId) ? selectedCurrencyId : currencies[0]?.[0] || '';
 
