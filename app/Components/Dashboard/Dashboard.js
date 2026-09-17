@@ -19,8 +19,7 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
     const [categoryOrderOpen, setCategoryOrderOpen] = useState(false);
 
     useEffect(() => {
-        if (defaultCurrencyId && currencies.some(([currencyId]) => currencyId === defaultCurrencyId) && selectedCurrencyId !== defaultCurrencyId) setSelectedCurrencyId(defaultCurrencyId);
-        else if (!currencies.some(([currencyId]) => currencyId === selectedCurrencyId)) setSelectedCurrencyId(currencies[0]?.[0] || '');
+        if (!currencies.some(([currencyId]) => currencyId === selectedCurrencyId)) setSelectedCurrencyId(defaultCurrencyId && currencies.some(([currencyId]) => currencyId === defaultCurrencyId) ? defaultCurrencyId : currencies[0]?.[0] || '');
     }, [currencies, defaultCurrencyId, selectedCurrencyId]);
 
     const activeCurrencyId = currencies.some(([currencyId]) => currencyId === selectedCurrencyId) ? selectedCurrencyId : currencies[0]?.[0] || '';
