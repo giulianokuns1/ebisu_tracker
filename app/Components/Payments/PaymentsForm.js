@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import DatePicker from "react-datepicker";
 import { FormActionBar, FormShell } from '@/Components/UI/Form/FormLayout';
+import Loading from '@/Components/UI/Loading';
 
 const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) => {
     const { t } = useTranslation();
@@ -28,6 +29,7 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
     const [paymentMethod, setPaymentMethod] = useState('');
     const [paymentMethods, setPaymentMethods] = useState(null);
     const [expenses, setExpenses] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [amountError, setAmountError] = useState('');
     const [dateError, setDateError] = useState('');
     const [paymentDate, setPaymentDate] = useState(new Date());
@@ -63,7 +65,8 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
                 })
                 .catch((error) => {
                     console.error('Error fetching data:', error);
-                });
+                })
+                .finally(() => setLoading(false));
         } else {
             axios
                 .get(`${API_BASE_URL}/newPaymentData`, {
@@ -93,7 +96,8 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
                 })
                 .catch((error) => {
                     console.error('Error fetching data:', error);
-                });
+                })
+                .finally(() => setLoading(false));
         }
     }, [paymentId, defaultExpenseId]);
 
@@ -228,6 +232,8 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
     const selectedAmount = paymentExpenseAmountList?.find((amount) => Number(amount.id) === Number(paymentExpenseAmount));
     const selectedMethod = paymentMethods?.find((method) => Number(method.id) === Number(paymentMethod));
     const formatDate = paymentDate && !isNaN(paymentDate.getTime()) ? paymentDate.toLocaleDateString() : t('Not set');
+
+    if (loading) return <Loading />;
 
     return (
         <div>
