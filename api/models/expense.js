@@ -20,6 +20,7 @@ module.exports = class Expense {
                 'categories.name as category_name',
                 'categories.icon as category_icon',
                 'categories.color as category_color',
+                'categories.position as category_position',
                 'expenses_type.name as expenses_type_name'
             )
             .where('expenses.user_id', userId)
@@ -96,6 +97,7 @@ module.exports = class Expense {
                 'categories.name as category_name',
                 'categories.icon as category_icon',
                 'categories.color as category_color',
+                'categories.position as category_position',
                 'expenses_type.name as expenses_type_name',
             )
             .where('expenses.user_id', userId)
@@ -277,6 +279,7 @@ module.exports = class Expense {
                 'categories.name as category_name',
                 'categories.icon as category_icon',
                 'categories.color as category_color',
+                'categories.position as category_position',
                 'expenses_type.name as expenses_type_name',
                 'expense_amounts.id as expense_amount_id',
                 'expense_amounts.amount as amount',

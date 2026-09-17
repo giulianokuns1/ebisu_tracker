@@ -6,15 +6,17 @@ import { Doughnut, Line } from "react-chartjs-2";
 import ExpensesGrid from "@/Components/Expenses/View/ExpenseGrid";
 import Link from 'next/link';
 import PageBackButton from '@/Components/Layout/PageBackButton';
+import CategoryOrderDialog from '@/Components/Categories/CategoryOrderDialog';
 
 ChartJS.register(ArcElement, CategoryScale, Filler, Legend, LineElement, LinearScale, PointElement, Tooltip);
 
-const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, monthEdits, setMonthEdits, onSaveMonthEdits }) => {
+const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, monthEdits, setMonthEdits, onSaveMonthEdits, onCategoryOrderSaved }) => {
     const { t } = useTranslation();
     const currencies = Object.entries(data.totalAmountByCurrency || {});
     const defaultCurrencyId = String(data.defaultCurrencyId || '');
     const [selectedCurrencyId, setSelectedCurrencyId] = useState(defaultCurrencyId || currencies[0]?.[0] || '');
     const [insightsOpen, setInsightsOpen] = useState(false);
+    const [categoryOrderOpen, setCategoryOrderOpen] = useState(false);
 
     useEffect(() => {
         if (defaultCurrencyId && currencies.some(([currencyId]) => currencyId === defaultCurrencyId) && selectedCurrencyId !== defaultCurrencyId) setSelectedCurrencyId(defaultCurrencyId);
@@ -175,6 +177,7 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
                         monthEdits={monthEdits}
                         setMonthEdits={setMonthEdits}
                         onSaveMonthEdits={onSaveMonthEdits}
+                        onManageCategoryOrder={() => setCategoryOrderOpen(true)}
                         aside={<div className={styles.planningAside}>
                             <PlanningPanel title={t('Credit Card Outlook')} icon="bi-credit-card" empty={t('No credit card balances to review.')} items={data.creditCardOutlook?.map((card) => ({ title: card.name, detail: `${t('Due')} ${card.dueDateDay}`, values: Object.values(card.amounts).map((amount) => `${amount.symbol} ${formatAmount(amount.amount - amount.paid)}`), badge: card.pendingPurchases ? `${card.pendingPurchases} ${t('pending purchases')}` : null }))} />
                              <PlanningPanel title={t('Upcoming One-Time Expenses')} icon="bi-calendar-event" empty={t('No one-time expenses coming up.')} items={data.upcomingOneTimeExpenses?.map((expense) => ({ title: expense.name, detail: expense.periodLabel, values: [`${expense.currency_symbol} ${formatAmount(expense.amount)}`] }))} />
@@ -183,6 +186,7 @@ const Dashboard = ({ data, onAddExpensePayment, monthOffset, onPeriodChange, mon
                          </div>}
                     />
                 </section>
+                <CategoryOrderDialog visible={categoryOrderOpen} onHide={() => setCategoryOrderOpen(false)} onSaved={onCategoryOrderSaved} />
                 <section className={styles.insightsSection}>
                     <button type="button" onClick={() => setInsightsOpen((value) => !value)} aria-expanded={insightsOpen}><span><i className="bi bi-bar-chart-line" aria-hidden="true" />{t('Insights')}</span><i className={`bi ${insightsOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden="true" /></button>
                 </section>

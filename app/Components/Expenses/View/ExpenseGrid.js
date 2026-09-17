@@ -4,7 +4,7 @@ import { useTranslation } from '@/Hooks/useTranslation';
 import ExpensesGridItem from "@/Components/Expenses/View/ExpenseGridItem";
 import Link from 'next/link';
 
-const ExpensesGrid = ({ expenses, upcomingExpenses = [], monthText, nextMonthText, onAddExpensePayment, monthEdits, setMonthEdits, onSaveMonthEdits, aside }) => {
+const ExpensesGrid = ({ expenses, upcomingExpenses = [], monthText, nextMonthText, onAddExpensePayment, monthEdits, setMonthEdits, onSaveMonthEdits, aside, onManageCategoryOrder }) => {
     const { t } = useTranslation();
 
     const totalsByCurrency = (items) => items.reduce((totals, expense) => {
@@ -43,17 +43,27 @@ const ExpensesGrid = ({ expenses, upcomingExpenses = [], monthText, nextMonthTex
         });
     };
     const renderTotal = (items) => <div className={styles.expensePanelTotal}><strong>{t('Total')}</strong><span>{Object.values(totalsByCurrency(items)).map((total) => <b key={total.symbol}>{total.symbol} {total.amount.toFixed(2)}</b>)}</span></div>;
+    const isPaid = (expense) => (expense.currencyAmounts || [expense]).every((amount) => Number(amount.amount || 0) === 0 || Number(amount.paymentTotal || 0) >= Number(amount.amount || 0));
+    const groupedByCategory = (items) => Object.values(items.reduce((groups, expense) => {
+        const id = expense.category_id || 'other';
+        if (!groups[id]) groups[id] = { id, name: expense.category_name || t('Other'), icon: expense.category_icon || 'bi bi-three-dots', color: expense.category_color || '#809297', position: expense.category_position, expenses: [] };
+        groups[id].expenses.push(expense);
+        return groups;
+    }, {})).sort((a, b) => (Number.isFinite(Number(a.position)) ? Number(a.position) : Number.MAX_SAFE_INTEGER) - (Number.isFinite(Number(b.position)) ? Number(b.position) : Number.MAX_SAFE_INTEGER) || a.name.localeCompare(b.name));
+    const renderCategoryGroups = (items, label, tone) => items.length ? <section className={styles.expenseStatusGroup}><h2 className={styles[`expense${tone}Heading`]}>{label}</h2>{groupedByCategory(items).map((category) => <div className={styles.expenseCategoryGroup} key={category.id}><h3><span style={{ color: category.color, backgroundColor: `${category.color}22` }}><i className={category.icon} aria-hidden="true" /></span>{t(category.name)}</h3>{category.expenses.sort((a, b) => a.name.localeCompare(b.name)).map((expense) => <ExpensesGridItem key={`grid_item_${expense.id}_${expense.expense_amount_id}`} expense={expense} onAddExpensePayment={onAddExpensePayment} monthEdits={monthEdits} setMonthEdits={setMonthEdits} />)}</div>)}</section> : null;
+    const groupedExpenses = groupCreditExpenses(expenses);
+    const pendingExpenses = groupedExpenses.filter((expense) => !isPaid(expense));
+    const paidExpenses = groupedExpenses.filter(isPaid);
 
     return (
         <div>
             <div className={styles.expenseGridContainer}>
                 <div className={`${styles.dashboardExpensePanel} ${styles.currentExpensePanel}`}>
                     <div className={styles.expenseGridContainerMonthText}>
-                        <span>{t(monthText)}</span><span>{Object.keys(monthEdits || {}).length > 0 && <button type="button" className={styles.updateMonthButton} onClick={onSaveMonthEdits}>{t('Update Month')}</button>}<Link href="/expenses">{t('View All')}</Link></span>
+                        <span>{t(monthText)}</span><span>{Object.keys(monthEdits || {}).length > 0 && <button type="button" className={styles.updateMonthButton} onClick={onSaveMonthEdits}>{t('Update Month')}</button>}<button type="button" className={styles.categoryOrderButton} onClick={onManageCategoryOrder} aria-label={t('Category order')}><i className="bi bi-gear" aria-hidden="true" /></button><Link href="/expenses">{t('View All')}</Link></span>
                     </div>
-                    {groupCreditExpenses(expenses).map((expense) => (
-                        <ExpensesGridItem key={'grid_item_' + expense.id + '_' + expense.expense_amount_id} expense={expense} onAddExpensePayment={onAddExpensePayment} monthEdits={monthEdits} setMonthEdits={setMonthEdits} />
-                    ))}
+                    {renderCategoryGroups(pendingExpenses, t('Pending Expenses'), 'Pending')}
+                    {renderCategoryGroups(paidExpenses, t('Paid Expenses'), 'Paid')}
                     {renderTotal(expenses)}
                 </div>
                 <div className={styles.expenseSidebar}>

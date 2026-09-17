@@ -11,6 +11,7 @@ import Expenses from "@/Components/Expenses/Expenses";
 import Loading from "@/Components/UI/Loading";
 import MonthFilter from "@/Components/MonthFilters/MonthFilters";
 import AppPageHeader from '@/Components/Layout/AppPageHeader';
+import CategoryOrderDialog from '@/Components/Categories/CategoryOrderDialog';
 function ExpensesPage() {
     const [expenses, setExpenses] = useState(null);
     const [selectedMonth, setSelectedMonth] = useState('');
@@ -23,6 +24,7 @@ function ExpensesPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filtersOpen, setFiltersOpen] = useState(false);
+    const [categoryOrderOpen, setCategoryOrderOpen] = useState(false);
     const { t } = useTranslation();
 
     const getExpenses = async (selectedMonth, showAll = false) => {
@@ -83,7 +85,7 @@ function ExpensesPage() {
             <Head>
                 <title>{`Expenses | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow={t('Spending ledger')} title={t('Expenses')} description={t('Manage and track all your expenses.')} actionHref="/expenses/create" actionLabel={t('Add Expense')} secondaryAction={<button type="button" className={styles.filterButton} onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}><i className="bi bi-funnel" aria-hidden="true" /> {t('Filter')} <i className={`bi ${filtersOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden="true" /></button>} />
+            <AppPageHeader eyebrow={t('Spending ledger')} title={t('Expenses')} description={t('Manage and track all your expenses.')} actionHref="/expenses/create" actionLabel={t('Add Expense')} secondaryAction={<><button type="button" className={styles.filterButton} onClick={() => setCategoryOrderOpen(true)} aria-label={t('Category order')}><i className="bi bi-gear" aria-hidden="true" /></button><button type="button" className={styles.filterButton} onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}><i className="bi bi-funnel" aria-hidden="true" /> {t('Filter')} <i className={`bi ${filtersOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden="true" /></button></>} />
             {filtersOpen && <div className={styles.filtersContainer}>
                 <MonthFilter onMonthChange={handleMonthChange} defaultMonth={selectedMonth} displayShowAll={true} onShowAllChange={handleShowAllChange} showAllChecked={showAllChecked} toolbar />
                 <div className={styles.searchContainer}>
@@ -103,6 +105,7 @@ function ExpensesPage() {
                     showAll={showAllChecked}
                 />
             )}
+            <CategoryOrderDialog visible={categoryOrderOpen} onHide={() => setCategoryOrderOpen(false)} onSaved={() => getExpenses(selectedMonth, showAllChecked)} />
         </LayoutApp>
     );
 }

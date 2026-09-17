@@ -69,7 +69,7 @@ function DashboardPage() {
             <Head>
                 <title>{`Dashboard | ${WEBSITE_NAME}`}</title>
             </Head>
-            {SHOW_LOADING_TEST || loading ? <Loading /> : error ? <div className={styles.loadError}><h1>{t('Dashboard unavailable')}</h1><p>{t('We could not load your dashboard right now.')}</p><button type="button" onClick={getData}>{t('Try again')}</button></div> : data && <Dashboard data={data} onAddExpensePayment={onAddExpensePayment} monthOffset={monthOffset} onPeriodChange={onPeriodChange} monthEdits={monthEdits} setMonthEdits={setMonthEdits} onSaveMonthEdits={saveMonthEdits} />}
+            {SHOW_LOADING_TEST || loading ? <Loading /> : error ? <div className={styles.loadError}><h1>{t('Dashboard unavailable')}</h1><p>{t('We could not load your dashboard right now.')}</p><button type="button" onClick={getData}>{t('Try again')}</button></div> : data && <Dashboard data={data} onAddExpensePayment={onAddExpensePayment} monthOffset={monthOffset} onPeriodChange={onPeriodChange} monthEdits={monthEdits} setMonthEdits={setMonthEdits} onSaveMonthEdits={saveMonthEdits} onCategoryOrderSaved={getData} />}
         </LayoutApp>
     );
 }

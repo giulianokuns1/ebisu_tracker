@@ -20,7 +20,7 @@ const ExpensesGridItem = ({ expense, onAddExpensePayment, isNextMonth, showAll, 
     });
     const paidAmount = currencyProgress.reduce((sum, amount) => sum + amount.paid, 0);
     const totalAmount = currencyProgress.reduce((sum, amount) => sum + amount.total, 0);
-    const isPaid = totalAmount > 0 && currencyProgress.every((amount) => amount.paid >= amount.total);
+    const isPaid = totalAmount === 0 || currencyProgress.every((amount) => amount.paid >= amount.total);
     const percentage = totalAmount > 0 ? Math.min(100, (paidAmount / totalAmount) * 100) : 0;
     const [isEditing, setIsEditing] = useState(false);
     const [displayAmount, setDisplayAmount] = useState(totalAmount);

@@ -11,8 +11,7 @@ import { API_BASE_URL, WEBSITE_NAME } from '@/constants';
 import { withAuth } from '@/Hoc/withAuth';
 import { useTranslation } from '@/Hooks/useTranslation';
 import ExpensesPayment from '@/Components/Expenses/ExpensePayment';
-import { Dialog } from 'primereact/dialog';
-import useModalBackButton from '@/Hooks/useModalBackButton';
+import CategoryOrderDialog from '@/Components/Categories/CategoryOrderDialog';
 import styles from '@/Components/AnnualPlan/AnnualPlan.module.scss';
 
 const monthNames = Array.from({ length: 12 }, (_, index) => new Date(2026, index, 1).toLocaleDateString('en', { month: 'short' }));
@@ -27,8 +26,6 @@ function AnnualPlanPage() {
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
     const [saving, setSaving] = useState('');
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const [categories, setCategories] = useState([]);
-    const closeSettings = useModalBackButton(settingsOpen, () => setSettingsOpen(false));
 
     const year = Number(router.query.y) || new Date().getFullYear();
     const load = async () => {
@@ -44,12 +41,6 @@ function AnnualPlanPage() {
             .catch(() => setData({ expenses: [], totals: [] }));
     }, [router.isReady, year]);
     useEffect(() => {
-        if (!settingsOpen) return;
-        const token = localStorage.getItem('token');
-        axios.get(`${API_BASE_URL}/getCategories`, { headers: { Authorization: `Bearer ${token}` } })
-            .then((response) => setCategories(response.data.categories || []));
-    }, [settingsOpen]);
-    useEffect(() => {
         const syncView = () => {
             if (!viewSelected) setView(window.innerWidth >= 701 ? 'year' : 'month');
         };
@@ -59,20 +50,6 @@ function AnnualPlanPage() {
     }, [viewSelected]);
 
     const setYear = (nextYear) => router.push({ pathname: '/annual-plan', query: { y: nextYear } }, undefined, { shallow: true });
-    const moveCategory = (index, direction) => setCategories((current) => {
-        const nextIndex = index + direction;
-        if (nextIndex < 0 || nextIndex >= current.length) return current;
-        const next = [...current];
-        [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
-        return next;
-    });
-    const saveCategoryOrder = async () => {
-        const token = localStorage.getItem('token');
-        await axios.post(`${API_BASE_URL}/updateCategoryOrder`, { categoryIds: categories.map((category) => category.id) }, { headers: { Authorization: `Bearer ${token}` } });
-        closeSettings();
-        await load();
-    };
-    const resetCategoryOrder = () => setCategories((current) => [...current].sort((a, b) => a.name.localeCompare(b.name)));
     const updatePlan = async (expense, cell, value) => {
         const amount = Number(value);
         if (!Number.isFinite(amount) || amount < 0 || !cell.hasPlan) return;
@@ -134,11 +111,7 @@ function AnnualPlanPage() {
             <button type="button" className={styles.settingsButton} onClick={() => setSettingsOpen(true)} aria-label={t('Category order')}><i className="bi bi-gear" aria-hidden="true" /></button>
         </div>
         {view === 'month' ? <div className={styles.monthView}>{data.expenses.map((expense) => <article className={styles.monthRow} key={expense.expense_amount_id}><Link href={`/expenses/details/${expense.expense_id}`}><strong><i className={styles.categoryDot} style={{ backgroundColor: expense.category_color || '#809297' }} />{expense.name}</strong><small>{expense.currency_name}</small></Link>{cellContent(expense, expense.cells[monthIndex])}</article>)}<Totals totals={data.totals} monthIndex={monthIndex} /></div> : <div className={styles.planPanel}><div className={styles.yearScroll}><div className={styles.yearGrid}><div className={`${styles.headerCell} ${styles.sticky}`}>{t('Expense')}</div>{monthNames.map((month, index) => <div className={`${styles.headerCell} ${currentMonth === index + 1 ? styles.currentMonth : ''}`} key={month}>{month}</div>)}<div className={styles.headerCell}>{t('Total')}</div>{data.expenses.map((expense) => <React.Fragment key={expense.expense_amount_id}><Link className={`${styles.expenseCell} ${styles.sticky}`} href={`/expenses/details/${expense.expense_id}`}><strong><i className={styles.categoryDot} style={{ backgroundColor: expense.category_color || '#809297' }} />{expense.name}</strong><small>{expense.currency_symbol} · {expense.currency_name}</small></Link>{expense.cells.map((cell) => <div className={`${styles.gridCell} ${currentMonth === cell.month ? styles.currentMonth : ''}`} key={cell.month}>{cellContent(expense, cell)}</div>)}<div className={styles.rowTotal}>{money(expense.cells.reduce((sum, cell) => sum + cell.planned, 0), expense.currency_symbol)}</div></React.Fragment>)}{data.totals.map((currency) => <React.Fragment key={currency.id}><div className={`${styles.totalLabel} ${styles.sticky}`}>{t('Total')} · {currency.symbol}</div>{currency.monthly.map((total) => <div className={`${styles.totalCell} ${currentMonth === total.month ? styles.currentMonth : ''}`} key={total.month}>{money(total.planned, currency.symbol)}</div>)}<div className={styles.totalCell}>{money(currency.monthly.reduce((sum, total) => sum + total.planned, 0), currency.symbol)}</div></React.Fragment>)}</div></div></div>}
-        <Dialog header={t('Category order')} visible={settingsOpen} onHide={closeSettings} className={styles.categoryOrderDialog} style={{ width: '390px' }} breakpoints={{ '600px': 'calc(100vw - 24px)' }}>
-            <p className={styles.dialogIntro}>{t('Choose the category order used across your expense views.')}</p>
-            <div className={styles.categoryOrderList}>{categories.map((category, index) => <div className={styles.categoryOrderRow} key={category.id}><span className={styles.categoryDot} style={{ backgroundColor: category.color || '#809297' }} /><strong>{category.name}</strong><div><button type="button" onClick={() => moveCategory(index, -1)} disabled={index === 0} aria-label={t('Move up')}><i className="bi bi-chevron-up" /></button><button type="button" onClick={() => moveCategory(index, 1)} disabled={index === categories.length - 1} aria-label={t('Move down')}><i className="bi bi-chevron-down" /></button></div></div>)}</div>
-            <div className={styles.dialogActions}><button type="button" onClick={resetCategoryOrder}>{t('Alphabetical')}</button><button type="button" className={styles.saveOrderButton} onClick={saveCategoryOrder}>{t('Save order')}</button></div>
-        </Dialog>
+        <CategoryOrderDialog visible={settingsOpen} onHide={() => setSettingsOpen(false)} onSaved={load} />
     </div></LayoutApp>;
 }
 

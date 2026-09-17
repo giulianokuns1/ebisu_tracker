@@ -6,8 +6,6 @@ import { API_BASE_URL } from '@/constants';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useRouter } from "next/router";
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
-import FormInput from "@/Components/UI/Form/FormInput";
-import FormSelect from "@/Components/UI/Form/FormSelect";
 import DatePicker from "react-datepicker";
 import { FormActionBar, FormShell } from '@/Components/UI/Form/FormLayout';
 
@@ -26,7 +24,7 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
     const [paymentComment, setPaymentComment] = useState('');
     const [paymentExpense, setPaymentExpense] = useState('');
     const [paymentExpenseAmount, setPaymentExpenseAmount] = useState('');
-    const [paymentExpenseAmountList, setPaymentExpenseAmonuntList] = useState('');
+    const [paymentExpenseAmountList, setPaymentExpenseAmonuntList] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState('');
     const [paymentMethods, setPaymentMethods] = useState(null);
     const [expenses, setExpenses] = useState(null);
@@ -224,65 +222,32 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
         setPaymentExpense(expenseId);
         const expense = expenses.find((expense) => expense.id === parseInt(expenseId));
         setPaymentExpenseAmonuntList(expense.expense_amounts);
+        setPaymentExpenseAmount(expense.expense_amounts?.[0]?.id || '');
     }
+    const selectedExpense = expenses?.find((expense) => Number(expense.id) === Number(paymentExpense));
+    const selectedAmount = paymentExpenseAmountList?.find((amount) => Number(amount.id) === Number(paymentExpenseAmount));
+    const selectedMethod = paymentMethods?.find((method) => Number(method.id) === Number(paymentMethod));
+    const formatDate = paymentDate && !isNaN(paymentDate.getTime()) ? paymentDate.toLocaleDateString() : t('Not set');
 
     return (
         <div>
             <ConfirmDialog />
-            <FormShell><form onSubmit={handleFormSubmit}>
-                <div className={styles.formWrapper}>
-                    <FormInput
-                        label={t('Amount')}
-                        type={'number'}
-                        value={paymentAmount}
-                        onChange={(e) => setPaymentAmount(e.target.value)}
-                        onBlur={validateAmount}
-                        errorMessage={amountError}
-                    />
-                    <FormSelect
-                        label={t('Payment Method')}
-                        values={paymentMethods}
-                        valueLabel={'name'}
-                        value={paymentMethod}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        hideDefault={true}
-                    />
-                    <label className={styles.formInputLabelDate}>{t('Payment Date')}</label>
-                    <DatePicker
-                        selected={paymentDate}
-                        onChange={(date) => setPaymentDate(date)}
-                        onBlur={validatePaymentDate}
-                        dateFormat="dd/MM/yyyy"
-                    />
-                    <div className={styles.inputError}>{dateError}</div>
-                    <FormInput
-                        label={t('Comment')}
-                        type={'text'}
-                        value={paymentComment}
-                        onChange={(e) => setPaymentComment(e.target.value)}
-                    />
-                    <FormSelect
-                        label={t('Expenses')}
-                        values={expenses}
-                        valueLabel={'name'}
-                        value={paymentExpense}
-                        onChange={(e) => setExpense(e.target.value)}
-                        defaultLabel={t('Select an Expense')}
-                    />
-                    <FormSelect
-                        label={t('Expenses Amount')}
-                        values={paymentExpenseAmountList}
-                        valueLabel={'name'}
-                        multipleValueLabel={['currency_name', 'currency_symbol', 'amount']}
-                        value={paymentExpenseAmount}
-                        onChange={(e) => setPaymentExpenseAmount(e.target.value)}
-                        defaultLabel={t('Select an Expense Amount')}
-                    />
+            <FormShell className={styles.paymentShell}><form onSubmit={handleFormSubmit} className={styles.paymentEditor}>
+                <div className={styles.paymentFormCard}>
+                    <PaymentStep number="1" title={t('Linked Expense')} hint={t('Link this payment to an existing expense.')}><div className={styles.linkedFields}><label><span>{t('Expense')}</span><select value={paymentExpense || ''} onChange={(event) => setExpense(event.target.value)}><option value="">{t('Select an Expense')}</option>{(expenses || []).map((expense) => <option key={expense.id} value={expense.id}>{expense.name}</option>)}</select></label><label><span>{t('Expenses Amount')}</span><select value={paymentExpenseAmount || ''} onChange={(event) => setPaymentExpenseAmount(event.target.value)} disabled={!paymentExpense}><option value="">{t('Select an Expense Amount')}</option>{(paymentExpenseAmountList || []).map((amount) => <option key={amount.id} value={amount.id}>{amount.currency_symbol} {amount.currency_name} {amount.amount}</option>)}</select></label></div></PaymentStep>
+                    <PaymentStep number="2" title={t('Amount')} hint={t('How much was paid?')}><div className={styles.amountFields}><label><span>{t('Amount')}</span><input type="number" min="0" step="0.01" value={paymentAmount ?? ''} onChange={(event) => setPaymentAmount(event.target.value)} onBlur={validateAmount} onWheel={(event) => event.currentTarget.blur()} /></label></div>{amountError && <div className={styles.inputError}>{amountError}</div>}</PaymentStep>
+                    <PaymentStep number="3" title={t('Payment Method')} hint={t('What method did you use?')}><div className={styles.methodCards}>{(paymentMethods || []).map((method) => <button type="button" key={method.id} className={Number(paymentMethod) === Number(method.id) ? styles.methodSelected : ''} onClick={() => setPaymentMethod(method.id)}><i className={`bi ${method.is_credit ? 'bi-credit-card' : 'bi-wallet2'}`} aria-hidden="true" /><span>{method.name}</span></button>)}</div></PaymentStep>
+                    <PaymentStep number="4" title={t('Payment Date')} hint={t('When was this payment made?')}><div className={styles.paymentDateField}><DatePicker selected={paymentDate} onChange={setPaymentDate} onBlur={validatePaymentDate} dateFormat="dd/MM/yyyy" popperClassName={styles.datePickerPopper} popperPlacement="bottom-start" /><div className={styles.inputError}>{dateError}</div></div></PaymentStep>
+                    <PaymentStep number="5" title={t('Comment')} optional hint={t('Add any additional notes.')}><textarea value={paymentComment ?? ''} maxLength={500} placeholder={t('Add a comment...')} onChange={(event) => setPaymentComment(event.target.value)} /><small className={styles.characterCount}>{paymentComment?.length || 0}/500</small></PaymentStep>
                 </div>
-                <FormActionBar editing={Boolean(paymentId)} onCancel={() => router.push('/payments')} onDelete={handleDelete} createLabel="Create Payment" updateLabel="Update Payment" />
+                <aside className={styles.paymentSummary}><h2>{t('Payment Summary')}</h2><p>{t("Here's how this payment will be recorded.")}</p><div className={styles.summaryList}><SummaryRow icon="bi-cash-coin" label={t('Amount')} value={`${selectedAmount?.currency_symbol || ''} ${Number(paymentAmount || 0).toFixed(2)}`} /><SummaryRow icon="bi-credit-card" label={t('Payment Method')} value={selectedMethod?.name || t('Not set')} /><SummaryRow icon="bi-calendar3" label={t('Payment Date')} value={formatDate} /><SummaryRow icon="bi-house" label={t('Linked Expense')} value={selectedExpense?.name || t('Not set')} /><SummaryRow icon="bi-currency-exchange" label={t('Currency')} value={selectedAmount ? `${selectedAmount.currency_symbol} ${selectedAmount.currency_name}` : t('Not set')} /><SummaryRow icon="bi-chat-left-text" label={t('Comment')} value={paymentComment || t('No comment')} /></div><div className={styles.summaryHint}><i className="bi bi-info-circle" aria-hidden="true" />{t('This payment will be saved and reflected in your payment history and expense tracking.')}</div></aside>
+                <div className={styles.paymentActions}><FormActionBar editing={Boolean(paymentId)} onCancel={() => router.push(returnTo)} onDelete={handleDelete} createLabel={t('Create Payment')} updateLabel={t('Update Payment')} /></div>
             </form></FormShell>
         </div>
     );
 };
+
+const PaymentStep = ({ number, title, hint, optional, children }) => <section className={styles.paymentStep}><header><span>{number}</span><div><h2>{title}{optional && <small>{' '}({optional === true ? 'Optional' : optional})</small>}</h2><p>{hint}</p></div></header>{children}</section>;
+const SummaryRow = ({ icon, label, value }) => <div className={styles.summaryRow}><i className={`bi ${icon}`} aria-hidden="true" /><span>{label}</span><strong>{value}</strong></div>;
 
 export default PaymentsForm;

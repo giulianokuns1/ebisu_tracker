@@ -39,23 +39,9 @@ export default function QuickActions({ openSignal = 0 }) {
         return () => document.removeEventListener('keydown', closeOnEscape);
     }, []);
 
-    const openPayment = async () => {
+    const openPayment = () => {
         setOpen(false);
-        if (typeof window !== 'undefined' && window.innerWidth <= 700) {
-            router.push(`/payments/create?from=${encodeURIComponent(router.asPath)}`);
-            return;
-        }
-        setError('');
-        setPaymentOpen(true);
-        if (data) return;
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_BASE_URL}/newPaymentData`, { headers: { Authorization: `Bearer ${token}` } });
-            setData(response.data);
-            setPaymentMethod(defaultPaymentMethod(response.data.paymentMethods));
-        } catch (requestError) {
-            setError(requestError.response?.data?.error || t('Unable to load payment options.'));
-        }
+        router.push(`/payments/create?from=${encodeURIComponent(router.asPath)}`);
     };
 
     const selectedExpense = data?.expenses?.find((expense) => String(expense.id) === String(expenseId));

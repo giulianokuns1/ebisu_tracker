@@ -81,6 +81,8 @@
 .filterButton:hover { border-color: rgba(81, 224, 207, .45); color: $primaryColor; }
 .filterButton:focus-visible { outline: 3px solid rgba(81, 224, 207, .18); outline-offset: 2px; }
 
+.expenseStatusGroup { display: grid; gap: 9px; margin-top: 16px; }.expenseStatusGroup:first-of-type { margin-top: 10px; }.expenseStatusGroup h2 { font-size: 13px; margin: 0; }.expensePendingHeading { color: #f2a54f; }.expensePaidHeading { color: #4fd6be; }.expenseCategoryGroup { display: grid; gap: 7px; }.expenseCategoryGroup h3 { align-items: center; color: #dce8e6; display: flex; font-size: 12px; gap: 7px; margin: 0; }.expenseCategoryGroup h3 > span { align-items: center; border-radius: 6px; display: flex; height: 22px; justify-content: center; width: 22px; }.categoryOrderButton { background: transparent; border: 0; color: #93a6aa; cursor: pointer; padding: 3px 6px; }.categoryOrderButton:hover { color: #4fd6be; }
+
 .pendingFilterTabs { display: flex; gap: 8px; }
 .pendingFilterTabs button { background: rgba(8, 22, 27, .62); border: 1px solid rgba(146, 182, 180, .16); border-radius: 7px; color: #aebdbc; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; padding: 8px 12px; }
 .pendingFilterTabs .activePendingFilter { background: rgba(81, 224, 207, .12); border-color: rgba(81, 224, 207, .32); color: $primaryColor; }
@@ -630,6 +632,15 @@
 .paymentModalContainer .inputText:focus-visible,
 .paymentModalContainer .amountInput:focus-visible { box-shadow: 0 0 0 3px rgba(81, 224, 207, .14); }
 .paymentModalActions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.paymentModalFields { display: grid; gap: 18px; }
+.paymentModalStep > header { align-items: center; display: flex; gap: 10px; margin-bottom: 10px; }
+.paymentModalStep > header > span { align-items: center; background: rgba(79, 214, 190, .13); border: 1px solid $primaryColor; border-radius: 50%; color: #6aead6; display: flex; flex: 0 0 auto; font-size: 11px; font-weight: 800; height: 27px; justify-content: center; width: 27px; }
+.paymentModalStep h3 { color: #edf7f5; font-size: 14px; margin: 0; }
+.paymentModalStep h3 small { color: #91a3a5; font-size: 11px; font-weight: 500; }
+.paymentModalStep :global(.formWrapper) { gap: 0; }
+.paymentModalStep :global(.formInputLabel) { display: none; }
+.paymentModalStep :global(.p-calendar), .paymentModalStep :global(.react-datepicker-wrapper), .paymentModalStep :global(.react-datepicker-wrapper input) { width: 100%; }
+.paymentModalStep :global(.react-datepicker-wrapper input) { background: #0e1d22; border: 1px solid rgba(126, 169, 167, .24); border-radius: 8px; color: #e7f2f0; font: inherit; min-height: 42px; padding: 10px 12px; }
 .cancelPaymentButton { background: transparent; border: 1px solid rgba(150, 184, 181, .22); border-radius: 8px; color: #c9d7d5; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; padding: 0 17px; }
 .editExpenseButton { background: transparent; border: 0; color: $primaryColor; cursor: pointer; font: inherit; font-size: 12px; font-weight: 750; margin-right: auto; padding: 10px 4px; }
 .editExpenseButton:hover { color: #8af0e4; }
