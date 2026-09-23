@@ -375,7 +375,7 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
         }
     });
     Object.keys(totalAmountByCurrency).map((key) => {
-        amountPendingByCurrency[key] = Math.round((totalAmountByCurrency[key].amount - amountPaidByCurrency[key]) * 100) / 100;
+        amountPendingByCurrency[key] = Math.max(0, Math.round((totalAmountByCurrency[key].amount - amountPaidByCurrency[key]) * 100) / 100);
     });
     return {
         expenses,
