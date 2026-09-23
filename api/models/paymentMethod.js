@@ -31,15 +31,16 @@ module.exports = class PaymentMethod {
             .orderBy('name');
     }
 
-    static getCreditStatementPayments(userId, paymentMethodIds) {
+    static getCreditStatementPayments(userId, paymentMethodIds, month, year) {
         if (!paymentMethodIds.length) return Promise.resolve([]);
-        return knex('payment_methods')
+        const query = knex('payment_methods')
             .select(
                 'payment_methods.id as payment_method_id',
                 'expenses.name as statement_name',
                 'expense_amounts.id as expense_amount_id',
                 'expense_amounts.currency_id',
                 'expense_amounts.amount',
+                'expense_amount_schedule.amount as scheduled_amount',
                 'payments.amount as payment_amount',
                 'payments.is_full_paid'
             )
@@ -47,7 +48,13 @@ module.exports = class PaymentMethod {
             .whereIn('payment_methods.id', paymentMethodIds)
             .leftJoin('expenses', 'expenses.id', 'payment_methods.expense_id')
             .leftJoin('expense_amounts', 'expense_amounts.expense_id', 'payment_methods.expense_id')
-            .leftJoin('payments', 'payments.expense_amount_id', 'expense_amounts.id');
+            .leftJoin('payments', 'payments.expense_amount_id', 'expense_amounts.id')
+            .leftJoin('expense_amount_schedule', function () {
+                this.on('expense_amount_schedule.expense_amount_id', '=', 'expense_amounts.id');
+                if (month !== undefined && month !== null) this.on('expense_amount_schedule.month', '=', knex.raw('?', [month]));
+                if (year !== undefined && year !== null) this.on('expense_amount_schedule.year', '=', knex.raw('?', [year]));
+            });
+        return query;
     }
 
     /**

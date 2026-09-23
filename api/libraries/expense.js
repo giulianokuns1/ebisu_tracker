@@ -261,12 +261,12 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
     const creditPurchasePaymentMethodIds = [...new Set(expenses.filter((expense) => Boolean(expense.is_credit_card_purchase) && expense.payment_method_id).map((expense) => expense.payment_method_id))];
     const creditPurchaseAmountIds = expenses.filter((expense) => Boolean(expense.is_credit_card_purchase)).map((expense) => expense.expense_amount_id);
     const [creditStatementPayments, creditPurchaseAllocations] = await Promise.all([
-        PaymentMethod.getCreditStatementPayments(userId, creditPurchasePaymentMethodIds),
+        PaymentMethod.getCreditStatementPayments(userId, creditPurchasePaymentMethodIds, month, year),
         CreditPaymentAllocation.getPurchaseAllocations(userId, creditPurchaseAmountIds),
     ]);
     const creditStatementByMethodAndCurrency = creditStatementPayments.reduce((statements, row) => {
         const key = `${row.payment_method_id}:${row.currency_id}`;
-        if (!statements[key]) statements[key] = { amount: Number(row.amount || 0), paymentTotal: 0, isFullPaid: false, statementName: row.statement_name };
+        if (!statements[key]) statements[key] = { amount: Number(row.scheduled_amount ?? row.amount ?? 0), paymentTotal: 0, isFullPaid: false, statementName: row.statement_name };
         statements[key].paymentTotal += Number(row.payment_amount || 0);
         statements[key].isFullPaid = statements[key].isFullPaid || Boolean(row.is_full_paid);
         return statements;
