@@ -52,6 +52,15 @@ module.exports = class Payment {
                 throw error;
             });
     }
+    static getPaymentAmountTotal(userId, expenseAmountId, month, year, trx = null) {
+        return (trx || knex)('payments')
+            .where({ user_id: userId, expense_amount_id: expenseAmountId })
+            .whereRaw('MONTH(created_at) = ?', [month])
+            .whereRaw('YEAR(created_at) = ?', [year])
+            .sum({ amount: 'amount' })
+            .first()
+            .then((result) => Number(result?.amount || 0));
+    }
     /**
      * Get all credit payments by user and month
      * @param userId

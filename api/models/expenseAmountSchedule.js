@@ -162,6 +162,11 @@ module.exports = class ExpenseAmountSchedule {
                 throw error;
             });
     }
+    static deleteByMonthAndYear(userId, expenseAmountId, year, month, trx = null) {
+        return (trx || knex)('expense_amount_schedule')
+            .where({ expense_amount_id: expenseAmountId, user_id: userId, year, month })
+            .del();
+    }
     static getByUserId(userId, month, year = new Date().getFullYear()) {
         return knex('expense_amount_schedule')
             .select()

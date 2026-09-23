@@ -288,6 +288,7 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
             paymentByExpense[payment.expense_amount_id] += paymentAmount;
         }
     });
+    const creditPurchasesByMethodAndCurrency = {};
     expenses.map(expense => {
         expense.payments = [];
         expense.paymentTotal = 0;
@@ -308,6 +309,11 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
         }
 
         expense.is_credit_card_purchase = Boolean(expense.is_credit_card_purchase);
+        if (expense.is_credit_card_purchase) {
+            const key = `${expense.payment_method_id}:${expense.currency_id}`;
+            if (!creditPurchasesByMethodAndCurrency[key]) creditPurchasesByMethodAndCurrency[key] = 0;
+            creditPurchasesByMethodAndCurrency[key] += Number(expense.amount || 0);
+        }
         if (!expense.is_credit_card_purchase) {
             if (!expensesAmountByCurrency[expense.currency_id]) {
                 expensesAmountByCurrency[expense.currency_id] = {
@@ -327,22 +333,13 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
             }
         });
         if (expense.is_credit_card_purchase) return expense;
-        if (totalAmountByCurrency[expense.currency_id]) {
-            if (expense.expense_amount_schedule_amount) {
-                totalAmountByCurrency[expense.currency_id]['amount'] += parseFloat(expense.expense_amount_schedule_amount);
-            } else {
-                totalAmountByCurrency[expense.currency_id]['amount'] += parseFloat(expense.amount);
-            }
-        } else {
-            totalAmountByCurrency[expense.currency_id] = {}
-            if (expense.expense_amount_schedule_amount) {
-                totalAmountByCurrency[expense.currency_id]['amount'] = parseFloat(expense.expense_amount_schedule_amount);
-            } else {
-                totalAmountByCurrency[expense.currency_id]['amount'] = parseFloat(expense.amount);
-            }
-        }
-        if (paymentByExpense[expense.id] && paymentByExpense[expense.id] < expense.amount) {
-            paid = paymentByExpense[expense.id];
+        const paidForExpense = Number(paymentByExpense[expense.expense_amount_id] || 0);
+        const plannedAmount = Number(expense.amount || 0);
+        const amountForTotals = Math.max(plannedAmount, paidForExpense);
+        if (!totalAmountByCurrency[expense.currency_id]) totalAmountByCurrency[expense.currency_id] = { amount: 0 };
+        totalAmountByCurrency[expense.currency_id].amount += amountForTotals;
+        if (paymentByExpense[expense.expense_amount_id] && paymentByExpense[expense.expense_amount_id] < expense.amount) {
+            paid = paymentByExpense[expense.expense_amount_id];
             percentage = Math.round((paid / expense.amount) * 100);
             if (pendingExpenses.length < 10) {
                 pendingExpenses.push({ expense: expense, paid: paid, percentage: percentage });
@@ -359,15 +356,26 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
         expense.paymentTotal = Number(allocationsByExpenseAmount[expense.expense_amount_id] || 0);
         expense.isFullPaid = expense.paymentTotal >= Number(expense.amount || 0);
     });
+    Object.entries(creditStatementByMethodAndCurrency).forEach(([key, statement]) => {
+        const [paymentMethodId, currencyId] = key.split(':');
+        const amount = Math.max(statement.amount, creditPurchasesByMethodAndCurrency[key] || 0);
+        if (!totalAmountByCurrency[currencyId]) totalAmountByCurrency[currencyId] = { amount: 0 };
+        totalAmountByCurrency[currencyId].amount += amount;
+        amountPaidByCurrency[currencyId] = (amountPaidByCurrency[currencyId] || 0) + statement.paymentTotal;
+        const statementExpense = expenses.find((expense) => !expense.is_credit_card_purchase && Number(expense.payment_method_id) === Number(paymentMethodId) && String(expense.currency_id) === currencyId);
+        if (statementExpense) {
+            statementExpense.amount = amount;
+            statementExpense.paymentTotal = statement.paymentTotal;
+            statementExpense.isFullPaid = statement.paymentTotal >= amount;
+        }
+    });
     currencies.map((currency) => {
         if (totalAmountByCurrency[currency.id]) {
             totalAmountByCurrency[currency.id]['currency'] = currency;
         }
     });
     Object.keys(totalAmountByCurrency).map((key) => {
-        amountPendingByCurrency[key] =
-            totalAmountByCurrency[key].amount > amountPaidByCurrency[key] ?
-                Math.round((totalAmountByCurrency[key].amount - amountPaidByCurrency[key]) * 100) / 100 : 0;
+        amountPendingByCurrency[key] = Math.round((totalAmountByCurrency[key].amount - amountPaidByCurrency[key]) * 100) / 100;
     });
     return {
         expenses,

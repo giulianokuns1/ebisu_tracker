@@ -9,6 +9,42 @@ const moment = require('moment');
 const knex = require('knex')(require('../knexfile'));
 const CreditPaymentAllocation = require('../models/creditPaymentAllocation');
 
+const reconcilePaymentMonthAmount = async (userId, expenseAmountId, paymentDate, trx = null) => {
+    const date = moment(paymentDate);
+    const month = date.month() + 1;
+    const year = date.year();
+    const query = trx || knex;
+    const expenseAmount = await query('expense_amounts as expense_amounts')
+        .select('expense_amounts.amount', 'expenses.is_credit_card_purchase')
+        .leftJoin('expenses', 'expenses.id', 'expense_amounts.expense_id')
+        .where('expense_amounts.id', expenseAmountId)
+        .where('expenses.user_id', userId)
+        .first();
+    if (!expenseAmount || expenseAmount.is_credit_card_purchase) return;
+
+    const existingSchedule = await query('expense_amount_schedule')
+        .where({ expense_amount_id: expenseAmountId, user_id: userId, year, month })
+        .first();
+    const paid = await Payment.getPaymentAmountTotal(userId, expenseAmountId, month, year, query);
+    const baseAmount = Number(expenseAmount.amount || 0);
+    const effectiveAmount = Number(existingSchedule?.amount ?? baseAmount);
+
+    if (paid > effectiveAmount) {
+        await query('expense_amount_schedule')
+            .insert({ expense_amount_id: expenseAmountId, user_id: userId, year, month, amount: paid })
+            .onConflict(['expense_amount_id', 'year', 'month'])
+            .merge({ amount: paid, user_id: userId });
+    } else if (existingSchedule && Number(existingSchedule.amount) > baseAmount) {
+        if (paid > baseAmount) {
+            await query('expense_amount_schedule')
+                .where({ expense_amount_id: expenseAmountId, user_id: userId, year, month })
+                .update({ amount: paid });
+        } else {
+            await ExpenseAmountSchedule.deleteByMonthAndYear(userId, expenseAmountId, year, month, query);
+        }
+    }
+};
+
 exports.getPayments = async (req, res, next) => {
     try {
         let payments;
@@ -42,6 +78,7 @@ exports.createExpensePayment = async (req, res, next) => {
                 const paymentId = await knex.transaction(async (trx) => {
                     const createdPayment = await Payment.createPayment(userId, line.expenseAmountId, paymentMethod, line.amount, comment, originalAmount, Boolean(expense.payment_method_id), date, Boolean(line.isFullPaid), trx);
                     const paymentId = Array.isArray(createdPayment) ? createdPayment[0] : createdPayment;
+                    await reconcilePaymentMonthAmount(userId, line.expenseAmountId, date, trx);
                     const lineAllocations = allocations.filter((allocation) => Number(allocation.statementExpenseAmountId) === Number(line.expenseAmountId) && Number(allocation.amount) > 0);
                     const allocationTotal = lineAllocations.reduce((total, allocation) => total + Number(allocation.amount), 0);
                     if (allocationTotal > Number(line.amount) + 0.001) throw new Error('Credit allocations exceed the statement payment amount.');
@@ -73,9 +110,6 @@ exports.createExpensePayment = async (req, res, next) => {
                     await CreditPaymentAllocation.replacePaymentAllocations(userId, paymentId, lineAllocations.map((allocation) => ({ expense_amount_id: allocation.expenseAmountId, amount: allocation.amount })), trx);
                     return paymentId;
                 });
-                if (line.isFullPaid) {
-                    await ExpenseAmountSchedule.upsert(userId, line.expenseAmountId, currentYear, currentMonth, line.amount);
-                }
                 payment.push(paymentId);
             }
         }
@@ -190,9 +224,17 @@ exports.newPayment = async (req, res, next) => {
             }
             date = moment(paymentDate).format('YYYY-MM-DD HH:mm:ss');
             if (id) {
+                const previousPayment = await Payment.getPayment(userId, id);
+                const previousPaymentDate = previousPayment[0]?.created_at;
+                const previousExpenseAmountId = previousPayment[0]?.expense_amount_id;
                 payment = await Payment.updatePayment(id, userId, expenseAmountId, paymentMethod, amount, comment, originalAmount, date);
+                await reconcilePaymentMonthAmount(userId, expenseAmountId, date);
+                if (previousPaymentDate && (Number(previousExpenseAmountId) !== Number(expenseAmountId) || moment(previousPaymentDate).format('YYYY-MM') !== moment(date).format('YYYY-MM'))) {
+                    await reconcilePaymentMonthAmount(userId, previousExpenseAmountId, previousPaymentDate);
+                }
             } else {
                 payment = await PaymentLibrary.createPayment(userId, expenseAmountId, paymentMethod, amount, comment, originalAmount, expense, date);
+                await reconcilePaymentMonthAmount(userId, expenseAmountId, date);
             }
             paymentId = payment && payment.length && payment[0];
         }
@@ -207,7 +249,11 @@ exports.deletePayment = async (req, res, next) => {
         const { id } = req.body;
         const userId = req.user && req.user.id;
         if (userId && id) {
+            const payment = await Payment.getPayment(userId, id);
+            const expenseAmountId = payment[0]?.expense_amount_id;
+            const paymentDate = payment[0]?.created_at;
             await Payment.deletePayment(id, userId);
+            if (expenseAmountId && paymentDate) await reconcilePaymentMonthAmount(userId, expenseAmountId, paymentDate);
         }
         res.status(200).json({ message: 'Delete successfully' });
     } catch (error) {
