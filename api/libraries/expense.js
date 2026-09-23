@@ -360,10 +360,10 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
         const [paymentMethodId, currencyId] = key.split(':');
         const amount = Math.max(statement.amount, creditPurchasesByMethodAndCurrency[key] || 0);
         if (!totalAmountByCurrency[currencyId]) totalAmountByCurrency[currencyId] = { amount: 0 };
-        totalAmountByCurrency[currencyId].amount += amount;
-        amountPaidByCurrency[currencyId] = (amountPaidByCurrency[currencyId] || 0) + statement.paymentTotal;
         const statementExpense = expenses.find((expense) => !expense.is_credit_card_purchase && Number(expense.payment_method_id) === Number(paymentMethodId) && String(expense.currency_id) === currencyId);
         if (statementExpense) {
+            const originalAmount = Number(statementExpense.amount || 0);
+            totalAmountByCurrency[currencyId].amount += amount - originalAmount;
             statementExpense.amount = amount;
             statementExpense.paymentTotal = statement.paymentTotal;
             statementExpense.isFullPaid = statement.paymentTotal >= amount;

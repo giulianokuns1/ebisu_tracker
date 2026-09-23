@@ -258,6 +258,11 @@ exports.getPendingExpenses = async (req, res, next) => {
             paymentMethods = await PaymentMethods.getPaymentMethods(userId);
             expenses = await Promise.all(expenses.map(async (expense) => {
                 expense.formattedDueDate = Utils.expenseFormattedDueDate(expense);
+                expense.expense_amounts.forEach((expenseAmount) => {
+                    if (expenseAmount.expense_amount_schedule_amount !== null && expenseAmount.expense_amount_schedule_amount !== undefined) {
+                        expenseAmount.amount = expenseAmount.expense_amount_schedule_amount;
+                    }
+                });
                 expense.isTotalPaid = expense.expense_amounts.every((expenseAmount) => Boolean(expenseAmount.isFullPaid) || Number(expenseAmount.paymentTotal || 0) >= Number(expenseAmount.amount || 0));
 
                 if (expense.is_credit_card_purchase) return expense;
