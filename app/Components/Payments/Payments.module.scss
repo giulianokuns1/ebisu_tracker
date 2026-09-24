@@ -364,3 +364,65 @@
 .searchInput {
     @extend .globalInput;
 }
+.creditAllocationSection {
+    border-top: 1px solid rgba(150, 184, 181, .13);
+    display: grid;
+    gap: 10px;
+    margin-left: 43px;
+    margin-top: 4px;
+    padding-top: 14px;
+    width: min(600px, calc(100% - 43px));
+}
+
+.creditAllocationRow {
+    align-items: center;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: minmax(0, 1fr) 124px;
+}
+
+.creditAllocationRow > span {
+    color: #dce8e6;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.creditAllocationRow small {
+    color: #829397;
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    margin-top: 3px;
+}
+
+.creditAllocationInput {
+    background: #0d2429;
+    border: 1px solid #285057;
+    border-radius: 7px;
+    box-sizing: border-box;
+    color: #e5f0ef;
+    font: inherit;
+    min-width: 0;
+    padding: 10px 12px;
+    width: 100%;
+}
+
+.creditAllocationInput:focus {
+    border-color: #2dd4bf;
+    outline: none;
+}
+
+@media (max-width: 560px) {
+    .creditAllocationSection {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .creditAllocationRow {
+        grid-template-columns: minmax(0, 1fr) 104px;
+    }
+}

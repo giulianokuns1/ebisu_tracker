@@ -38,6 +38,16 @@ module.exports = class CreditPaymentAllocation {
             .orderBy('payments.created_at', 'desc');
     }
 
+    static async getPurchaseTotals(userId, expenseAmountIds) {
+        if (!expenseAmountIds.length) return [];
+        return knex('credit_payment_allocations')
+            .select('expense_amount_id')
+            .sum({ amount: 'amount' })
+            .where('user_id', userId)
+            .whereIn('expense_amount_id', expenseAmountIds)
+            .groupBy('expense_amount_id');
+    }
+
     static async replacePaymentAllocations(userId, paymentId, allocations, trx) {
         const query = trx || knex;
         await query('credit_payment_allocations').where({ user_id: userId, payment_id: paymentId }).del();

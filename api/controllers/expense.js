@@ -13,6 +13,8 @@ const PaymentLibrary = require('../libraries/payment');
 const User = require('../models/user');
 const UserTime = require('../utils/userTime');
 const moment = require("moment");
+const CreditPaymentAllocation = require('../models/creditPaymentAllocation');
+const knex = require('knex')(require('../knexfile'));
 
 exports.getExpenses = async (req, res, next) => {
     try {
@@ -79,6 +81,7 @@ exports.getExpense = async (req, res, next) => {
         let expenseAmountSchedule;
         let payments;
         let creditPaymentMethods;
+        let creditPurchases = [];
         let userId = req.user && req.user.id;
         let expenseId = req.query && req.query.expenseId;
         if (userId && expenseId) {
@@ -94,6 +97,30 @@ exports.getExpense = async (req, res, next) => {
             expenseSchedule = await ExpenseSchedule.get(expenseId);
             expenseAmountSchedule = await Promise.all(expenseAmounts.map((amount) => ExpenseAmountSchedule.get(amount.id, scheduleYear)));
             payments = await PaymentLibrary.getPaymentsByExpense(userId, expenseId);
+            const statementMethod = (await PaymentMethod.getPaymentMethods(userId)).find((method) => Number(method.expense_id) === Number(expenseId) && method.is_credit);
+            if (statementMethod) {
+                const { month, year } = UserTime.getCurrentPeriod(user.timezone);
+                const purchases = await knex('expenses as expenses')
+                    .select('expenses.id as expense_id', 'expenses.name', 'expenses.due_date', 'categories.name as category_name', 'categories.icon as category_icon', 'expense_amounts.id as expense_amount_id', 'expense_amounts.amount', 'expense_amount_schedule.amount as scheduled_amount', 'currencies.symbol as currency_symbol')
+                    .where({ 'expenses.user_id': userId, 'expenses.payment_method_id': statementMethod.id, 'expenses.is_credit_card_purchase': 1, 'expenses.inactive': 0 })
+                    .leftJoin('expense_amounts', 'expense_amounts.expense_id', 'expenses.id')
+                    .leftJoin('categories', 'categories.id', 'expenses.category_id')
+                    .leftJoin('currencies', 'currencies.id', 'expense_amounts.currency_id')
+                    .leftJoin('expense_amount_schedule', function () {
+                        this.on('expense_amount_schedule.expense_amount_id', '=', 'expense_amounts.id')
+                            .on('expense_amount_schedule.month', '=', knex.raw('?', [month]))
+                            .on('expense_amount_schedule.year', '=', knex.raw('?', [year]));
+                    })
+                    .orderBy('expenses.due_date')
+                    .orderBy('expenses.name');
+                const allocationTotals = await CreditPaymentAllocation.getPurchaseTotals(userId, purchases.map((purchase) => purchase.expense_amount_id));
+                const allocatedByAmount = Object.fromEntries(allocationTotals.map((allocation) => [allocation.expense_amount_id, Number(allocation.amount || 0)]));
+                creditPurchases = purchases.map((purchase) => {
+                    const amount = Number(purchase.scheduled_amount ?? purchase.amount ?? 0);
+                    const allocated = allocatedByAmount[purchase.expense_amount_id] || 0;
+                    return { ...purchase, amount, allocated, remaining: Math.max(0, amount - allocated), isFullPaid: allocated >= amount };
+                });
+            }
         }
         res.json({
             categories,
@@ -106,6 +133,7 @@ exports.getExpense = async (req, res, next) => {
             payments: payments.payments,
             paymentsByMonth: payments.monthPayments,
             creditPaymentMethods,
+            creditPurchases,
             totalPaid: payments.totalPaid
         });
     } catch (error) {

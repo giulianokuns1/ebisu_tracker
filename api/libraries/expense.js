@@ -8,6 +8,61 @@ const Currency = require("../models/currency");
 const PaymentMethod = require("../models/paymentMethod");
 const CreditPaymentAllocation = require("../models/creditPaymentAllocation");
 const moment = require("moment");
+const User = require('../models/user');
+const UserTime = require('../utils/userTime');
+const knex = require('knex')(require('../knexfile'));
+
+const reconcileCreditStatementAmounts = async (userId, paymentMethodIds) => {
+    const cardIds = [...new Set((paymentMethodIds || []).map(Number).filter(Boolean))];
+    if (!cardIds.length) return;
+
+    const user = await User.getById(userId);
+    const { month: currentMonth, year: currentYear } = UserTime.getCurrentPeriod(user.timezone);
+    const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+    const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+    const periods = [{ month: currentMonth, year: currentYear }, { month: nextMonth, year: nextYear }];
+
+    for (const period of periods) {
+        const purchases = await knex('expenses as expenses')
+            .select('expenses.payment_method_id', 'expense_amounts.currency_id')
+            .sum({ amount: knex.raw('COALESCE(expense_amount_schedule.amount, expense_amounts.amount)') })
+            .where('expenses.user_id', userId)
+            .where('expenses.is_credit_card_purchase', 1)
+            .where('expenses.inactive', 0)
+            .whereIn('expenses.payment_method_id', cardIds)
+            .leftJoin('expense_amounts', 'expense_amounts.expense_id', 'expenses.id')
+            .leftJoin('expense_amount_schedule', function () {
+                this.on('expense_amount_schedule.expense_amount_id', '=', 'expense_amounts.id')
+                    .on('expense_amount_schedule.year', '=', knex.raw('?', [period.year]))
+                    .on('expense_amount_schedule.month', '=', knex.raw('?', [period.month]));
+            })
+            .groupBy('expenses.payment_method_id', 'expense_amounts.currency_id');
+
+        for (const purchase of purchases) {
+            const statement = await knex('payment_methods as payment_methods')
+                .select('expense_amounts.id as expense_amount_id', 'expense_amounts.amount as base_amount', 'expense_amount_schedule.amount as scheduled_amount')
+                .where('payment_methods.user_id', userId)
+                .where('payment_methods.id', purchase.payment_method_id)
+                .leftJoin('expense_amounts', 'expense_amounts.expense_id', 'payment_methods.expense_id')
+                .leftJoin('expense_amount_schedule', function () {
+                    this.on('expense_amount_schedule.expense_amount_id', '=', 'expense_amounts.id')
+                        .on('expense_amount_schedule.year', '=', knex.raw('?', [period.year]))
+                        .on('expense_amount_schedule.month', '=', knex.raw('?', [period.month]));
+                })
+                .where('expense_amounts.currency_id', purchase.currency_id)
+                .first();
+            if (!statement) continue;
+
+            const requiredAmount = Number(purchase.amount || 0);
+            const existingAmount = Number(statement.scheduled_amount ?? statement.base_amount ?? 0);
+            if (requiredAmount <= existingAmount) continue;
+            await knex('expense_amount_schedule')
+                .insert({ expense_amount_id: statement.expense_amount_id, user_id: userId, year: period.year, month: period.month, amount: requiredAmount })
+                .onConflict(['expense_amount_id', 'year', 'month'])
+                .merge({ amount: requiredAmount, user_id: userId });
+        }
+    }
+};
 
 exports.createUpdateExpense = async (userId, data) => {
     let expenseData;
@@ -15,6 +70,7 @@ exports.createUpdateExpense = async (userId, data) => {
     let expense;
     let expenseAmounts = data.expenseAmounts;
     let id = data.id;
+    let previousPaymentMethodId;
     let expenseScheduleData = [];
     let isScheduled = parseInt(data.expenseType, 10) === ExpenseType.SCHEDULED_ID && data.scheduledMonths;
     expenseData = {
@@ -31,6 +87,8 @@ exports.createUpdateExpense = async (userId, data) => {
         expenseData.due_date = null;
     }
     if (id) {
+        const previousExpense = await Expense.getExpense(userId, id);
+        previousPaymentMethodId = previousExpense[0]?.payment_method_id;
         await Expense.update(id, userId, expenseData);
         expenseId = id;
     } else {
@@ -65,6 +123,11 @@ exports.createUpdateExpense = async (userId, data) => {
             }
             await ExpenseAmountSchedule.upsert(userId, expenseAmountId, year, month, amount);
         }
+    }
+    if (expenseData.is_credit_card_purchase) {
+        await reconcileCreditStatementAmounts(userId, [previousPaymentMethodId, expenseData.payment_method_id]);
+    } else if (previousPaymentMethodId && Number(previousPaymentMethodId) !== Number(expenseData.payment_method_id)) {
+        await reconcileCreditStatementAmounts(userId, [previousPaymentMethodId]);
     }
     return expenseId;
 }
