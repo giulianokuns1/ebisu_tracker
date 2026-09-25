@@ -51,8 +51,10 @@ exports.getPayments = async (req, res, next) => {
         const userId = req.user && req.user.id;
         const month = req.query && req.query.m;
         const year = req.query && req.query.y;
+        const startDate = req.query && req.query.startDate;
+        const endDate = req.query && req.query.endDate;
         if (userId) {
-            payments = await Payment.getPayments(userId, month, year);
+            payments = await Payment.getPayments(userId, month, year, startDate, endDate);
         }
         res.json({ payments });
     } catch (error) {

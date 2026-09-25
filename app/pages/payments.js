@@ -9,10 +9,16 @@ import styles from "@/Components/Payments/Payments.module.scss";
 import LayoutApp from '@/Components/Layout/LayoutApp';
 import Payments from "@/Components/Payments/Payments";
 import Loading from "@/Components/UI/Loading";
-import MonthFilter from "@/Components/MonthFilters/MonthFilters";
-import YearFilter from "@/Components/YearFilters/YearFilters";
 import { useRouter } from "next/router";
 import AppPageHeader from '@/Components/Layout/AppPageHeader';
+import DateRangeFilter from '@/Components/UI/DateRangeFilter';
+import DataExport from '@/Components/UI/DataExport/DataExport';
+
+const formatLocalDate = (date) => date.toLocaleDateString('en-CA');
+const currentMonthRange = () => {
+    const today = new Date();
+    return [new Date(today.getFullYear(), today.getMonth(), 1), today];
+};
 
 function PaymentsPage() {
     const router = useRouter();
@@ -21,50 +27,26 @@ function PaymentsPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filtersOpen, setFiltersOpen] = useState(false);
-    const getCurrentMonth = () => {
-        const month = new Date().getMonth() + 1;
-        return month < 10 ? `0${month}` : month.toString();
-    };
-    const getCurrentYear = () => {
-        return new Date().getFullYear().toString();
-    };
-    const currentMonth = getCurrentMonth();
-    const currentYear = getCurrentYear();
-
-    // Get initial values from URL query params or use current date
-    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-    const [selectedYear, setSelectedYear] = useState(currentYear);
+    const [range, setRange] = useState(currentMonthRange);
 
     const { t } = useTranslation();
 
-    // Update state when URL query params change (e.g., on page load or browser back/forward)
     useEffect(() => {
         if (router.isReady) {
-            const urlMonth = router.query.m;
-            const urlYear = router.query.y;
-            if (urlMonth !== undefined && urlMonth !== null) {
-                setSelectedMonth(urlMonth);
-            } else {
-                setSelectedMonth(getCurrentMonth());
-            }
-            if (urlYear !== undefined && urlYear !== null) {
-                setSelectedYear(urlYear);
-            } else {
-                setSelectedYear(getCurrentYear());
-            }
+            const startDate = typeof router.query.startDate === 'string' ? new Date(`${router.query.startDate}T00:00:00`) : null;
+            const endDate = typeof router.query.endDate === 'string' ? new Date(`${router.query.endDate}T00:00:00`) : null;
+            setRange(startDate && endDate ? [startDate, endDate] : currentMonthRange());
         }
-    }, [router.isReady, router.query.m, router.query.y]);
+    }, [router.isReady, router.query.startDate, router.query.endDate]);
 
     useEffect(() => {
         if (!router.isReady) return;
 
         setLoading(true);
         const token = localStorage.getItem('token');
-        const params = [];
-        if (selectedMonth) params.push(`m=${selectedMonth}`);
-        if (selectedYear) params.push(`y=${selectedYear}`);
-        const queryString = params.length > 0 ? `?${params.join('&')}` : '';
-        const apiUrl = `${API_BASE_URL}/getPayments${queryString}`;
+        const [startDate, endDate] = range;
+        if (!startDate || !endDate) return;
+        const apiUrl = `${API_BASE_URL}/getPayments?startDate=${formatLocalDate(startDate)}&endDate=${formatLocalDate(endDate)}`;
         axios
             .get(apiUrl, {
                 headers: {
@@ -81,37 +63,14 @@ function PaymentsPage() {
                 console.error('Error fetching data:', error);
                 setLoading(false);
             });
-    }, [selectedMonth, selectedYear, router.isReady]);
+    }, [range, router.isReady]);
 
-    const handleMonthChange = (month) => {
-        setSelectedMonth(month);
-        // Update URL without page reload
-        const query = { ...router.query };
-        if (month) {
-            query.m = month;
-        } else {
-            delete query.m;
-        }
-        router.push({
-            pathname: router.pathname,
-            query: query
-        }, undefined, { shallow: true });
+    const updateRange = (nextRange) => {
+        setRange(nextRange);
+        const [startDate, endDate] = nextRange;
+        router.push({ pathname: router.pathname, query: startDate && endDate ? { startDate: formatLocalDate(startDate), endDate: formatLocalDate(endDate) } : {} }, undefined, { shallow: true });
     };
-
-    const handleYearChange = (year) => {
-        setSelectedYear(year);
-        // Update URL without page reload
-        const query = { ...router.query };
-        if (year) {
-            query.y = year;
-        } else {
-            delete query.y;
-        }
-        router.push({
-            pathname: router.pathname,
-            query: query
-        }, undefined, { shallow: true });
-    };
+    const clearRange = () => updateRange(currentMonthRange());
 
     const handleSearchChange = (e) => {
         const term = e.target.value;
@@ -127,21 +86,28 @@ function PaymentsPage() {
             }
         }
     };
+    const paymentColumns = [
+        { label: t('Expense'), value: 'expense_name' },
+        { label: t('Comment'), value: 'comment' },
+        { label: t('Date'), value: (payment) => new Date(payment.created_at).toLocaleDateString() },
+        { label: t('Payment method'), value: 'payment_method_name' },
+        { label: t('Amount'), value: 'amount' },
+        { label: t('Currency'), value: (payment) => `${payment.currency_symbol || ''} ${payment.currency_name || ''}`.trim() },
+    ];
 
     return (
         <LayoutApp>
             <Head>
                 <title>{`Payments | ${WEBSITE_NAME}`}</title>
             </Head>
-            <AppPageHeader eyebrow={t('Cash movement')} title={t('Payments')} description={t('Track all your payments and transactions.')} actionHref="/payments/create" actionLabel={t('Add Payment')} secondaryAction={<button type="button" className={styles.filterButton} onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}><i className="bi bi-funnel" aria-hidden="true" /> {t('Filter')} <i className={`bi ${filtersOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden="true" /></button>} />
+            <AppPageHeader eyebrow={t('Cash movement')} title={t('Payments')} description={t('Track all your payments and transactions.')} actionHref="/payments/create" actionLabel={t('Add Payment')} secondaryAction={<div className={styles.headerActions}><button type="button" className={styles.filterButton} onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}><i className="bi bi-funnel" aria-hidden="true" /> {t('Filter')} <i className={`bi ${filtersOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} aria-hidden="true" /></button>{payments && <DataExport columns={paymentColumns} filename={`payments-${formatLocalDate(new Date())}.csv`} rows={payments} />}</div>} />
             {filtersOpen && <div className={styles.filtersContainer}>
-                <MonthFilter onMonthChange={handleMonthChange} defaultMonth={selectedMonth} />
-                <YearFilter onYearChange={handleYearChange} defaultYear={selectedYear} />
-                <div className={styles.searchContainer}>
-                    <label htmlFor="searchInput" className={styles.searchLabel}>{t('Search')}</label>
+                <div className={styles.filterField}><label>{t('Date range')}</label><DateRangeFilter value={range} onChange={updateRange} onClear={clearRange} /></div>
+                <div className={styles.filterField}>
+                    <label htmlFor="searchInput">{t('Search')}</label>
                     <input
                         id="searchInput"
-                        className={styles.searchInput}
+                        className={styles.filterInput}
                         type="text"
                         placeholder={t('Search payment')}
                         value={searchTerm}

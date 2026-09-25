@@ -12,7 +12,7 @@ module.exports = class Payment {
      * @param year
      * @returns {Object}
      */
-    static getPayments(userId, month, year) {
+    static getPayments(userId, month, year, startDate, endDate) {
         return knex('payments')
             .select(
                 'payments.*',
@@ -29,7 +29,9 @@ module.exports = class Payment {
             )
             .where('payments.user_id', userId)
             .where(function () {
-                if (month !== undefined && month !== null) {
+                if (startDate && endDate) {
+                    this.whereBetween('payments.created_at', [`${startDate} 00:00:00`, `${endDate} 23:59:59`]);
+                } else if (month !== undefined && month !== null) {
                     this.whereRaw('MONTH(payments.created_at) = ?', [month]);
                     if (year !== undefined && year !== null) {
                         this.andWhereRaw('YEAR(payments.created_at) = ?', [year]);

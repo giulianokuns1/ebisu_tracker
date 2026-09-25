@@ -18,6 +18,9 @@
 
 .filterButton:hover { border-color: rgba(81, 224, 207, .45); color: $primaryColor; }
 .filterButton:focus-visible { outline: 3px solid rgba(81, 224, 207, .18); outline-offset: 2px; }
+.headerActions { display: flex; gap: 8px; }.filtersContainer { align-items: end; background: linear-gradient(145deg, rgba(22, 45, 51, .86), rgba(14, 31, 36, .9)); border: 1px solid rgba(116, 184, 177, .16); border-radius: 12px; display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 16px; max-width: none; padding: 16px; }
+.filterField { display: grid; gap: 7px; min-width: 220px; }.filterField > label { color: #cbdad8; font-size: 12px; font-weight: 700; }.filterInput { background: #0d1e23; border: 1px solid rgba(116, 184, 177, .26); border-radius: 8px; box-sizing: border-box; color: #e7f2f0; font: inherit; height: 38px; padding: 0 11px; width: 100%; }
+@media (max-width: 600px) { .headerActions { width: 100%; }.headerActions > * { flex: 1; }.filtersContainer { margin: 0 10px 12px; }.filterField { width: 100%; } }
 .emptyState { align-items: center; color: #91a2a3; display: flex; flex-direction: column; gap: 8px; justify-content: center; min-height: 180px; padding: 24px; text-align: center; }
 .emptyState i { align-items: center; background: rgba(79, 214, 190, .1); border-radius: 50%; color: #4fd6be; display: flex; font-size: 22px; height: 46px; justify-content: center; width: 46px; }
 .emptyState strong { color: #edf7f5; font-size: 14px; }.emptyState span { font-size: 12px; }
