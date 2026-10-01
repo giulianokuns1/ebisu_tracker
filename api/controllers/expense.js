@@ -113,7 +113,7 @@ exports.getExpense = async (req, res, next) => {
                     })
                     .orderBy('expenses.due_date')
                     .orderBy('expenses.name');
-                const allocationTotals = await CreditPaymentAllocation.getPurchaseTotals(userId, purchases.map((purchase) => purchase.expense_amount_id));
+                const allocationTotals = await CreditPaymentAllocation.getPurchaseTotals(userId, purchases.map((purchase) => purchase.expense_amount_id), month, year);
                 const allocatedByAmount = Object.fromEntries(allocationTotals.map((allocation) => [allocation.expense_amount_id, Number(allocation.amount || 0)]));
                 creditPurchases = purchases.map((purchase) => {
                     const amount = Number(purchase.scheduled_amount ?? purchase.amount ?? 0);

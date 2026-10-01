@@ -1,14 +1,19 @@
 const knex = require('knex')(require('../knexfile'));
 
 module.exports = class CreditPaymentAllocation {
-    static async getPurchaseAllocations(userId, expenseAmountIds) {
+    static async getPurchaseAllocations(userId, expenseAmountIds, month = null, year = null) {
         if (!expenseAmountIds.length) return [];
-        return knex('credit_payment_allocations as allocations')
+        const query = knex('credit_payment_allocations as allocations')
             .select('allocations.*', 'payments.created_at as payment_date', 'payment_methods.name as payment_method_name')
             .where('allocations.user_id', userId)
             .whereIn('allocations.expense_amount_id', expenseAmountIds)
             .leftJoin('payments', 'payments.id', 'allocations.payment_id')
             .leftJoin('payment_methods', 'payment_methods.id', 'payments.payment_method_id');
+        if (month !== null && year !== null) {
+            query.whereRaw('MONTH(payments.created_at) = ?', [month])
+                .whereRaw('YEAR(payments.created_at) = ?', [year]);
+        }
+        return query;
     }
 
     static async getPaymentHistory(userId, expenseId) {
@@ -38,14 +43,20 @@ module.exports = class CreditPaymentAllocation {
             .orderBy('payments.created_at', 'desc');
     }
 
-    static async getPurchaseTotals(userId, expenseAmountIds) {
+    static async getPurchaseTotals(userId, expenseAmountIds, month = null, year = null) {
         if (!expenseAmountIds.length) return [];
-        return knex('credit_payment_allocations')
+        const query = knex('credit_payment_allocations as allocations')
             .select('expense_amount_id')
-            .sum({ amount: 'amount' })
-            .where('user_id', userId)
-            .whereIn('expense_amount_id', expenseAmountIds)
+            .sum({ amount: 'allocations.amount' })
+            .where('allocations.user_id', userId)
+            .whereIn('allocations.expense_amount_id', expenseAmountIds)
             .groupBy('expense_amount_id');
+        if (month !== null && year !== null) {
+            query.join('payments', 'payments.id', 'allocations.payment_id')
+                .whereRaw('MONTH(payments.created_at) = ?', [month])
+                .whereRaw('YEAR(payments.created_at) = ?', [year]);
+        }
+        return query;
     }
 
     static async replacePaymentAllocations(userId, paymentId, allocations, trx) {
