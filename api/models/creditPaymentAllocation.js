@@ -46,11 +46,11 @@ module.exports = class CreditPaymentAllocation {
     static async getPurchaseTotals(userId, expenseAmountIds, month = null, year = null) {
         if (!expenseAmountIds.length) return [];
         const query = knex('credit_payment_allocations as allocations')
-            .select('expense_amount_id')
+            .select('allocations.expense_amount_id')
             .sum({ amount: 'allocations.amount' })
             .where('allocations.user_id', userId)
             .whereIn('allocations.expense_amount_id', expenseAmountIds)
-            .groupBy('expense_amount_id');
+            .groupBy('allocations.expense_amount_id');
         if (month !== null && year !== null) {
             query.join('payments', 'payments.id', 'allocations.payment_id')
                 .whereRaw('MONTH(payments.created_at) = ?', [month])

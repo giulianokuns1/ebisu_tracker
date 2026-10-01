@@ -57,6 +57,7 @@
 }
 
 .paymentDateField { position: relative; z-index: 2; }.paymentDateField:focus-within { z-index: 30; }.datePickerPopper { z-index: 40 !important; }
+.editExpenseLink { align-items: center; color: #55dbc7; display: inline-flex; font-size: 12px; font-weight: 700; gap: 6px; grid-column: 1 / -1; justify-self: start; margin-top: -2px; text-decoration: none; }.editExpenseLink:hover { color: #8af1e1; text-decoration: underline; }.editExpenseLink:focus-visible { border-radius: 4px; outline: 2px solid #55dbc7; outline-offset: 2px; }
 
 .paymentStep textarea { max-width: calc(100% - 43px); }
 
