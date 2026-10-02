@@ -51,8 +51,8 @@ module.exports = class PaymentMethod {
             .leftJoin('payments', function () {
                 this.on('payments.expense_amount_id', '=', 'expense_amounts.id');
                 if (month !== undefined && month !== null) {
-                    this.onRaw('MONTH(payments.created_at) = ?', [month]);
-                    if (year !== undefined && year !== null) this.onRaw('YEAR(payments.created_at) = ?', [year]);
+                    this.on(knex.raw('MONTH(payments.created_at) = ?', [month]));
+                    if (year !== undefined && year !== null) this.on(knex.raw('YEAR(payments.created_at) = ?', [year]));
                 }
             })
             .leftJoin('expense_amount_schedule', function () {
