@@ -50,8 +50,10 @@ module.exports = class PaymentMethod {
             .leftJoin('expense_amounts', 'expense_amounts.expense_id', 'payment_methods.expense_id')
             .leftJoin('payments', function () {
                 this.on('payments.expense_amount_id', '=', 'expense_amounts.id');
-                if (month !== undefined && month !== null) this.on('payments.created_at', '>=', knex.raw('DATE_FORMAT(?, \'%Y-%m-01\')', [`${year}-${String(month).padStart(2, '0')}`]))
-                    .on('payments.created_at', '<', knex.raw('DATE_ADD(DATE_FORMAT(?, \'%Y-%m-01\'), INTERVAL 1 MONTH)', [`${year}-${String(month).padStart(2, '0')}`]));
+                if (month !== undefined && month !== null) {
+                    this.onRaw('MONTH(payments.created_at) = ?', [month]);
+                    if (year !== undefined && year !== null) this.onRaw('YEAR(payments.created_at) = ?', [year]);
+                }
             })
             .leftJoin('expense_amount_schedule', function () {
                 this.on('expense_amount_schedule.expense_amount_id', '=', 'expense_amounts.id');
