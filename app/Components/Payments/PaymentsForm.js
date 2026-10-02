@@ -278,7 +278,9 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
     const selectedExpense = expenses?.find((expense) => Number(expense.id) === Number(paymentExpense));
     const selectedAmount = paymentExpenseAmountList?.find((amount) => Number(amount.id) === Number(paymentExpenseAmount));
     const selectedMethod = paymentMethods?.find((method) => Number(method.id) === Number(paymentMethod));
-    const isCardStatement = Boolean(selectedExpense?.payment_method_id) && !selectedExpense?.is_credit_card_purchase;
+    const isCardStatement = Boolean(selectedExpense?.payment_method_id)
+        && !Boolean(selectedExpense?.is_credit_card_purchase)
+        && Number(selectedExpense?.id) === Number(selectedMethod?.expense_id);
     const formatDate = paymentDate && !isNaN(paymentDate.getTime()) ? paymentDate.toLocaleDateString() : t('Not set');
 
     useEffect(() => {

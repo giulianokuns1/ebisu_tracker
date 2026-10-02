@@ -71,6 +71,13 @@ exports.createExpensePayment = async (req, res, next) => {
         const { expense, amount, amounts, comment, paymentMethod, paymentDate, isFullPaid, allocations = [] } = req.body;
         const paymentLines = Array.isArray(amounts) ? amounts : [{ expenseAmountId: expense?.expense_amount_id, amount, originalAmount: expense?.amount, isFullPaid }];
         if (userId && expense && paymentLines.length && paymentMethod && paymentDate) {
+            const statementMethod = expense.payment_method_id
+                ? await PaymentMethods.getPaymentMethod(userId, expense.payment_method_id)
+                : null;
+            const isCardStatement = Boolean(statementMethod)
+                && Number(statementMethod.expense_id) === Number(expense.id)
+                && !Boolean(expense.is_credit_card_purchase);
+            if (allocations.length && !isCardStatement) throw new Error('Credit allocations can only be added to card statement payments.');
             date = moment(paymentDate).format('YYYY-MM-DD HH:mm:ss');
             const user = await User.getById(userId);
             const { month: currentMonth, year: currentYear } = UserTime.getCurrentPeriod(user.timezone);
@@ -84,7 +91,6 @@ exports.createExpensePayment = async (req, res, next) => {
                     const lineAllocations = allocations.filter((allocation) => Number(allocation.statementExpenseAmountId) === Number(line.expenseAmountId) && Number(allocation.amount) > 0);
                     const allocationTotal = lineAllocations.reduce((total, allocation) => total + Number(allocation.amount), 0);
                     if (allocationTotal > Number(line.amount) + 0.001) throw new Error('Credit allocations exceed the statement payment amount.');
-                    if (lineAllocations.length && (!expense.payment_method_id || expense.is_credit_card_purchase)) throw new Error('Credit allocations can only be added to card statement payments.');
                     if (lineAllocations.length) {
                         const allocatedAmounts = await trx('expense_amounts as expense_amounts')
                             .select('expense_amounts.id', 'expense_amounts.amount', 'expense_amounts.currency_id')

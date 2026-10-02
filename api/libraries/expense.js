@@ -396,9 +396,11 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
             }
         });
         if (expense.is_credit_card_purchase) return expense;
+        const isCardStatement = Boolean(expense.payment_method_id)
+            && creditStatementByMethodAndCurrency[`${expense.payment_method_id}:${expense.currency_id}`]?.statementName === expense.name;
         const paidForExpense = Number(paymentByExpense[expense.expense_amount_id] || 0);
         const plannedAmount = Number(expense.amount || 0);
-        const amountForTotals = Math.max(plannedAmount, paidForExpense);
+        const amountForTotals = isCardStatement ? plannedAmount : Math.max(plannedAmount, paidForExpense);
         if (!totalAmountByCurrency[expense.currency_id]) totalAmountByCurrency[expense.currency_id] = { amount: 0 };
         totalAmountByCurrency[expense.currency_id].amount += amountForTotals;
         if (paymentByExpense[expense.expense_amount_id] && paymentByExpense[expense.expense_amount_id] < expense.amount) {
