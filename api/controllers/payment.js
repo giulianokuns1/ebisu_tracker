@@ -9,7 +9,7 @@ const moment = require('moment');
 const knex = require('knex')(require('../knexfile'));
 const CreditPaymentAllocation = require('../models/creditPaymentAllocation');
 
-const reconcilePaymentMonthAmount = async (userId, expenseAmountId, paymentDate, trx = null) => {
+const reconcilePaymentMonthAmount = async (userId, expenseAmountId, paymentDate, isFullPaid = false, trx = null) => {
     const date = moment(paymentDate);
     const month = date.month() + 1;
     const year = date.year();
@@ -29,7 +29,7 @@ const reconcilePaymentMonthAmount = async (userId, expenseAmountId, paymentDate,
     const baseAmount = Number(expenseAmount.amount || 0);
     const effectiveAmount = Number(existingSchedule?.amount ?? baseAmount);
 
-    if (paid > effectiveAmount) {
+    if (isFullPaid || paid > effectiveAmount) {
         await query('expense_amount_schedule')
             .insert({ expense_amount_id: expenseAmountId, user_id: userId, year, month, amount: paid })
             .onConflict(['expense_amount_id', 'year', 'month'])
@@ -85,7 +85,7 @@ exports.createExpensePayment = async (req, res, next) => {
                 const paymentId = await knex.transaction(async (trx) => {
                     const createdPayment = await Payment.createPayment(userId, line.expenseAmountId, paymentMethod, line.amount, comment, originalAmount, Boolean(expense.payment_method_id), date, Boolean(line.isFullPaid), trx);
                     const paymentId = Array.isArray(createdPayment) ? createdPayment[0] : createdPayment;
-                    await reconcilePaymentMonthAmount(userId, line.expenseAmountId, date, trx);
+                    await reconcilePaymentMonthAmount(userId, line.expenseAmountId, date, Boolean(line.isFullPaid), trx);
                     const lineAllocations = allocations.filter((allocation) => Number(allocation.statementExpenseAmountId) === Number(line.expenseAmountId) && Number(allocation.amount) > 0);
                     const allocationTotal = lineAllocations.reduce((total, allocation) => total + Number(allocation.amount), 0);
                     if (allocationTotal > Number(line.amount) + 0.001) throw new Error('Credit allocations exceed the statement payment amount.');
@@ -130,6 +130,8 @@ exports.getCreditPurchaseAllocations = async (req, res) => {
         const userId = req.user && req.user.id;
         const paymentMethodId = Number(req.query.paymentMethodId);
         const currencyId = Number(req.query.currencyId);
+        const month = Number(req.query.month);
+        const year = Number(req.query.year);
         if (!userId || !paymentMethodId || !currencyId) return res.json({ purchases: [] });
         const purchases = await knex('expenses as expenses')
             .select('expenses.id as expense_id', 'expenses.name', 'expense_amounts.id as expense_amount_id', 'expense_amounts.amount', 'currencies.symbol as currency_symbol')
@@ -138,7 +140,7 @@ exports.getCreditPurchaseAllocations = async (req, res) => {
             .leftJoin('currencies', 'currencies.id', 'expense_amounts.currency_id')
             .orderBy('expenses.due_date')
             .orderBy('expenses.id');
-        const allocationRows = await CreditPaymentAllocation.getPurchaseAllocations(userId, purchases.map((purchase) => purchase.expense_amount_id));
+        const allocationRows = await CreditPaymentAllocation.getPurchaseAllocations(userId, purchases.map((purchase) => purchase.expense_amount_id), month, year);
         const allocatedByAmount = allocationRows.reduce((totals, allocation) => ({ ...totals, [allocation.expense_amount_id]: (totals[allocation.expense_amount_id] || 0) + Number(allocation.amount) }), {});
         return res.json({ purchases: purchases.map((purchase) => ({ ...purchase, allocated: allocatedByAmount[purchase.expense_amount_id] || 0, remaining: Math.max(0, Number(purchase.amount) - (allocatedByAmount[purchase.expense_amount_id] || 0)) })) });
     } catch (error) {

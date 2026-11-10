@@ -9,6 +9,7 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import DatePicker from "react-datepicker";
 import { FormActionBar, FormShell } from '@/Components/UI/Form/FormLayout';
 import Loading from '@/Components/UI/Loading';
+import FormCheckbox from '@/Components/UI/Form/Checkbox/FormCheckbox';
 
 const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) => {
     const { t } = useTranslation();
@@ -36,6 +37,7 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
     const [paymentDate, setPaymentDate] = useState(new Date());
     const [creditPurchases, setCreditPurchases] = useState([]);
     const [allocations, setAllocations] = useState({});
+    const [isFullPaid, setIsFullPaid] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -156,7 +158,7 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
                             comment: paymentComment,
                             paymentMethod,
                             paymentDate,
-                            isFullPaid: Number(paymentAmount) >= Number(selectedAmount?.amount || 0),
+                            isFullPaid,
                             allocations: Object.entries(allocations)
                                 .map(([expenseAmountId, allocationAmount]) => ({ statementExpenseAmountId: paymentExpenseAmount, expenseAmountId, amount: allocationAmount }))
                                 .filter((allocation) => Number(allocation.amount) > 0),
@@ -290,8 +292,10 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
             return;
         }
         const token = localStorage.getItem('token');
+        const month = paymentDate.getMonth() + 1;
+        const year = paymentDate.getFullYear();
         axios.get(`${API_BASE_URL}/creditPurchaseAllocations`, {
-            params: { paymentMethodId: selectedExpense.payment_method_id, currencyId: selectedAmount.currency_id },
+            params: { paymentMethodId: selectedExpense.payment_method_id, currencyId: selectedAmount.currency_id, month, year },
             headers: { Authorization: `Bearer ${token}` },
         }).then((response) => {
             const purchases = response.data.purchases || [];
@@ -306,7 +310,7 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
             setCreditPurchases([]);
             setAllocations({});
         });
-    }, [isCardStatement, selectedExpense?.payment_method_id, selectedAmount?.currency_id]);
+    }, [isCardStatement, paymentDate, selectedExpense?.payment_method_id, selectedAmount?.currency_id]);
 
     if (loading) return <Loading />;
 
@@ -316,7 +320,7 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
             <FormShell className={styles.paymentShell}><form onSubmit={handleFormSubmit} className={styles.paymentEditor}>
                 <div className={styles.paymentFormCard}>
                     <PaymentStep number="1" title={t('Linked Expense')} hint={t('Link this payment to an existing expense.')}><div className={styles.linkedFields}><label><span>{t('Expense')}</span><select value={paymentExpense || ''} onChange={(event) => setExpense(event.target.value)}><option value="">{t('Select an Expense')}</option>{(expenses || []).map((expense) => <option key={expense.id} value={expense.id}>{expense.name}</option>)}</select></label><label><span>{t('Expenses Amount')}</span><select value={paymentExpenseAmount || ''} onChange={(event) => setPaymentExpenseAmount(event.target.value)} disabled={!paymentExpense}><option value="">{t('Select an Expense Amount')}</option>{(paymentExpenseAmountList || []).map((amount) => <option key={amount.id} value={amount.id}>{amount.currency_symbol} {amount.currency_name} {amount.amount}</option>)}</select></label>{selectedExpense && <a className={styles.editExpenseLink} href={`/expenses/details/${selectedExpense.id}`}><i className="bi bi-pencil-square" aria-hidden="true" />{t('Edit expense')}</a>}</div></PaymentStep>
-                    <PaymentStep number="2" title={t('Amount')} hint={t('How much was paid?')}><div className={styles.amountFields}><label><span>{t('Amount')}</span><input type="number" min="0" step="0.01" value={paymentAmount ?? ''} onChange={(event) => setPaymentAmount(event.target.value)} onBlur={validateAmount} onWheel={(event) => event.currentTarget.blur()} /></label></div>{amountError && <div className={styles.inputError}>{amountError}</div>}</PaymentStep>
+                    <PaymentStep number="2" title={t('Amount')} hint={t('How much was paid?')}><div className={styles.amountFields}><label><span>{t('Amount')}</span><input type="number" min="0" step="0.01" value={paymentAmount ?? ''} onChange={(event) => setPaymentAmount(event.target.value)} onBlur={validateAmount} onWheel={(event) => event.currentTarget.blur()} /></label><FormCheckbox label={t('Full paid')} checked={isFullPaid} onChange={(event) => setIsFullPaid(event.value)} /></div>{amountError && <div className={styles.inputError}>{amountError}</div>}</PaymentStep>
                     {isCardStatement && creditPurchases.length > 0 && <PaymentStep number="3" title={t('Allocate to credit purchases')} hint={t('Choose how this statement payment is applied.')}><div className={styles.creditAllocationSection}>{creditPurchases.map((purchase) => <div className={styles.creditAllocationRow} key={purchase.expense_amount_id}><span>{purchase.name}<small>{purchase.currency_symbol} {Number(purchase.remaining).toFixed(2)} {t('remaining')}</small></span><input className={styles.creditAllocationInput} type="number" min="0" max={purchase.remaining} step="0.01" value={allocations[purchase.expense_amount_id] ?? ''} onChange={(event) => { setAllocations((current) => ({ ...current, [purchase.expense_amount_id]: event.target.value })); setAllocationError(''); }} /></div>)}{allocationError && <div className={styles.inputError}>{allocationError}</div>}</div></PaymentStep>}
                     <PaymentStep number={isCardStatement && creditPurchases.length > 0 ? "4" : "3"} title={t('Payment Method')} hint={t('What method did you use?')}><div className={styles.methodCards}>{(paymentMethods || []).map((method) => <button type="button" key={method.id} className={Number(paymentMethod) === Number(method.id) ? styles.methodSelected : ''} onClick={() => setPaymentMethod(method.id)}><i className={`bi ${method.is_credit ? 'bi-credit-card' : 'bi-wallet2'}`} aria-hidden="true" /><span>{method.name}</span></button>)}</div></PaymentStep>
                     <PaymentStep number={isCardStatement && creditPurchases.length > 0 ? "5" : "4"} title={t('Payment Date')} hint={t('When was this payment made?')}><div className={styles.paymentDateField}><DatePicker selected={paymentDate} onChange={setPaymentDate} onBlur={validatePaymentDate} dateFormat="dd/MM/yyyy" popperClassName={styles.datePickerPopper} popperPlacement="bottom-start" /><div className={styles.inputError}>{dateError}</div></div></PaymentStep>
