@@ -353,7 +353,6 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
             paymentByExpense[payment.expense_amount_id] += paymentAmount;
         }
     });
-    const creditPurchasesByMethodAndCurrency = {};
     expenses.map(expense => {
         expense.payments = [];
         expense.paymentTotal = 0;
@@ -374,11 +373,6 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
         }
 
         expense.is_credit_card_purchase = Boolean(expense.is_credit_card_purchase);
-        if (expense.is_credit_card_purchase) {
-            const key = `${expense.payment_method_id}:${expense.currency_id}`;
-            if (!creditPurchasesByMethodAndCurrency[key]) creditPurchasesByMethodAndCurrency[key] = 0;
-            creditPurchasesByMethodAndCurrency[key] += Number(expense.amount || 0);
-        }
         if (!expense.is_credit_card_purchase) {
             if (!expensesAmountByCurrency[expense.currency_id]) {
                 expensesAmountByCurrency[expense.currency_id] = {
@@ -425,7 +419,7 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
     });
     Object.entries(creditStatementByMethodAndCurrency).forEach(([key, statement]) => {
         const [paymentMethodId, currencyId] = key.split(':');
-        const amount = Math.max(statement.amount, creditPurchasesByMethodAndCurrency[key] || 0);
+        const amount = statement.amount;
         if (!totalAmountByCurrency[currencyId]) totalAmountByCurrency[currencyId] = { amount: 0 };
         const statementExpense = expenses.find((expense) => !expense.is_credit_card_purchase && Number(expense.payment_method_id) === Number(paymentMethodId) && String(expense.currency_id) === currencyId);
         if (statementExpense) {
