@@ -185,6 +185,7 @@ module.exports = class PaymentMethod {
             .select(
                 'payment_methods.*'
             )
+            .where('payment_methods.user_id', userId)
             .where('payment_methods.expense_id', expenseId)
             .then((paymentMethods) => {
                 return paymentMethods;

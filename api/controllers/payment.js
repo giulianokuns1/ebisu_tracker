@@ -71,11 +71,9 @@ exports.createExpensePayment = async (req, res, next) => {
         const { expense, amount, amounts, comment, paymentMethod, paymentDate, isFullPaid, allocations = [] } = req.body;
         const paymentLines = Array.isArray(amounts) ? amounts : [{ expenseAmountId: expense?.expense_amount_id, amount, originalAmount: expense?.amount, isFullPaid }];
         if (userId && expense && paymentLines.length && paymentMethod && paymentDate) {
-            const statementMethod = expense.payment_method_id
-                ? await PaymentMethods.getPaymentMethod(userId, expense.payment_method_id)
-                : null;
+            const statementMethods = await PaymentMethods.getPaymentMethodsByExpense(userId, expense.id);
+            const statementMethod = statementMethods.find((method) => Number(method.id) === Number(expense.payment_method_id)) || statementMethods[0];
             const isCardStatement = Boolean(statementMethod)
-                && Number(statementMethod.expense_id) === Number(expense.id)
                 && !Boolean(expense.is_credit_card_purchase);
             if (allocations.length && !isCardStatement) throw new Error('Credit allocations can only be added to card statement payments.');
             date = moment(paymentDate).format('YYYY-MM-DD HH:mm:ss');
@@ -96,7 +94,7 @@ exports.createExpensePayment = async (req, res, next) => {
                             .select('expense_amounts.id', 'expense_amounts.amount', 'expense_amounts.currency_id')
                             .whereIn('expense_amounts.id', lineAllocations.map((allocation) => allocation.expenseAmountId))
                             .leftJoin('expenses', 'expenses.id', 'expense_amounts.expense_id')
-                            .where({ 'expenses.user_id': userId, 'expenses.payment_method_id': expense.payment_method_id, 'expenses.is_credit_card_purchase': 1 });
+                            .where({ 'expenses.user_id': userId, 'expenses.payment_method_id': statementMethod.id, 'expenses.is_credit_card_purchase': 1 });
                         if (allocatedAmounts.length !== lineAllocations.length) throw new Error('Invalid credit purchase allocation.');
                         const allocationIds = [...new Set(lineAllocations.map((allocation) => Number(allocation.expenseAmountId)))].sort((a, b) => a - b);
                         const existingAllocations = await trx('credit_payment_allocations').select('expense_amount_id').sum({ amount: 'amount' }).where('user_id', userId).whereIn('expense_amount_id', allocationIds).orderBy('expense_amount_id').groupBy('expense_amount_id');

@@ -325,7 +325,9 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
     const creditPurchaseAmountIds = expenses.filter((expense) => Boolean(expense.is_credit_card_purchase)).map((expense) => expense.expense_amount_id);
     const [creditStatementPayments, creditPurchaseAllocations] = await Promise.all([
         PaymentMethod.getCreditStatementPayments(userId, creditPurchasePaymentMethodIds, month, year),
-        CreditPaymentAllocation.getPurchaseAllocations(userId, creditPurchaseAmountIds, month, year),
+        // Credit allocations settle the purchase permanently, regardless of the
+        // statement payment month currently being viewed.
+        CreditPaymentAllocation.getPurchaseAllocations(userId, creditPurchaseAmountIds),
     ]);
     const creditStatementByMethodAndCurrency = creditStatementPayments.reduce((statements, row) => {
         const key = `${row.payment_method_id}:${row.currency_id}`;

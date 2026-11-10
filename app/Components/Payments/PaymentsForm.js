@@ -280,7 +280,7 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
     const selectedMethod = paymentMethods?.find((method) => Number(method.id) === Number(paymentMethod));
     const isCardStatement = Boolean(selectedExpense?.payment_method_id)
         && !Boolean(selectedExpense?.is_credit_card_purchase)
-        && Number(selectedExpense?.id) === Number(selectedMethod?.expense_id);
+        && (paymentMethods || []).some((method) => Number(method.expense_id) === Number(selectedExpense?.id));
     const formatDate = paymentDate && !isNaN(paymentDate.getTime()) ? paymentDate.toLocaleDateString() : t('Not set');
 
     useEffect(() => {
@@ -300,16 +300,13 @@ const PaymentsForm = ({ paymentId, defaultExpenseId, returnTo = '/payments' }) =
                 purchase.expense_amount_id,
                 Number(purchase.remaining || 0) ? String(purchase.remaining) : '',
             ])));
+            const remainingPurchases = purchases.reduce((total, purchase) => total + Number(purchase.remaining || 0), 0);
+            setPaymentAmount(String(remainingPurchases));
         }).catch(() => {
             setCreditPurchases([]);
             setAllocations({});
         });
     }, [isCardStatement, selectedExpense?.payment_method_id, selectedAmount?.currency_id]);
-
-    useEffect(() => {
-        if (!isCardStatement || paymentAmount || !selectedAmount) return;
-        setPaymentAmount(String(Math.max(0, Number(selectedAmount.amount || 0) - Number(selectedAmount.paymentTotal || 0))));
-    }, [isCardStatement, selectedAmount, paymentAmount]);
 
     if (loading) return <Loading />;
 
