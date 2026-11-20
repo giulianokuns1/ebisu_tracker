@@ -60,7 +60,8 @@
 .editExpenseLink { align-items: center; color: #55dbc7; display: inline-flex; font-size: 12px; font-weight: 700; gap: 6px; grid-column: 1 / -1; justify-self: start; margin-top: -2px; text-decoration: none; }.editExpenseLink:hover { color: #8af1e1; text-decoration: underline; }.editExpenseLink:focus-visible { border-radius: 4px; outline: 2px solid #55dbc7; outline-offset: 2px; }
 
 .paymentStep textarea { max-width: calc(100% - 43px); }
-.amountFields > :global(.formCheckboxContainer) { align-self: center; margin-top: 12px; }
+.fullPaidField { align-items: center; align-self: end; display: flex; min-height: 47px; }
+.fullPaidField > div > div { margin-top: 0; }
 
 .paymentFormCard { background: none !important; border: 0 !important; border-radius: 0 !important; padding: 22px; }
 .paymentSummary { border: 0 !important; }
