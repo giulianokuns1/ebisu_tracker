@@ -77,8 +77,8 @@ exports.createExpensePayment = async (req, res, next) => {
                 && !Boolean(expense.is_credit_card_purchase);
             if (allocations.length && !isCardStatement) throw new Error('Credit allocations can only be added to card statement payments.');
             date = moment(paymentDate).format('YYYY-MM-DD HH:mm:ss');
-            const user = await User.getById(userId);
-            const { month: currentMonth, year: currentYear } = UserTime.getCurrentPeriod(user.timezone);
+            const paymentMonth = moment(date).month() + 1;
+            const paymentYear = moment(date).year();
             payment = [];
             for (const line of paymentLines.filter((line) => Number(line.amount) > 0)) {
                 const originalAmount = line.originalAmount ?? expense.amount;
@@ -97,7 +97,15 @@ exports.createExpensePayment = async (req, res, next) => {
                             .where({ 'expenses.user_id': userId, 'expenses.payment_method_id': statementMethod.id, 'expenses.is_credit_card_purchase': 1 });
                         if (allocatedAmounts.length !== lineAllocations.length) throw new Error('Invalid credit purchase allocation.');
                         const allocationIds = [...new Set(lineAllocations.map((allocation) => Number(allocation.expenseAmountId)))].sort((a, b) => a - b);
-                        const existingAllocations = await trx('credit_payment_allocations').select('expense_amount_id').sum({ amount: 'amount' }).where('user_id', userId).whereIn('expense_amount_id', allocationIds).orderBy('expense_amount_id').groupBy('expense_amount_id');
+                        const existingAllocations = await trx('credit_payment_allocations as allocations')
+                            .join('payments', 'payments.id', 'allocations.payment_id')
+                            .select('allocations.expense_amount_id')
+                            .sum({ amount: 'allocations.amount' })
+                            .where('allocations.user_id', userId)
+                            .whereIn('allocations.expense_amount_id', allocationIds)
+                            .whereRaw('MONTH(payments.created_at) = ?', [paymentMonth])
+                            .whereRaw('YEAR(payments.created_at) = ?', [paymentYear])
+                            .groupBy('allocations.expense_amount_id');
                         const allocatedByAmount = Object.fromEntries(existingAllocations.map((allocation) => [allocation.expense_amount_id, Number(allocation.amount)]));
                         for (const allocation of lineAllocations) {
                             const purchase = allocatedAmounts.find((item) => Number(item.id) === Number(allocation.expenseAmountId));
@@ -105,9 +113,12 @@ exports.createExpensePayment = async (req, res, next) => {
                             const requestedAmount = Number(allocation.amount);
                             const plannedAmount = currentAllocation + requestedAmount;
                             if (requestedAmount > Number(line.amount) + 0.001) throw new Error('Credit allocation exceeds the statement payment amount.');
-                            if (plannedAmount > Number(purchase.amount)) {
+                            const existingSchedule = await trx('expense_amount_schedule')
+                                .where({ expense_amount_id: purchase.id, user_id: userId, year: paymentYear, month: paymentMonth })
+                                .first();
+                            if (plannedAmount > Number(existingSchedule?.amount ?? purchase.amount)) {
                                 await trx('expense_amount_schedule')
-                                    .insert({ expense_amount_id: purchase.id, user_id: userId, year: currentYear, month: currentMonth, amount: plannedAmount })
+                                    .insert({ expense_amount_id: purchase.id, user_id: userId, year: paymentYear, month: paymentMonth, amount: plannedAmount })
                                     .onConflict(['expense_amount_id', 'year', 'month'])
                                     .merge({ amount: plannedAmount, user_id: userId });
                             }

@@ -73,13 +73,18 @@ exports.createUpdateExpense = async (userId, data) => {
     let previousPaymentMethodId;
     let expenseScheduleData = [];
     let isScheduled = parseInt(data.expenseType, 10) === ExpenseType.SCHEDULED_ID && data.scheduledMonths;
+    const previousExpense = id ? (await Expense.getExpense(userId, id))[0] : null;
+    const paymentMethodId = data.paymentMethodId === undefined ? previousExpense?.payment_method_id : data.paymentMethodId;
+    const paymentMethod = paymentMethodId ? (await PaymentMethod.getPaymentMethod(userId, paymentMethodId))[0] : null;
+    const statementMethods = id ? await PaymentMethod.getPaymentMethodsByExpense(userId, id) : [];
+    const isStatement = statementMethods.some((method) => Number(method.is_credit) === 1);
     expenseData = {
         name: data.name,
         category_id: data.category,
         type_id: data.expenseType,
         due_date: data.expenseDueDate,
         due_date_day: data.expenseDueDay,
-        is_credit_card_purchase: Boolean(data.paymentMethodId) && Number(data.paymentMethodExpenseId) !== Number(id)
+        is_credit_card_purchase: !isStatement && Number(paymentMethod?.is_credit) === 1
     }
     if (data.paymentMethodId !== undefined) expenseData.payment_method_id = data.paymentMethodId;
     expenseData = Utils.addFieldsToObject({}, expenseData);
@@ -87,8 +92,7 @@ exports.createUpdateExpense = async (userId, data) => {
         expenseData.due_date = null;
     }
     if (id) {
-        const previousExpense = await Expense.getExpense(userId, id);
-        previousPaymentMethodId = previousExpense[0]?.payment_method_id;
+        previousPaymentMethodId = previousExpense?.payment_method_id;
         await Expense.update(id, userId, expenseData);
         expenseId = id;
     } else {
@@ -312,6 +316,14 @@ exports.getExpenses = async (userId, month, year ) => {
  */
 exports.getExpensesExtended = async (userId, month, payments, currencies, year = new Date().getFullYear(), showAll) => {
     let expenses = await Expense.getExpensesByAmount(userId, showAll ? null : month, showAll ? null : year);
+    const creditMethods = await PaymentMethod.getCreditPaymentMethods(userId);
+    const creditMethodsById = new Map(creditMethods.map((method) => [Number(method.id), method]));
+    const statementIds = new Set(creditMethods.filter((method) => method.expense_id != null).map((method) => Number(method.expense_id)));
+    expenses.forEach((expense) => {
+        const method = creditMethodsById.get(Number(expense.payment_method_id));
+        expense.is_credit_card_purchase = !statementIds.has(Number(expense.id))
+            && (Number(expense.is_credit_card_purchase) === 1 || Boolean(method));
+    });
     let expenseAmountSchedules = await ExpenseAmountSchedule.getByUserId(userId, month, year);
     let expensesAmountByCurrency = {};
     let amountPaidByCurrency = {};
@@ -325,9 +337,8 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
     const creditPurchaseAmountIds = expenses.filter((expense) => Boolean(expense.is_credit_card_purchase)).map((expense) => expense.expense_amount_id);
     const [creditStatementPayments, creditPurchaseAllocations] = await Promise.all([
         PaymentMethod.getCreditStatementPayments(userId, creditPurchasePaymentMethodIds, month, year),
-        // Credit allocations settle the purchase permanently, regardless of the
-        // statement payment month currently being viewed.
-        CreditPaymentAllocation.getPurchaseAllocations(userId, creditPurchaseAmountIds),
+        // Recurring purchases are settled only in the payment's own period.
+        CreditPaymentAllocation.getPurchaseAllocations(userId, creditPurchaseAmountIds, showAll ? null : month, showAll ? null : year),
     ]);
     const creditStatementByMethodAndCurrency = creditStatementPayments.reduce((statements, row) => {
         const key = `${row.payment_method_id}:${row.currency_id}`;
@@ -392,8 +403,7 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
             }
         });
         if (expense.is_credit_card_purchase) return expense;
-        const isCardStatement = Boolean(expense.payment_method_id)
-            && creditStatementByMethodAndCurrency[`${expense.payment_method_id}:${expense.currency_id}`]?.statementName === expense.name;
+        const isCardStatement = statementIds.has(Number(expense.id));
         const paidForExpense = Number(paymentByExpense[expense.expense_amount_id] || 0);
         const plannedAmount = Number(expense.amount || 0);
         const amountForTotals = isCardStatement ? plannedAmount : Math.max(plannedAmount, paidForExpense);
@@ -421,7 +431,8 @@ exports.getExpensesExtended = async (userId, month, payments, currencies, year =
         const [paymentMethodId, currencyId] = key.split(':');
         const amount = statement.amount;
         if (!totalAmountByCurrency[currencyId]) totalAmountByCurrency[currencyId] = { amount: 0 };
-        const statementExpense = expenses.find((expense) => !expense.is_credit_card_purchase && Number(expense.payment_method_id) === Number(paymentMethodId) && String(expense.currency_id) === currencyId);
+        const statementId = creditMethodsById.get(Number(paymentMethodId))?.expense_id;
+        const statementExpense = expenses.find((expense) => Number(expense.id) === Number(statementId) && String(expense.currency_id) === currencyId);
         if (statementExpense) {
             const originalAmount = Number(statementExpense.amount || 0);
             totalAmountByCurrency[currencyId].amount += amount - originalAmount;
